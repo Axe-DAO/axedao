@@ -23,8 +23,8 @@ export const pinToGroup = async (
     return { error: `Invalid input data. Unsupported image mime-type. ${inFileType?.mime}`, errorStatus: 400 };
   }
 
-  // Image processing
-  const imageBuffer = await sharp(buffer).resize(resizeOptions).webp({ lossless: true }).toBuffer();
+  // Image processing (hint: rotate() is used to fix orientation before removing EXIF data)
+  const imageBuffer = await sharp(buffer).rotate().resize(resizeOptions).webp({ lossless: true }).toBuffer();
 
   const uploadData = new FormData();
   uploadData.append('file', new Blob([imageBuffer]));

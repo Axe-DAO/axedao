@@ -85,7 +85,7 @@ export const IMAGE_FORMATS: Record<ImageType, ResizeOptions> = {
   groupBanner: { height: 250, width: 800, fit: 'cover', position: 'attention' },
 };
 
-export const MAX_IMAGE_UPLOAD_SIZE_MB = 5;
+export const MAX_IMAGE_UPLOAD_SIZE_MB = 4.5; // 4.5 MB is the current limit for Vercel serverless functions! https://vercel.com/docs/concepts/limits/overview#serverless-function-payload-size-limit
 
 export const PINATA_FILE_GROUP = 'd923dfed-5f8d-440b-ae87-e8a43504eaa5'; // quilombo group ID
 
