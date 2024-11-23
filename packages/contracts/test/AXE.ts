@@ -1,4 +1,4 @@
-import vwJson from '@openzeppelin/contracts/build/contracts/VestingWallet.json';
+import vwJson from './VestingWallet.json';
 
 import { loadFixture, time, takeSnapshot } from '@nomicfoundation/hardhat-toolbox/network-helpers';
 import { expect } from 'chai';
