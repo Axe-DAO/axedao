@@ -8,6 +8,10 @@ dotenv.config({ path: ['.env.local', '.env'] });
 
 const config: HardhatUserConfig = {
   solidity: '0.8.24',
+  typechain: {
+    outDir: 'typechain-types',
+    target: 'ethers-v6',
+  },
   networks: {
     hardhat: {
       chainId: 1337,

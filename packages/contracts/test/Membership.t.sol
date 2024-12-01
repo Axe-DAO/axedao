@@ -37,7 +37,8 @@ contract MembershipTest is Test {
       donationReceiver,
       address(swapToken),
       tokenDonationAmount,
-      nativeDonationAmount
+      nativeDonationAmount,
+      "ipfs://Qmb6cxks2ZMfWTXravK5RHf7LYLRYrtgxL14Zg47hFNxjU/quilombo-early-design.json"
     );
   }
 

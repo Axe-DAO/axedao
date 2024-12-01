@@ -14,6 +14,7 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
   uint256 internal nativeDonationAmount;
   uint256 internal memberCount = 0;
   mapping(address => uint256) public members;
+  string private baseTokenURI;
 
   modifier registerNewMember() {
     if (isMember(msg.sender)) revert AlreadyMemberError(msg.sender);
@@ -26,12 +27,14 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
     address _donationReceiver,
     address _donationToken,
     uint256 _donationAmount,
-    uint256 _nativeDonationAmount
+    uint256 _nativeDonationAmount,
+    string memory _baseTokenURI
   ) ERC721(unicode"Axé DAO Membership", "AXDM") Ownable(_owner) {
     donationReceiver = _donationReceiver;
     donationToken = _donationToken;
     donationAmount = _donationAmount;
     nativeDonationAmount = _nativeDonationAmount;
+    baseTokenURI = _baseTokenURI;
   }
 
   function donate() external override registerNewMember {
@@ -64,8 +67,16 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
     }
   }
 
+  function _baseURI() internal view override returns (string memory) {
+    return baseTokenURI;
+  }
+
   function getMemberCount() external view override returns (uint256) {
     return memberCount;
+  }
+
+  function getMemberId(address _user) external view returns (uint256) {
+    return members[_user];
   }
 
   function setTokenDonationAmount(uint256 _donationAmount) external onlyOwner {

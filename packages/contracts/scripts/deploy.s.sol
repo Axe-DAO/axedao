@@ -16,25 +16,29 @@ contract Deploy is Script {
     unicode"Iê Maior é Deus - Maior é Deus, pequeno sou eu - (Tudo) O que eu tenho foi Deus que me deu - (Tudo) O que eu tenho foi Deus que me deu - Na roda da capoeira (Hahá!) Grande e pequeno sou eu - Camará …";
 
   function run() external {
-    address governor = vm.envAddress("GOVERNOR_ADDRESS");
+    address treasury = vm.envAddress("AXE_TREASURY_ADDRESS");
     address founder = vm.envAddress("FOUNDER_ADDRESS");
+
+    require(treasury != address(0), "ENV var for treasury is not set!");
+    require(founder != address(0), "ENV var for founder is not set!");
 
     vm.startBroadcast();
     console.log("AXE Deployer: %s", msg.sender);
     require(msg.sender == axeDeployer, "Wrong AXE deployer account!");
 
-    bool sourceChain = block.chainid == 100 || block.chainid == 11155111; // Gnosis + Sepolia
+    // Gnosis + Sepolia are the home chains where AXESource must be deployed
+    bool sourceChain = block.chainid == 100 || block.chainid == 11155111;
     // The creation of AXE is salted with a ladainha and the msg.sender
     bytes32 _salt = keccak256(abi.encodePacked(_LADAINHA, msg.sender));
     bytes memory _creation = sourceChain ? type(AXESource).creationCode : type(AXE).creationCode;
-    bytes memory _initParams = sourceChain ? abi.encode(governor, founder) : abi.encode(governor);
+    bytes memory _initParams = sourceChain ? abi.encode(treasury, founder) : abi.encode(treasury);
     bytes memory _bytecode = abi.encodePacked(_creation, _initParams);
 
     address instance = ICREATE3Factory(create3Factory).deploy(_salt, _bytecode);
+    require(instance == axeTargetAddress, "CREATE3 did not generate the expected target address!");
 
     string memory axeType = sourceChain ? "AXESource" : "AXE";
     console.log("Deployed %s to address %s on network %s", axeType, instance, block.chainid);
-    require(instance == axeTargetAddress, "CREATE3 did not generate the expected target address!");
 
     vm.stopBroadcast();
   }

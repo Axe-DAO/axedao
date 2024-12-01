@@ -13,4 +13,6 @@ interface IMembershipToken is IERC721 {
   function isMember(address _user) external view returns (bool);
 
   function getMemberCount() external view returns (uint256);
+
+  function getMemberId(address _user) external view returns (uint256);
 }
