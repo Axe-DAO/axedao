@@ -123,7 +123,9 @@ contract OnboardingShaman {
   function removeSortedDelegationCount(uint256 _count) internal {
     uint256 i = 0;
     while (i < sortedGroups.length && sortedGroups[i] != _count) {
-      i++;
+      unchecked {
+        i++;
+      }
     }
     for (uint256 j = i; j < sortedGroups.length - 1; j++) {
       sortedGroups[j] = sortedGroups[j + 1];
