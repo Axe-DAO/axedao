@@ -5,6 +5,13 @@ pragma solidity ^0.8.20;
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface IMembershipToken is IERC721 {
+  struct Candidate {
+    bool available;
+    uint256 index;
+    uint256 delegationCount;
+  }
+
+  error NotAMemberError();
   error AlreadyMemberError(address _member);
   error InsufficientDonationError(uint256 _amount, uint256 _requiredAmount);
 
@@ -15,4 +22,18 @@ interface IMembershipToken is IERC721 {
   function getMemberCount() external view returns (uint256);
 
   function getMemberId(address _user) external view returns (uint256);
+
+  function getCandidate(address _candidate) external view returns (Candidate memory);
+
+  function enlistAsCandidate() external;
+
+  function resignAsCandidate() external;
+
+  function delegate(address _candidate) external;
+
+  function undelegate() external;
+
+  function determineCouncil(
+    uint256 numberOfCouncilMembers
+  ) external view returns (address[] memory);
 }

@@ -4,12 +4,10 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-import "../contracts/baal/OnboardingShaman.sol";
 import "../contracts/test/MockERC20.sol";
 import "../contracts/tokens/MembershipToken.sol";
 
 contract MembershipDelegationTest is Test {
-  OnboardingShaman onboardingShaman;
   MockERC20 paymentToken;
   MembershipToken membershipToken;
   uint256 constant NUM_TEST_USERS = 100;
@@ -31,9 +29,6 @@ contract MembershipDelegationTest is Test {
       "ipfs://Qmb6cxks2ZMfWTXravK5RHf7LYLRYrtgxL14Zg47hFNxjU/quilombo-early-design.json"
     );
 
-    // Deploy the OnboardingShaman contract
-    onboardingShaman = new OnboardingShaman(address(membershipToken));
-
     // Set up test users
     for (uint256 i = 0; i < NUM_TEST_USERS; i++) {
       address user = address(uint160(uint256(keccak256(abi.encodePacked(i)))));
@@ -50,11 +45,11 @@ contract MembershipDelegationTest is Test {
   function testEnlistment() public {
     address candidate = testUsers[0];
     vm.startPrank(candidate);
-    onboardingShaman.enlistAsCandidate();
+    membershipToken.enlistAsCandidate();
     vm.stopPrank();
 
     // Assert the candidate is enlisted
-    OnboardingShaman.Candidate memory structCandidate = onboardingShaman.getCandidate(candidate);
+    MembershipToken.Candidate memory structCandidate = membershipToken.getCandidate(candidate);
     assertTrue(structCandidate.available);
     assertEq(structCandidate.index, 0);
     assertEq(structCandidate.delegationCount, 1);
@@ -63,12 +58,12 @@ contract MembershipDelegationTest is Test {
   function testResignation() public {
     address candidate = testUsers[0];
     vm.startPrank(candidate);
-    onboardingShaman.enlistAsCandidate();
-    onboardingShaman.resignAsCandidate();
+    membershipToken.enlistAsCandidate();
+    membershipToken.resignAsCandidate();
     vm.stopPrank();
 
     // Assert the candidate is no longer enlisted
-    OnboardingShaman.Candidate memory structCandidate = onboardingShaman.getCandidate(candidate);
+    MembershipToken.Candidate memory structCandidate = membershipToken.getCandidate(candidate);
     assertFalse(structCandidate.available);
   }
 
@@ -76,29 +71,29 @@ contract MembershipDelegationTest is Test {
     address delegator = testUsers[0];
     address delegatee = testUsers[1];
     vm.prank(delegatee);
-    onboardingShaman.enlistAsCandidate();
+    membershipToken.enlistAsCandidate();
 
     vm.startPrank(delegator);
-    onboardingShaman.delegate(delegatee);
+    membershipToken.delegate(delegatee);
     vm.stopPrank();
 
     // Assert the delegation is successful
-    assertEq(onboardingShaman.delegations(delegator), delegatee);
+    assertEq(membershipToken.delegations(delegator), delegatee);
   }
 
   function testUndelegation() public {
     address delegator = testUsers[0];
     address delegatee = testUsers[1];
     vm.prank(delegatee);
-    onboardingShaman.enlistAsCandidate();
+    membershipToken.enlistAsCandidate();
 
     vm.startPrank(delegator);
-    onboardingShaman.delegate(delegatee);
-    onboardingShaman.undelegate();
+    membershipToken.delegate(delegatee);
+    membershipToken.undelegate();
     vm.stopPrank();
 
     // Assert the undelegation is successful
-    assertEq(onboardingShaman.delegations(delegator), address(0));
+    assertEq(membershipToken.delegations(delegator), address(0));
   }
 
   // Additional tests for large number of users can be added similarly
