@@ -6,6 +6,16 @@ import { IBaal } from "@daohaus/baal-contracts/contracts/interfaces/IBaal.sol";
 import { IMembershipToken } from "../interfaces/IMembershipToken.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+// TODO
+// - move delegation logic to MembershipToken
+// - for the use case of a single-candidate group moving upward, but not changing position in the sortedGroups array, we can avoid the O(n) shift, just rename the group in the array
+// - generally, we can avoid O(n) operations by swapping with nearest neighbor. Deleting/inserting due to deletegate/undelegate is generally only required if the single-candidate joins an existing delegationCount.
+// sg[13] = 1 candidateA, sg[15] = 2 candidates.
+// userX delegates to candidateA -> rename sg[13] to sg[14]
+// userY delegates to candidateA -> add candidate to existing sg[15] and delete sg[14]
+// userZ delegates to candidateA -> remove candidate from sg[15], insert new group sq[16] and add candidate
+// The same logic applies for undelegation.
+
 contract OnboardingShaman {
   struct Candidate {
     bool available;
@@ -107,28 +117,49 @@ contract OnboardingShaman {
   }
 
   function insertSortedDelegationCount(uint256 _count) internal {
-    uint256 i = 0;
-    while (i < sortedGroups.length && sortedGroups[i] > _count) {
-      unchecked {
-        i++;
+    // Use binary search to find the correct insertion point
+    uint256 left = 0;
+    uint256 right = sortedGroups.length;
+    while (left < right) {
+      uint256 mid = left + (right - left) / 2;
+      if (sortedGroups[mid] > _count) {
+        left = mid + 1;
+      } else {
+        right = mid;
       }
     }
+    // Insert the count and shift the array
     sortedGroups.push(_count);
-    for (uint256 j = sortedGroups.length - 1; j > i; j--) {
+    for (uint256 j = sortedGroups.length - 1; j > left; ) {
       sortedGroups[j] = sortedGroups[j - 1];
+      unchecked {
+        j--;
+      }
     }
-    sortedGroups[i] = _count;
+    sortedGroups[left] = _count;
   }
 
   function removeSortedDelegationCount(uint256 _count) internal {
-    uint256 i = 0;
-    while (i < sortedGroups.length && sortedGroups[i] != _count) {
-      unchecked {
-        i++;
+    // Use binary search to find the element to remove
+    uint256 left = 0;
+    uint256 right = sortedGroups.length;
+    while (left < right) {
+      uint256 mid = left + (right - left) / 2;
+      if (sortedGroups[mid] == _count) {
+        left = mid;
+        break;
+      } else if (sortedGroups[mid] > _count) {
+        left = mid + 1;
+      } else {
+        right = mid;
       }
     }
-    for (uint256 j = i; j < sortedGroups.length - 1; j++) {
+    // Remove the element by shifting the array
+    for (uint256 j = left; j < sortedGroups.length - 1; ) {
       sortedGroups[j] = sortedGroups[j + 1];
+      unchecked {
+        j++;
+      }
     }
     sortedGroups.pop();
   }
