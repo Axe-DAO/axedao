@@ -9,7 +9,7 @@ module.exports = {
     {
       files: '**/*.sol',
       options: {
-        printWidth: 100,
+        printWidth: 120,
         singleQuote: false,
         explicitTypes: 'always',
       },

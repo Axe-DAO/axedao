@@ -2,13 +2,13 @@
 
 pragma solidity ^0.8.20;
 
-import {Context} from "@openzeppelin/contracts/utils/Context.sol";
+import { Context } from "@openzeppelin/contracts/utils/Context.sol";
 
 /**
  * @dev Adaptation of the OpenZeppelin Contract "access/Ownable.sol" with the
  * #renounceOwnership() function removed and the state variables / functions
  * renamed from "Ownable" and "owner" to "Governable" and "governor"
- * 
+ *
  *  Contract module which provides a basic access control mechanism, where
  * there is an account (an governor) that can be granted exclusive access to
  * specific functions.
@@ -21,72 +21,72 @@ import {Context} from "@openzeppelin/contracts/utils/Context.sol";
  * the governor.
  */
 abstract contract Governable is Context {
-    address private _governor;
+  address private _governor;
 
-    /**
-     * @dev The caller account is not authorized to perform an operation.
-     */
-    error GovernableUnauthorizedAccount(address account);
+  /**
+   * @dev The caller account is not authorized to perform an operation.
+   */
+  error GovernableUnauthorizedAccount(address account);
 
-    /**
-     * @dev The governor is not a valid governor account. (eg. `address(0)`)
-     */
-    error GovernableInvalidGovernor(address governor);
+  /**
+   * @dev The governor is not a valid governor account. (eg. `address(0)`)
+   */
+  error GovernableInvalidGovernor(address governor);
 
-    event GovernorshipTransferred(address indexed previousGovernor, address indexed newGovernor);
+  event GovernorshipTransferred(address indexed previousGovernor, address indexed newGovernor);
 
-    /**
-     * @dev Initializes the contract setting the address provided by the deployer as the initial governor.
-     */
-    constructor(address initialGovernor) {
-        if (initialGovernor == address(0)) {
-            revert GovernableInvalidGovernor(address(0));
-        }
-        _transferGovernorship(initialGovernor);
+  /**
+   * @dev Initializes the contract setting the address provided by the deployer as the initial governor.
+   */
+  constructor(address initialGovernor) {
+    if (initialGovernor == address(0)) {
+      revert GovernableInvalidGovernor(address(0));
     }
+    _transferGovernorship(initialGovernor);
+  }
 
-    /**
-     * @dev Throws if called by any account other than the governor.
-     */
-    modifier onlyGovernor() {
-        _checkGovernor();
-        _;
-    }
+  /**
+   * @dev Throws if called by any account other than the governor.
+   */
+  modifier onlyGovernor() {
+    _checkGovernor();
+    _;
+  }
 
-    /**
-     * @dev Returns the address of the current governor.
-     */
-    function governor() public view virtual returns (address) {
-        return _governor;
-    }
+  /**
+   * @dev Returns the address of the current governor.
+   */
+  function governor() public view virtual returns (address) {
+    return _governor;
+  }
 
-    /**
-     * @dev Throws if the sender is not the governor.
-     */
-    function _checkGovernor() internal view virtual {
-        if (governor() != _msgSender()) {
-            revert GovernableUnauthorizedAccount(_msgSender());
-        }
+  /**
+   * @dev Throws if the sender is not the governor.
+   */
+  function _checkGovernor() internal view virtual {
+    if (governor() != _msgSender()) {
+      revert GovernableUnauthorizedAccount(_msgSender());
     }
+  }
 
-    /**
-     * @dev Transfers governorship of the contract to a new account (`newGovernor`).
-     * Can only be called by the current governor.
-     */
-    function transferGovernorship(address newGovernor) public virtual onlyGovernor {
-        if (newGovernor == address(0)) {
-            revert GovernableInvalidGovernor(address(0));
-        }
-        _transferGovernorship(newGovernor);
+  /**
+   * @dev Transfers governorship of the contract to a new account (`newGovernor`).
+   * Can only be called by the current governor.
+   */
+  function transferGovernorship(address newGovernor) public virtual onlyGovernor {
+    if (newGovernor == address(0)) {
+      revert GovernableInvalidGovernor(address(0));
     }
+    _transferGovernorship(newGovernor);
+  }
 
-    /**
-     * @dev Transfers governorship of the contract to a new account (`newGovernor`).
-     * Internal function without access restriction.
-     */
-    function _transferGovernorship(address newGovernor) internal virtual {
-        address oldGovernor = _governor;
-        _governor = newGovernor;
-        emit GovernorshipTransferred(oldGovernor, newGovernor);
-    }
+  /**
+   * @dev Transfers governorship of the contract to a new account (`newGovernor`).
+   * Internal function without access restriction.
+   */
+  function _transferGovernorship(address newGovernor) internal virtual {
+    address oldGovernor = _governor;
+    _governor = newGovernor;
+    emit GovernorshipTransferred(oldGovernor, newGovernor);
+  }
 }

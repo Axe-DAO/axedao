@@ -103,11 +103,7 @@ contract MembershipDonationsTest is Test {
     (success, ) = address(token).call{ value: 3 * nativeDonationAmount }("");
     require(success, "Failed to send native tokens from user C");
     assertTrue(token.isMember(userC), "User C should be a member");
-    assertEq(
-      token.getMemberCount(),
-      oldMemberCount + 2,
-      "Original member count should have increased by 2"
-    );
+    assertEq(token.getMemberCount(), oldMemberCount + 2, "Original member count should have increased by 2");
     assertTrue(
       token.ownerOf(token.getMemberCount()) == userC,
       "User C should be the owner of the new membership token"
@@ -117,11 +113,7 @@ contract MembershipDonationsTest is Test {
       oldBalance + nativeDonationAmount,
       "Receiver should have received the donation amount from User C"
     );
-    assertEq(
-      userC.balance,
-      oldUserCBalance - nativeDonationAmount,
-      "User C should have spent the donation amount"
-    );
+    assertEq(userC.balance, oldUserCBalance - nativeDonationAmount, "User C should have spent the donation amount");
     vm.stopPrank();
   }
 }

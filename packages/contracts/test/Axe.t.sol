@@ -39,15 +39,11 @@ contract AXETest is Test {
 
   function testTaxControl() public {
     vm.prank(addr1);
-    vm.expectRevert(
-      abi.encodeWithSelector(Governable.GovernableUnauthorizedAccount.selector, addr1)
-    );
+    vm.expectRevert(abi.encodeWithSelector(Governable.GovernableUnauthorizedAccount.selector, addr1));
     token.setBuyTax(700);
 
     vm.prank(addr1);
-    vm.expectRevert(
-      abi.encodeWithSelector(Governable.GovernableUnauthorizedAccount.selector, addr1)
-    );
+    vm.expectRevert(abi.encodeWithSelector(Governable.GovernableUnauthorizedAccount.selector, addr1));
     token.setSellTax(900);
 
     vm.expectRevert();
@@ -65,9 +61,7 @@ contract AXETest is Test {
 
   function testSetTreasury() public {
     vm.prank(addr1);
-    vm.expectRevert(
-      abi.encodeWithSelector(Governable.GovernableUnauthorizedAccount.selector, addr1)
-    );
+    vm.expectRevert(abi.encodeWithSelector(Governable.GovernableUnauthorizedAccount.selector, addr1));
     token.setTreasury(addr1);
 
     vm.expectRevert("Treasury cannot be zero address");
@@ -80,17 +74,13 @@ contract AXETest is Test {
     uint256 maxIssuance = token.MAX_SUPPLY() - VESTING_AMOUNT;
     uint256 maxSupply = token.MAX_SUPPLY();
     token.issue(maxIssuance);
-    vm.expectRevert(
-      abi.encodeWithSelector(IAXE.ERC20ExceededCap.selector, maxSupply + 1, maxSupply)
-    );
+    vm.expectRevert(abi.encodeWithSelector(IAXE.ERC20ExceededCap.selector, maxSupply + 1, maxSupply));
     token.issue(1);
   }
 
   function testIssuance() public {
     vm.prank(addr1);
-    vm.expectRevert(
-      abi.encodeWithSelector(Governable.GovernableUnauthorizedAccount.selector, addr1)
-    );
+    vm.expectRevert(abi.encodeWithSelector(Governable.GovernableUnauthorizedAccount.selector, addr1));
     token.issue(1000);
 
     uint256 issueAmount = 1000;

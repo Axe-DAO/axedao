@@ -30,10 +30,7 @@ abstract contract AXERC20 is ERC20, Governable, IXERC20, ERC20Permit {
    * @param _symbol The symbol of the token
    */
 
-  constructor(
-    string memory _name,
-    string memory _symbol
-  ) ERC20(_name, _symbol) ERC20Permit(_name) {}
+  constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol) ERC20Permit(_name) {}
 
   /**
    * @notice Mints tokens for a user
@@ -78,11 +75,7 @@ abstract contract AXERC20 is ERC20, Governable, IXERC20, ERC20Permit {
    * @param _burningLimit The updated burning limit we are setting to the bridge
    * @param _bridge The address of the bridge we are setting the limits too
    */
-  function setLimits(
-    address _bridge,
-    uint256 _mintingLimit,
-    uint256 _burningLimit
-  ) external onlyGovernor {
+  function setLimits(address _bridge, uint256 _mintingLimit, uint256 _burningLimit) external onlyGovernor {
     _changeMinterLimit(_bridge, _mintingLimit);
     _changeBurnerLimit(_bridge, _burningLimit);
     emit BridgeLimitsSet(_mintingLimit, _burningLimit, _bridge);
@@ -178,11 +171,7 @@ abstract contract AXERC20 is ERC20, Governable, IXERC20, ERC20Permit {
     uint256 _currentLimit = mintingCurrentLimitOf(_bridge);
     bridges[_bridge].minterParams.maxLimit = _limit;
 
-    bridges[_bridge].minterParams.currentLimit = _calculateNewCurrentLimit(
-      _limit,
-      _oldLimit,
-      _currentLimit
-    );
+    bridges[_bridge].minterParams.currentLimit = _calculateNewCurrentLimit(_limit, _oldLimit, _currentLimit);
 
     bridges[_bridge].minterParams.ratePerSecond = _limit / _DURATION;
     bridges[_bridge].minterParams.timestamp = block.timestamp;
@@ -200,11 +189,7 @@ abstract contract AXERC20 is ERC20, Governable, IXERC20, ERC20Permit {
     uint256 _currentLimit = burningCurrentLimitOf(_bridge);
     bridges[_bridge].burnerParams.maxLimit = _limit;
 
-    bridges[_bridge].burnerParams.currentLimit = _calculateNewCurrentLimit(
-      _limit,
-      _oldLimit,
-      _currentLimit
-    );
+    bridges[_bridge].burnerParams.currentLimit = _calculateNewCurrentLimit(_limit, _oldLimit, _currentLimit);
 
     bridges[_bridge].burnerParams.ratePerSecond = _limit / _DURATION;
     bridges[_bridge].burnerParams.timestamp = block.timestamp;

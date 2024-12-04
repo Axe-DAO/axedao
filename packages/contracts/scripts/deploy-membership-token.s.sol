@@ -34,11 +34,7 @@ contract Deploy is Script {
       "ipfs://Qmb6cxks2ZMfWTXravK5RHf7LYLRYrtgxL14Zg47hFNxjU/quilombo-early-design.json"
     );
 
-    console.log(
-      "Deployed MembershipToken to address %s on network %s",
-      address(instance),
-      block.chainid
-    );
+    console.log("Deployed MembershipToken to address %s on network %s", address(instance), block.chainid);
 
     vm.stopBroadcast();
   }

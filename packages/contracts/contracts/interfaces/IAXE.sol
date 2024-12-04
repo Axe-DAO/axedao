@@ -52,24 +52,14 @@ interface IAXE {
    * @param basisPoints - the fee percentage in BPS applied
    * @param spender - the account paying the tax
    */
-  event BuyTaxApplied(
-    uint256 tradeAmount,
-    uint256 basisPoints,
-    uint256 feeAmount,
-    address indexed spender
-  );
+  event BuyTaxApplied(uint256 tradeAmount, uint256 basisPoints, uint256 feeAmount, address indexed spender);
   /**
    * @notice Emits when a sell tax was applied
    * @param tradeAmount - the amount of Axé being taxed
    * @param basisPoints - the fee percentage in BPS applied
    * @param spender - the account paying the tax
    */
-  event SellTaxApplied(
-    uint256 tradeAmount,
-    uint256 basisPoints,
-    uint256 feeAmount,
-    address indexed spender
-  );
+  event SellTaxApplied(uint256 tradeAmount, uint256 basisPoints, uint256 feeAmount, address indexed spender);
   /**
    * @notice Emits when native currency is withdrawn from the Axé contract
    * @param amount - the amount withdrawn
@@ -116,10 +106,7 @@ interface IAXE {
    * @param _router the UniswapV2Router
    * @param _swapToken an IERC20 token used to liquidate Axé
    */
-  function setLiquidationRouterAndToken(
-    address _router,
-    address _swapToken
-  ) external returns (address);
+  function setLiquidationRouterAndToken(address _router, address _swapToken) external returns (address);
 
   /**
    * @notice Attempts to swap the given amount of Axé for the highest possible amount of

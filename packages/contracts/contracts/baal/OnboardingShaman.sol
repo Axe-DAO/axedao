@@ -24,8 +24,7 @@ contract MembershipCouncilShaman is Ownable {
   }
 
   function setCouncilSize(uint256 _councilSize) external onlyOwner {
-    if (_councilSize < MIN_COUNCIL_SIZE)
-      revert MinCouncilSizeRequiredError(MIN_COUNCIL_SIZE, _councilSize);
+    if (_councilSize < MIN_COUNCIL_SIZE) revert MinCouncilSizeRequiredError(MIN_COUNCIL_SIZE, _councilSize);
     councilSize = _councilSize;
   }
 

@@ -93,8 +93,7 @@ contract AXE is IAXE, AXERC20 {
   function addTaxablePair(address _pair) external onlyGovernor {
     require(_pair != address(0), "Cannot add zero address");
     require(
-      IUniswapV2Pair(_pair).token0() == address(this) ||
-        IUniswapV2Pair(_pair).token1() == address(this),
+      IUniswapV2Pair(_pair).token0() == address(this) || IUniswapV2Pair(_pair).token1() == address(this),
       "Pair must contain this token"
     );
     taxablePairs[_pair] = true;
@@ -116,10 +115,7 @@ contract AXE is IAXE, AXERC20 {
    * @param _router the UniswapV2Router
    * @param _swapToken an IERC20 token used to liquidate AXE
    */
-  function setLiquidationRouterAndToken(
-    address _router,
-    address _swapToken
-  ) public onlyGovernor returns (address) {
+  function setLiquidationRouterAndToken(address _router, address _swapToken) public onlyGovernor returns (address) {
     require(_router != address(0), "Router cannot be zero address");
     require(_swapToken != address(0), "Liquidity token cannot be zero address");
     //  IUniswapV2Router02(uniswapV2Router).
@@ -134,9 +130,9 @@ contract AXE is IAXE, AXERC20 {
     if (address(0) == existingPair) {
       // Create a uniswap pair for the new token
       liquidationPair = IUniswapV2Factory(IUniswapV2Router02(uniswapV2Router).factory()).createPair(
-          address(this),
-          _swapToken
-        );
+        address(this),
+        _swapToken
+      );
     } else {
       liquidationPair = existingPair;
     }
@@ -156,14 +152,8 @@ contract AXE is IAXE, AXERC20 {
    * @param _amount how much AXE to swap
    * @param _slippage how much slippage to set for the swap to the liquidityToken
    */
-  function liquidate(
-    uint256 _amount,
-    uint256 _slippage
-  ) external onlyGovernor onlyBasisPoints(_slippage) {
-    require(
-      _canLiquidate(),
-      "Invoking this function requires a router, swap token, and liquidity pair to be set up!"
-    );
+  function liquidate(uint256 _amount, uint256 _slippage) external onlyGovernor onlyBasisPoints(_slippage) {
+    require(_canLiquidate(), "Invoking this function requires a router, swap token, and liquidity pair to be set up!");
     require(
       _amount > 0 && _amount <= balanceOf(address(this)),
       "Liquidation amount must be between 0 and max balance."
@@ -182,13 +172,7 @@ contract AXE is IAXE, AXERC20 {
     amountOut = router.getAmountOut(_amount, axeReserve, tokenReserve);
     amountOut = amountOut - _applyBasisPoints(_slippage, amountOut);
 
-    uint[] memory amounts = router.swapExactTokensForTokens(
-      _amount,
-      amountOut,
-      path,
-      governorTreasury,
-      deadline
-    );
+    uint[] memory amounts = router.swapExactTokensForTokens(_amount, amountOut, path, governorTreasury, deadline);
     emit AxeLiquidated(path[1], _amount, amounts[0]);
   }
 
@@ -266,28 +250,19 @@ contract AXE is IAXE, AXERC20 {
    * @param _basisPoints a fee/tax in basis points
    * @param _amount the amount on which to apply the percentage
    */
-  function _applyBasisPoints(
-    uint256 _basisPoints,
-    uint256 _amount
-  ) internal pure returns (uint256 result) {
+  function _applyBasisPoints(uint256 _basisPoints, uint256 _amount) internal pure returns (uint256 result) {
     result = (_amount * _basisPoints) / (10 ** 4);
   }
 
   /// @dev Returns true if a router, liquidation pair, and liquidation token are set
   function _canLiquidate() internal view returns (bool success) {
-    return
-      uniswapV2Router != address(0) &&
-      liquidationPair != address(0) &&
-      liquidationToken != address(0);
+    return uniswapV2Router != address(0) && liquidationPair != address(0) && liquidationToken != address(0);
   }
 
   /// @dev Sorts the liquidationPair reserves to return AXÉ reserves first.
   function _getLiquidationReserves() internal view returns (uint112, uint112) {
     (uint112 reserve0, uint112 reserve1, ) = IUniswapV2Pair(liquidationPair).getReserves();
-    return
-      IUniswapV2Pair(liquidationPair).token0() == address(this)
-        ? (reserve0, reserve1)
-        : (reserve1, reserve0);
+    return IUniswapV2Pair(liquidationPair).token0() == address(this) ? (reserve0, reserve1) : (reserve1, reserve0);
   }
 
   //to receive native tokens
