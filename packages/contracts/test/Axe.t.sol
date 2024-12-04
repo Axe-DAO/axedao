@@ -8,6 +8,9 @@ import "../contracts/interfaces/IAXE.sol";
 import "../contracts/AXESource.sol";
 import "../contracts/utils/Governable.sol";
 
+/**
+ * @notice Test for AXESource token
+ */
 contract AXETest is Test {
   uint256 constant VESTING_AMOUNT = 50_000_000 * 10 ** 18;
   uint64 constant VESTING_DURATION = 94_608_000; // 3 years

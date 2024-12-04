@@ -2,16 +2,16 @@
 pragma solidity ^0.8.20;
 
 import { Test, console2 } from "forge-std/Test.sol";
-import { IMembershipToken } from "../contracts/interfaces/IMembershipToken.sol";
-import { MembershipToken } from "../contracts/tokens/MembershipToken.sol";
-import { MockERC20 } from "../contracts/test/MockERC20.sol";
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
-contract MembershipTest is Test {
-  IMembershipToken public token;
+import { MembershipCouncil, IMembershipCouncil } from "../contracts/tokens/MembershipCouncil.sol";
+import { MockERC20 } from "../contracts/test/MockERC20.sol";
+
+contract MembershipDonationsTest is Test {
+  IMembershipCouncil public token;
 
   address dao = 0x1c3ac998b698206CD2fb22bb422Bf14367470866;
   address donationReceiver = 0x114D5F3904dB2b4635528C08b1687ECB5468EE17;
@@ -32,7 +32,7 @@ contract MembershipTest is Test {
     vm.deal(userA, 1 ether);
     vm.deal(userB, 1 ether);
     vm.deal(userC, 1 ether);
-    token = new MembershipToken(
+    token = new MembershipCouncil(
       dao,
       donationReceiver,
       address(swapToken),
@@ -63,7 +63,7 @@ contract MembershipTest is Test {
       "Receiver should have received the donation amount"
     );
     // Testing the newMemberOnlymodifier here
-    vm.expectRevert(abi.encodeWithSelector(IMembershipToken.AlreadyMemberError.selector, userA));
+    vm.expectRevert(abi.encodeWithSelector(IMembershipCouncil.AlreadyMemberError.selector, userA));
     token.donate();
     vm.stopPrank();
   }
@@ -94,7 +94,7 @@ contract MembershipTest is Test {
     vm.startPrank(userC);
     vm.expectRevert(
       abi.encodeWithSelector(
-        IMembershipToken.InsufficientDonationError.selector,
+        IMembershipCouncil.InsufficientDonationError.selector,
         nativeDonationAmount - 0.000005 ether,
         nativeDonationAmount
       )

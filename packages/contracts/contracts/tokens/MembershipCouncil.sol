@@ -2,18 +2,27 @@
 
 pragma solidity ^0.8.20;
 
-import { IMembershipToken } from "../interfaces/IMembershipToken.sol";
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MembershipToken is IMembershipToken, ERC721, Ownable {
+import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
+
+/**
+ * @title MembershipToken
+ * @notice A ERC721 membership token that allows users to donate to join the DAO and participate in the council elections
+ * both as candidates and by delegating their votes to candidates.
+ *
+ * Members join by donating either a fixed amount of ERC20 tokens or native tokens. The amounts are controlled by the DAO and
+ * donations are forwarded to a designated receiver, e.g. a DAO treasury.
+ */
+contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
   address internal donationReceiver;
   address internal donationToken;
   uint256 internal donationAmount;
   uint256 internal nativeDonationAmount;
   uint256 internal memberCount = 0;
-  mapping(address => uint256) public members;
+  mapping(address => uint256) public members; // tokenId => member address
   string private baseTokenURI;
 
   // Delegation accounting
@@ -22,17 +31,32 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
   mapping(uint256 => address[]) private delegationGroups;
   uint256[] private sortedGroups;
 
+  /**
+   * @notice Modifier blocking callers who are not members.
+   */
   modifier memberOnly() {
     if (!isMember(msg.sender)) revert NotAMemberError();
     _;
   }
 
+  /**
+   * @notice Modifier for non-members to automatically register as a member.
+   */
   modifier registerNewMember() {
     if (isMember(msg.sender)) revert AlreadyMemberError(msg.sender);
     members[msg.sender] = ++memberCount;
     _;
   }
 
+  /**
+   * @notice Constructor for the MembershipToken.
+   * @param _owner The owner of the contract who can control adjustable attributes like donation amounts.
+   * @param _donationReceiver The address receiving the donations.
+   * @param _donationToken The address of the ERC20 token used for donations.
+   * @param _donationAmount The amount of ERC20 tokens required to receive a membership NFT.
+   * @param _nativeDonationAmount The amount of native tokens required to receive a membership NFT.
+   * @param _baseTokenURI The base URI for the membership NFT metadata.
+   */
   constructor(
     address _owner,
     address _donationReceiver,
@@ -92,8 +116,7 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
       candidates[msg.sender].delegationCount++;
     }
     uint256 groupIndex = candidates[msg.sender].delegationCount;
-    candidates[msg.sender].index = delegationGroups[groupIndex].length;
-    delegationGroups[groupIndex].push(msg.sender);
+    addCandidateToGroup(msg.sender, groupIndex);
 
     if (delegationGroups[groupIndex].length == 1) {
       insertSortedDelegationCount(groupIndex);
@@ -103,7 +126,12 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
   function resignAsCandidate() external {
     require(candidates[msg.sender].available == true, "Not a candidate");
     candidates[msg.sender].available = false;
-    removeCandidateFromGroup(msg.sender, candidates[msg.sender].delegationCount);
+    uint256 groupIndex = candidates[msg.sender].delegationCount;
+    removeCandidateFromGroup(msg.sender, groupIndex);
+
+    if (delegationGroups[groupIndex].length == 0) {
+      removeSortedDelegationCount(groupIndex);
+    }
   }
 
   function delegate(address _candidate) external memberOnly {
@@ -117,62 +145,9 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
     address candidate = delegations[msg.sender];
     require(candidate != address(0), "No delegation");
     delegations[msg.sender] = address(0);
-    moveCandidate(candidate, false);
-  }
-
-  function determineCouncil(
-    uint256 numberOfCouncilMembers
-  ) external view returns (address[] memory) {
-    address[] memory council = new address[](numberOfCouncilMembers);
-    uint256 councilIndex = 0;
-
-    for (uint256 i = 0; i < sortedGroups.length && councilIndex < numberOfCouncilMembers; ) {
-      uint256 groupIndex = sortedGroups[i];
-      address[] storage group = delegationGroups[groupIndex];
-      uint256 groupLength = group.length;
-
-      if (councilIndex + groupLength <= numberOfCouncilMembers) {
-        // Add all members of the group to the council
-        for (uint256 j = 0; j < groupLength; ) {
-          council[councilIndex] = group[j];
-          councilIndex++;
-          unchecked {
-            j++;
-          }
-        }
-      } else {
-        // Create a memory copy of the group
-        address[] memory groupCopy = new address[](groupLength);
-        for (uint256 c = 0; c < groupLength; ) {
-          groupCopy[c] = group[c];
-          unchecked {
-            c++;
-          }
-        }
-
-        // Randomly select remaining members from the group copy
-        uint256 remainingSlots = numberOfCouncilMembers - councilIndex;
-        for (uint256 j = 0; j < remainingSlots; ) {
-          uint256 randomIndex = uint256(block.prevrandao) % groupLength;
-
-          // Check if the slot is already used
-          if (groupCopy[randomIndex] != address(0)) {
-            council[councilIndex] = groupCopy[randomIndex];
-            councilIndex++;
-            // Mark the index as used by setting it to a special value (e.g., address(0))
-            groupCopy[randomIndex] = address(0);
-            unchecked {
-              j++;
-            }
-          }
-        }
-      }
-      unchecked {
-        i++;
-      }
+    if (candidates[candidate].available) {
+      moveCandidate(candidate, false);
     }
-
-    return council;
   }
 
   function getCandidate(address _candidate) external view returns (Candidate memory) {
@@ -187,6 +162,11 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
     return memberCount;
   }
 
+  /**
+   * @notice Get the member ID for a given address.
+   * @param _user The address of the member.
+   * @return The minted token ID as the member ID.
+   */
   function getMemberId(address _user) external view returns (uint256) {
     return members[_user];
   }
@@ -205,6 +185,14 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
 
   function setDonationToken(address _donationToken) external onlyOwner {
     donationToken = _donationToken;
+  }
+
+  function getNumberOfDelegationGroups() external view returns (uint256) {
+    return sortedGroups.length;
+  }
+
+  function getDelegationGroup(uint256 _sortedIndex) external view returns (address[] memory) {
+    return delegationGroups[sortedGroups[_sortedIndex]];
   }
 
   function moveCandidate(address _candidate, bool _up) internal {
@@ -233,9 +221,11 @@ contract MembershipToken is IMembershipToken, ERC721, Ownable {
     group.pop();
   }
 
-  function addCandidateToGroup(address _candidate, uint256 _groupIndex) internal {
-    candidates[_candidate].index = delegationGroups[_groupIndex].length;
-    delegationGroups[_groupIndex].push(_candidate);
+  function addCandidateToGroup(address _candidate, uint256 _groupIndex) internal returns (uint256) {
+    address[] storage group = delegationGroups[_groupIndex];
+    candidates[_candidate].index = group.length;
+    group.push(_candidate);
+    return group.length;
   }
 
   function renameSortedDelegationCount(uint256 _oldCount, uint256 _newCount) internal {

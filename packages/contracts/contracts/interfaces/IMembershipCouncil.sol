@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-interface IMembershipToken is IERC721 {
+interface IMembershipCouncil is IERC721 {
   struct Candidate {
     bool available;
     uint256 index;
@@ -15,6 +15,13 @@ interface IMembershipToken is IERC721 {
   error AlreadyMemberError(address _member);
   error InsufficientDonationError(uint256 _amount, uint256 _requiredAmount);
 
+  event ERC20DonationReceived(address indexed _donator, uint256 _amount);
+  event NativeDonationReceived(address indexed _donator, uint256 _amount);
+  event CandidateEnlisted(address indexed _candidate);
+  event CandidateResigned(address indexed _candidate);
+  event VoteDelegated(address indexed _delegator, address indexed _candidate);
+  event VoteUndelegated(address indexed _delegator);
+
   function donate() external;
 
   function isMember(address _user) external view returns (bool);
@@ -22,8 +29,6 @@ interface IMembershipToken is IERC721 {
   function getMemberCount() external view returns (uint256);
 
   function getMemberId(address _user) external view returns (uint256);
-
-  function getCandidate(address _candidate) external view returns (Candidate memory);
 
   function enlistAsCandidate() external;
 
@@ -33,7 +38,9 @@ interface IMembershipToken is IERC721 {
 
   function undelegate() external;
 
-  function determineCouncil(
-    uint256 numberOfCouncilMembers
-  ) external view returns (address[] memory);
+  function getCandidate(address _candidate) external view returns (Candidate memory);
+
+  function getNumberOfDelegationGroups() external view returns (uint256);
+
+  function getDelegationGroup(uint256 _groupIndex) external view returns (address[] memory);
 }
