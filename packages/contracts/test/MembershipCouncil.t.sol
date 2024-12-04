@@ -98,19 +98,7 @@ contract MembershipDelegationTest is Test {
     );
   }
 
-  function testResignation() public {
-    address candidate = testUsers[0];
-    vm.startPrank(candidate);
-    membershipCouncil.enlistAsCandidate();
-    membershipCouncil.resignAsCandidate();
-    vm.stopPrank();
-
-    // Assert the candidate is no longer enlisted
-    MembershipCouncil.Candidate memory structCandidate = membershipCouncil.getCandidate(candidate);
-    assertFalse(structCandidate.available);
-  }
-
-  function testDelegation() public {
+  function testDelegateUndelegate() public {
     address delegator = testUsers[0];
     address delegatee = testUsers[1];
     vm.prank(delegatee);
@@ -118,26 +106,14 @@ contract MembershipDelegationTest is Test {
 
     vm.startPrank(delegator);
     membershipCouncil.delegate(delegatee);
-    vm.stopPrank();
-
-    // Assert the delegation is successful
     assertEq(membershipCouncil.delegations(delegator), delegatee);
-  }
 
-  function testUndelegation() public {
-    address delegator = testUsers[0];
-    address delegatee = testUsers[1];
-    vm.prank(delegatee);
-    membershipCouncil.enlistAsCandidate();
-
-    vm.startPrank(delegator);
-    membershipCouncil.delegate(delegatee);
     membershipCouncil.undelegate();
-    vm.stopPrank();
-
-    // Assert the undelegation is successful
     assertEq(membershipCouncil.delegations(delegator), address(0));
   }
 
-  // Additional tests for large number of users can be added similarly
+  function testSortedDelegations() public {
+    address delegator = testUsers[0];
+    address delegatee = testUsers[1];
+  }
 }

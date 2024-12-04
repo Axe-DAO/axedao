@@ -25,10 +25,13 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
   mapping(address => uint256) public members; // tokenId => member address
   string private baseTokenURI;
 
-  // Delegation accounting
+  /// @notice A mapping from a candidate to their candidacy details.
   mapping(address => Candidate) public candidates;
+  /// @notice A mapping from a delegator to their delegatee.
   mapping(address => address) public delegations;
+  /// @notice A mapping from delegation count to a list of candidates with that many delegations.
   mapping(uint256 => address[]) private delegationGroups;
+  /// @notice The sorted list of delegation counts higher than 0. Highest count first.
   uint256[] private sortedGroups;
 
   /**
@@ -104,7 +107,8 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
 
   /**
    * @notice Enlist the msg.sender as a candidate. The candidate must be a member of the DAO and not already a candidate.
-   * Enlisting candidates automatically delegates to themselves to have 1 supporting vote.
+   * Enlisting candidates automatically delegate to themselves, if no prior delegation exists. Otherwise, the candidate
+   * should undelegate first or can undelegate and then delegate to themselves afterwards.
    */
   function enlistAsCandidate() external memberOnly {
     require(!candidates[msg.sender].available, "Already enlisted");
@@ -119,7 +123,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     addCandidateToGroup(msg.sender, groupIndex);
 
     if (delegationGroups[groupIndex].length == 1) {
-      insertSortedDelegationCount(groupIndex);
+      insertSortedGroup(groupIndex);
     }
   }
 
@@ -130,11 +134,12 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     removeCandidateFromGroup(msg.sender, groupIndex);
 
     if (delegationGroups[groupIndex].length == 0) {
-      removeSortedDelegationCount(groupIndex);
+      removeSortedGroup(groupIndex);
     }
   }
 
   function delegate(address _candidate) external memberOnly {
+    require(_candidate != address(0), "Cannot delegate to the zero address. Use undelegate.");
     require(candidates[_candidate].available, "Candidate not available");
     require(delegations[msg.sender] == address(0), "Already delegated. Please undelegate first.");
     delegations[msg.sender] = _candidate;
@@ -195,32 +200,51 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     return delegationGroups[sortedGroups[_sortedIndex]];
   }
 
+  /**
+   * @notice Up- or down-votes a candidate depending on the boolean parameter. True for up, false for down.
+   * The candidate's delegation count is incremented or decremented by 1 and the candidate is moved between groups accordingly.
+   * This function handles the adjustment of the sortedGroups array, if necessary after the move.
+   * @param _candidate The candidate to move.
+   * @param _up Whether to move the candidate up or down.
+   */
   function moveCandidate(address _candidate, bool _up) internal {
-    uint256 oldCount = _up
-      ? candidates[_candidate].delegationCount++
-      : candidates[_candidate].delegationCount--;
+    uint256 oldCount = _up ? candidates[_candidate].delegationCount++ : candidates[_candidate].delegationCount--;
     uint256 newCount = _up ? oldCount + 1 : oldCount - 1;
     bool oldDepleted = delegationGroups[oldCount].length == 1;
     bool newMissing = delegationGroups[newCount].length == 0;
     removeCandidateFromGroup(_candidate, oldCount);
     addCandidateToGroup(_candidate, newCount);
     if (oldDepleted && newMissing) {
-      renameSortedDelegationCount(oldCount, newCount);
+      renameSortedGroup(oldCount, newCount);
     } else if (oldDepleted && !newMissing) {
-      removeSortedDelegationCount(oldCount);
+      removeSortedGroup(oldCount);
     } else if (!oldDepleted && newMissing) {
-      insertSortedDelegationCount(newCount);
+      insertSortedGroup(newCount);
     }
   }
 
-  function removeCandidateFromGroup(address _candidate, uint256 _groupIndex) internal {
+  /**
+   * @notice Remove a candidate from a delegation group.
+   * @param _candidate The candidate to remove.
+   * @param _groupIndex The index of the group to remove the candidate from.
+   * @return The new length of the group.
+   */
+
+  function removeCandidateFromGroup(address _candidate, uint256 _groupIndex) internal returns (uint256) {
     uint256 index = candidates[_candidate].index;
     address[] storage group = delegationGroups[_groupIndex];
     group[index] = group[group.length - 1];
     candidates[group[index]].index = index;
     group.pop();
+    return group.length;
   }
 
+  /**
+   * @notice Add a candidate to a delegation group.
+   * @param _candidate The candidate to add.
+   * @param _groupIndex The index of the group to add the candidate to.
+   * @return The new length of the group.
+   */
   function addCandidateToGroup(address _candidate, uint256 _groupIndex) internal returns (uint256) {
     address[] storage group = delegationGroups[_groupIndex];
     candidates[_candidate].index = group.length;
@@ -228,7 +252,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     return group.length;
   }
 
-  function renameSortedDelegationCount(uint256 _oldCount, uint256 _newCount) internal {
+  function renameSortedGroup(uint256 _oldCount, uint256 _newCount) internal {
     for (uint256 i = 0; i < sortedGroups.length; ) {
       if (sortedGroups[i] == _oldCount) {
         sortedGroups[i] = _newCount;
@@ -240,8 +264,8 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     }
   }
 
-  function insertSortedDelegationCount(uint256 _count) internal {
-    uint256 insertionIndex = findDelegationCountIndex(_count);
+  function insertSortedGroup(uint256 _count) internal {
+    uint256 insertionIndex = findSortedGroupsIndex(_count);
     // Insert the count and shift the array
     sortedGroups.push(_count);
     for (uint256 j = sortedGroups.length - 1; j > insertionIndex; ) {
@@ -257,8 +281,9 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
    * @notice Remove the delegation count from the sortedGroups array.
    * @param _count The delegation count to remove.
    */
-  function removeSortedDelegationCount(uint256 _count) internal {
-    uint256 deletionIndex = findDelegationCountIndex(_count);
+  function removeSortedGroup(uint256 _count) internal {
+    uint256 deletionIndex = findSortedGroupsIndex(_count);
+    require(sortedGroups[deletionIndex] == _count, "Count not found");
     uint256 lastIndex = sortedGroups.length - 1;
     // Remove the element by shifting the array
     for (uint256 j = deletionIndex; j < lastIndex; ) {
@@ -273,9 +298,9 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
   /**
    * @notice Find the index of the delegation count in the sortedGroups array using binary search.
    * @param _count The delegation count to find.
-   * @return The index of the delegation count or the insertion point if not found.
+   * @return The index of the delegation count or the correct insertion point in the sortedGroups array if not found.
    */
-  function findDelegationCountIndex(uint256 _count) internal view returns (uint256) {
+  function findSortedGroupsIndex(uint256 _count) internal view returns (uint256) {
     uint256 left = 0;
     uint256 right = sortedGroups.length;
     while (left < right) {
