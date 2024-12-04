@@ -142,17 +142,15 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     require(_candidate != address(0), "Cannot delegate to the zero address. Use undelegate.");
     require(candidates[_candidate].available, "Candidate not available");
     require(delegations[msg.sender] == address(0), "Already delegated. Please undelegate first.");
-    delegations[msg.sender] = _candidate;
     moveCandidate(_candidate, true);
+    delegations[msg.sender] = _candidate;
   }
 
   function undelegate() external memberOnly {
     address candidate = delegations[msg.sender];
     require(candidate != address(0), "No delegation");
+    moveCandidate(candidate, false);
     delegations[msg.sender] = address(0);
-    if (candidates[candidate].available) {
-      moveCandidate(candidate, false);
-    }
   }
 
   function getCandidate(address _candidate) external view returns (Candidate memory) {
@@ -208,20 +206,26 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
    * @param _up Whether to move the candidate up or down.
    */
   function moveCandidate(address _candidate, bool _up) internal {
-    uint256 oldCount = _up ? candidates[_candidate].delegationCount++ : candidates[_candidate].delegationCount--;
-    uint256 newCount = _up ? oldCount + 1 : oldCount - 1;
-    bool oldDepleted = delegationGroups[oldCount].length == 1;
-    bool newMissing = delegationGroups[newCount].length == 0;
-    removeCandidateFromGroup(_candidate, oldCount);
-    addCandidateToGroup(_candidate, newCount);
-    if (oldDepleted && newMissing) {
-      renameSortedGroup(oldCount, newCount);
-    } else if (oldDepleted && !newMissing) {
-      removeSortedGroup(oldCount);
-    } else if (!oldDepleted && newMissing) {
-      insertSortedGroup(newCount);
+    Candidate storage candidate = candidates[_candidate];
+    uint256 oldCount = _up ? candidate.delegationCount++ : candidate.delegationCount--;
+    // if the candidate resigned, they were already removed from the groups
+    if (candidate.available) {
+      uint256 newCount = _up ? oldCount + 1 : oldCount - 1;
+      bool oldDepleted = removeCandidateFromGroup(_candidate, oldCount) == 0;
+      bool newCreated = addCandidateToGroup(_candidate, newCount) == 1;
+      if (oldDepleted && newCreated) {
+        renameSortedGroup(oldCount, newCount);
+      } else if (oldDepleted && !newCreated) {
+        removeSortedGroup(oldCount);
+      } else if (!oldDepleted && newCreated) {
+        insertSortedGroup(newCount);
+      }
     }
   }
+
+  // TODO the below internal functions revert on input that threatens the integrity of the sortedGroups array.
+  // However, they are strictly not needed as the logic of calling the internal functions should not misuse the internal
+  // functions, but better to leave as insurance for now.
 
   /**
    * @notice Remove a candidate from a delegation group.
@@ -233,6 +237,8 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
   function removeCandidateFromGroup(address _candidate, uint256 _groupIndex) internal returns (uint256) {
     uint256 index = candidates[_candidate].index;
     address[] storage group = delegationGroups[_groupIndex];
+    require(index < group.length, "Invalid index");
+    require(group[index] == _candidate, "Candidate to remove not found");
     group[index] = group[group.length - 1];
     candidates[group[index]].index = index;
     group.pop();
@@ -253,15 +259,12 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
   }
 
   function renameSortedGroup(uint256 _oldCount, uint256 _newCount) internal {
-    for (uint256 i = 0; i < sortedGroups.length; ) {
-      if (sortedGroups[i] == _oldCount) {
-        sortedGroups[i] = _newCount;
-        break;
-      }
-      unchecked {
-        i++;
-      }
-    }
+    uint256 oldIndex = findSortedGroupsIndex(_oldCount);
+    uint256 newIndex = findSortedGroupsIndex(_newCount);
+    require(sortedGroups[oldIndex] == _oldCount, "Old Count to rename not found");
+    if (newIndex < sortedGroups.length && sortedGroups[newIndex] == _newCount)
+      revert("New Count already exists. Cannot rename.");
+    sortedGroups[oldIndex] = _newCount;
   }
 
   function insertSortedGroup(uint256 _count) internal {
@@ -296,9 +299,11 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
   }
 
   /**
-   * @notice Find the index of the delegation count in the sortedGroups array using binary search.
+   * @notice Determins the current or future index of the delegation count in the sortedGroups array using binary search.
+   * The calling function needs to determine the context of the returned index, whether to use it for inserting a new delegation count
+   * or accessing an existing one.
    * @param _count The delegation count to find.
-   * @return The index of the delegation count or the correct insertion point in the sortedGroups array if not found.
+   * @return The index of the delegation count, if found, or the insertion index in the sorted order, if not found.
    */
   function findSortedGroupsIndex(uint256 _count) internal view returns (uint256) {
     uint256 left = 0;
