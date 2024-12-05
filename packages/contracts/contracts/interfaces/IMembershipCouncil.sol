@@ -40,7 +40,9 @@ interface IMembershipCouncil is IERC721 {
 
   function getCandidate(address _candidate) external view returns (Candidate memory);
 
-  function getNumberOfDelegationGroups() external view returns (uint256);
+  function getNumberOfSortedGroups() external view returns (uint256);
 
-  function getDelegationGroup(uint256 _groupIndex) external view returns (address[] memory);
+  function getSortedGroupAtIndex(uint256 _sortedIndex) external view returns (address[] memory);
+
+  function getSortedGroupDelegationCount(uint256 _sortedIndex) external view returns (uint256);
 }

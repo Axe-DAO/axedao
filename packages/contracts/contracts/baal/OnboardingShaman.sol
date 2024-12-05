@@ -85,12 +85,12 @@ contract MembershipCouncilShaman is Ownable {
     uint256 remainingMembersIndex = 0;
     uint256 newMembersIndex = 0;
     uint256 councilIndex = 0;
-    uint256 numOfGroups = membershipCouncil.getNumberOfDelegationGroups();
+    uint256 numOfGroups = membershipCouncil.getNumberOfSortedGroups();
     IERC20 lootToken = IERC20(baal.lootToken());
 
     // Determine new council from sorted delegation ranking in MembershipCouncil
     for (uint256 i = 0; i < numOfGroups && councilIndex < councilSize; ) {
-      address[] memory group = membershipCouncil.getDelegationGroup(i);
+      address[] memory group = membershipCouncil.getSortedGroupAtIndex(i);
       address member;
 
       for (uint256 j = 0; j < group.length && councilIndex < councilSize; ) {

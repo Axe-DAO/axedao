@@ -190,12 +190,16 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     donationToken = _donationToken;
   }
 
-  function getNumberOfDelegationGroups() external view returns (uint256) {
+  function getNumberOfSortedGroups() external view returns (uint256) {
     return sortedGroups.length;
   }
 
-  function getDelegationGroup(uint256 _sortedIndex) external view returns (address[] memory) {
+  function getSortedGroupAtIndex(uint256 _sortedIndex) external view returns (address[] memory) {
     return delegationGroups[sortedGroups[_sortedIndex]];
+  }
+
+  function getSortedGroupDelegationCount(uint256 _sortedIndex) external view returns (uint256) {
+    return sortedGroups[_sortedIndex];
   }
 
   /**
