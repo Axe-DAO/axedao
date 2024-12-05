@@ -13,8 +13,12 @@ import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
  * @notice A ERC721 membership token that allows users to donate to join the DAO and participate in the council elections
  * both as candidates and by delegating their votes to candidates.
  *
- * Members join by donating either a fixed amount of ERC20 tokens or native tokens. The amounts are controlled by the DAO and
+ * Users become members by donating either a fixed amount of ERC20 tokens or native tokens. The amounts are controlled by the DAO and
  * donations are forwarded to a designated receiver, e.g. a DAO treasury.
+ *
+ * Members can enlist/resign as candidates for the Membership Council. Any member, including enlisted candidates, can delegate their
+ * membership to a candidate of their choice. The contract keeps track of delegations and candidate availability and maintains a sorted
+ * list of delegation counts to allow for efficient querying of the top candidates.
  */
 contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
   address internal donationReceiver;
@@ -141,7 +145,11 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
   function delegate(address _candidate) external memberOnly {
     require(_candidate != address(0), "Cannot delegate to the zero address. Use undelegate.");
     require(candidates[_candidate].available, "Candidate not available");
-    require(delegations[msg.sender] == address(0), "Already delegated. Please undelegate first.");
+    address currentDelegate = delegations[msg.sender];
+    if (currentDelegate == _candidate) return;
+    if (currentDelegate != address(0) && candidates[currentDelegate].available) {
+      moveCandidate(currentDelegate, false);
+    }
     moveCandidate(_candidate, true);
     delegations[msg.sender] = _candidate;
   }

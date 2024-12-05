@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "../contracts/test/MockERC20.sol";
 import { MembershipCouncil } from "../contracts/tokens/MembershipCouncil.sol";
@@ -160,6 +161,10 @@ contract MembershipDelegationTest is Test {
     vm.prank(testUsers[2]);
     membershipCouncil.resignAsCandidate();
 
+    // Candidate 2's delegations undelegate, except 2 delegations to candidate 1
+    // This candidate later re-enlists where the 2 remaining delegations are counted again.
+    _undelegateUsers(25, 30);
+
     assertEq(
       membershipCouncil.getNumberOfSortedGroups(),
       3,
@@ -207,49 +212,63 @@ contract MembershipDelegationTest is Test {
     );
     assertEq(membershipCouncil.getSortedGroupDelegationCount(1), 6, "U1: Second group should be 6 delegations");
 
-    // TODO testusers[2] should enlist again
+    // Final wave: Multiple candidates (including candidate 2 again) enlist and get same number of delegations
+    vm.prank(testUsers[2]);
+    membershipCouncil.enlistAsCandidate();
+    vm.prank(testUsers[6]);
+    membershipCouncil.enlistAsCandidate();
+    vm.prank(testUsers[7]);
+    membershipCouncil.enlistAsCandidate();
 
-    // // Final wave: Multiple candidates get same number of delegations
-    // vm.prank(testUsers[6]);
-    // membershipCouncil.enlistAsCandidate();
-    // vm.prank(testUsers[7]);
-    // membershipCouncil.enlistAsCandidate();
+    // Give new candidates a total of 4 delegations each
+    _delegateUsers(testUsers[6], 53, 56);
+    _delegateUsers(testUsers[7], 56, 59);
+    _delegateUsers(testUsers[2], 59, 60); // Rejoining candidate 2 has 2 delegations from previous wave + self-delegation + 1 new delegation
 
-    // // Give both new candidates 3 delegations each
-    // _delegateUsers(testUsers[6], 40, 43);
-    // _delegateUsers(testUsers[7], 43, 46);
+    // Add 5 more candidates
+    for (uint256 i = 8; i < 13; i++) {
+      vm.prank(testUsers[i]);
+      membershipCouncil.enlistAsCandidate();
+    }
 
-    // // Add more candidates (users 8-12)
-    // for (uint256 i = 8; i < 13; i++) {
-    //   vm.prank(testUsers[i]);
-    //   membershipCouncil.enlistAsCandidate();
-    // }
+    assertEq(
+      membershipCouncil.getNumberOfSortedGroups(),
+      4,
+      "W4: There should be 4 sorted groups after new candidates enlist"
+    );
+    uint256 numberOfGroups = membershipCouncil.getNumberOfSortedGroups();
+    assertEq(
+      membershipCouncil.getSortedGroupDelegationCount(numberOfGroups - 2),
+      4,
+      "W4: Second from bottom group should be 4 delegations"
+    );
+    assertEq(
+      membershipCouncil.getSortedGroupAtIndex(numberOfGroups - 2).length,
+      3,
+      "W4: Second from bottom group should have 3 candidates"
+    );
+    assertEq(
+      membershipCouncil.getSortedGroupAtIndex(numberOfGroups - 1).length,
+      7,
+      "W4: Bottom group should have 7 candidates"
+    );
 
-    // // Third wave: Complex delegation patterns
-    // // Some users from previous groups move to new candidates
-    // _undelegateUsers(25, 30); // Remove some delegations from top candidate (user 5)
-    // _delegateUsers(testUsers[8], 25, 30); // These users now delegate to user 8
+    // Fifth wave: Complex delegation patterns
+    // Group/Users here: 19:5, 6:0-1, 4:6-7-2, 1:3-4-8-9-10-11-12
+    // Some users from previous groups move to new candidates using undelegation and delegation
+    _delegateUsers(testUsers[8], 32, 37); // 5 supporters of candidate 5 now delegate to user 8
 
-    // // New delegations to multiple candidates
-    // _delegateUsers(testUsers[9], 46, 52); // 6 delegations to user 9
-    // _delegateUsers(testUsers[10], 52, 56); // 4 delegations to user 10
+    // New delegations to multiple candidates
+    _delegateUsers(testUsers[9], 60, 66); // 6 delegations to user 9
+    _delegateUsers(testUsers[10], 66, 70); // 4 delegations to user 10
 
-    // // Some users switch their delegation
-    // _undelegateUsers(40, 42); // Remove 2 delegations from user 6
-    // _delegateUsers(testUsers[11], 40, 42); // These users now delegate to user 11
+    // Some more users undelegate
+    _undelegateUsers(53, 55); // Remove 2 delegations from user 6
+    // Some users redelegate
+    _delegateUsers(testUsers[11], 56, 58); // 2 supporters of candidate 7 now support candidate 11
 
-    // // Verify the new state after third wave
-    // topGroup = membershipCouncil.getSortedGroupAtIndex(0);
-    // assertEq(
-    //   membershipCouncil.getCandidate(testUsers[5]).delegationCount,
-    //   11, // 15 - 5 + 1 (self) delegations
-    //   "Top candidate should have updated delegation count"
-    // );
-    // assertEq(
-    //   membershipCouncil.getCandidate(testUsers[8]).delegationCount,
-    //   6, // 5 + 1 (self) delegations
-    //   "New candidate 8 should have correct delegation count"
-    // );
+    // New Group/Users here: 14:5, 7:9, 6:8-0-1, 5:10, 4:2, 3:11, 2:6-7, 1:3-4-12
+    _verifyState("Wave5", "14:5,7:9,6:8-0-1,5:10,4:2,3:11,2:6-7,1:3-4-12");
 
     // // Fourth wave: Rapid delegation changes
     // // Quick switches between candidates
@@ -312,5 +331,90 @@ contract MembershipDelegationTest is Test {
       vm.prank(testUsers[i]);
       membershipCouncil.undelegate();
     }
+  }
+
+  function _verifyState(string memory _label, string memory expectedState) internal {
+    // Parse the expected state
+    string[] memory groups = split(expectedState, ",");
+    assertEq(groups.length, membershipCouncil.getNumberOfSortedGroups(), "Number of total groups mismatch");
+    for (uint256 i = 0; i < groups.length; i++) {
+      string[] memory groupInfo = split(groups[i], ":");
+      uint256 expectedDelegationCount = parseUint(groupInfo[0]);
+      string[] memory candidates = split(groupInfo[1], "-");
+
+      // Verify the delegation count
+      assertEq(
+        membershipCouncil.getSortedGroupDelegationCount(i),
+        expectedDelegationCount,
+        string(abi.encodePacked(_label, "Delegation count mismatch group index ", Strings.toString(i)))
+      );
+
+      // Verify the candidates in the group
+      address[] memory actualCandidates = membershipCouncil.getSortedGroupAtIndex(i);
+      assertEq(
+        actualCandidates.length,
+        candidates.length,
+        string(abi.encodePacked(_label, " Number of candidates mismatch group index ", Strings.toString(i)))
+      );
+
+      for (uint256 j = 0; j < candidates.length; j++) {
+        uint256 expectedCandidateIndex = parseUint(candidates[j]);
+        MembershipCouncil.Candidate memory candidate = membershipCouncil.getCandidate(
+          testUsers[expectedCandidateIndex]
+        );
+        assertEq(
+          candidate.delegationCount,
+          expectedDelegationCount,
+          string(
+            abi.encodePacked(
+              _label,
+              " Candidate/Group delegation count mismatch group index ",
+              Strings.toString(i),
+              ", candidate ",
+              Strings.toString(expectedCandidateIndex)
+            )
+          )
+        );
+      }
+    }
+  }
+
+  // Utility function to split a string by a delimiter
+  function split(string memory str, string memory delimiter) internal pure returns (string[] memory) {
+    bytes memory strBytes = bytes(str);
+    bytes memory delimiterBytes = bytes(delimiter);
+    uint256[] memory splitIndices = new uint256[](strBytes.length);
+    uint256 splitCount = 0;
+
+    for (uint256 i = 0; i < strBytes.length; i++) {
+      if (strBytes[i] == delimiterBytes[0]) {
+        splitIndices[splitCount] = i;
+        splitCount++;
+      }
+    }
+
+    string[] memory parts = new string[](splitCount + 1);
+    uint256 start = 0;
+    for (uint256 i = 0; i <= splitCount; i++) {
+      uint256 end = (i == splitCount) ? strBytes.length : splitIndices[i];
+      bytes memory part = new bytes(end - start);
+      for (uint256 j = start; j < end; j++) {
+        part[j - start] = strBytes[j];
+      }
+      parts[i] = string(part);
+      start = end + 1;
+    }
+    return parts;
+  }
+
+  // Utility function to parse a string to uint
+  function parseUint(string memory str) internal pure returns (uint256) {
+    bytes memory b = bytes(str);
+    uint256 result = 0;
+    for (uint256 i = 0; i < b.length; i++) {
+      require(b[i] >= 0x30 && b[i] <= 0x39, "Invalid character in string");
+      result = result * 10 + (uint256(uint8(b[i])) - 48);
+    }
+    return result;
   }
 }
