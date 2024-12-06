@@ -115,61 +115,32 @@ contract MembershipDelegationTest is Test {
   function testComplexDelegationScenario() public {
     // Set up initial candidates (first 5 users become candidates)
     _setUpCandidates(5);
-    // Verify initial state
-    assertEq(membershipCouncil.getNumberOfSortedGroups(), 1, "Should have 5 initial candidates in 1 group");
-    assertEq(membershipCouncil.getSortedGroupAtIndex(0).length, 5, "Group 0 should have 5 candidates");
+    // Verify initial state (5 self-delegations)
+    _verifyState("Initial", "1:0-1-2-3-4");
 
     // First wave of delegations: 10 members delegate to candidate 0
     _delegateUsers(testUsers[0], 10, 20);
 
-    // Verify candidate 0 is now the top candidate
-    address[] memory topGroup = membershipCouncil.getSortedGroupAtIndex(0);
-    assertEq(topGroup.length, 1, "1W: Top group should have 1 candidate");
-    assertEq(topGroup[0], testUsers[0], "1W: Candidate 0 should be top candidate");
-    assertEq(
-      membershipCouncil.getCandidate(testUsers[0]).delegationCount,
-      11, // 10 delegators + self
-      "Candidate 0 should have 11 delegations"
-    );
-    assertEq(membershipCouncil.getNumberOfSortedGroups(), 2, "1W: There should be 2 sorted groups");
-    assertEq(membershipCouncil.getSortedGroupDelegationCount(0), 11, "1W: Top group should be 11 delegations");
-    assertEq(membershipCouncil.getSortedGroupDelegationCount(1), 1, "1W: Second group should be 1 delegations");
+    // Verify candidate 0 is now the top candidate with 11 delegations
+    _verifyState("Wave1", "11:0,1:1-2-3-4");
 
     // Second wave: 5 members delegate to candidate 1 and 7 delegate to candidate 2
     _delegateUsers(testUsers[1], 20, 25);
     _delegateUsers(testUsers[2], 25, 32);
 
-    assertEq(membershipCouncil.getNumberOfSortedGroups(), 4, "W2: There should be 4 sorted groups");
-    // Verify sorting remains correct
-    topGroup = membershipCouncil.getSortedGroupAtIndex(0);
-    address[] memory secondGroup = membershipCouncil.getSortedGroupAtIndex(1);
-    address[] memory thirdGroup = membershipCouncil.getSortedGroupAtIndex(2);
-    address[] memory fourthGroup = membershipCouncil.getSortedGroupAtIndex(3);
-    assertEq(topGroup[0], testUsers[0], "W2: Candidate 0 should still be top");
-    assertEq(secondGroup[0], testUsers[2], "W2: Candidate 2 should be second");
-    assertEq(thirdGroup[0], testUsers[1], "W2: Candidate 1 should be third");
-    assertEq(fourthGroup.length, 2, "W2: There should be 2 candidates left in the fourth position");
-    assertTrue(
-      fourthGroup[0] == testUsers[3] || fourthGroup[0] == testUsers[4],
-      "W2: Candidate 3 or 4 should be fourth"
-    );
-    assertEq(membershipCouncil.getSortedGroupDelegationCount(1), 8, "W2: Second group should be 8 delegations");
-    assertEq(membershipCouncil.getSortedGroupDelegationCount(2), 6, "W2: Third group should be 6 delegations");
-    assertEq(membershipCouncil.getSortedGroupDelegationCount(3), 1, "W2: Fourth group should be 1 delegations");
+    // Verify state after second wave
+    _verifyState("Wave2", "11:0,8:2,6:1,1:3-4");
 
     // Candidate 2 resigns
     vm.prank(testUsers[2]);
     membershipCouncil.resignAsCandidate();
 
-    // Candidate 2's delegations undelegate, except 2 delegations to candidate 1
-    // This candidate later re-enlists where the 2 remaining delegations are counted again.
+    // Candidate 2's delegators undelegate, except 2
+    // The delegatee later re-enlists where the 2 remaining delegations are counted again.
     _undelegateUsers(25, 30);
 
-    assertEq(
-      membershipCouncil.getNumberOfSortedGroups(),
-      3,
-      "R1: Should have 3 groups after resignation of candidate 2"
-    );
+    // Verify state after resignation of candidate 2 and undelegation of 5 users
+    _verifyState("Resign1", "11:0,6:1,1:3-4");
 
     // New candidate enlists (user 5) and gets more delegations than current top
     vm.prank(testUsers[5]);
@@ -177,42 +148,14 @@ contract MembershipDelegationTest is Test {
 
     _delegateUsers(testUsers[5], 32, 50); // 18 delegations
 
-    // Verify new candidate is now top
-    assertEq(membershipCouncil.getNumberOfSortedGroups(), 4, "W3: There should be 4 sorted groups");
-    topGroup = membershipCouncil.getSortedGroupAtIndex(0);
-    assertEq(topGroup[0], testUsers[5], "E1:Newly enlisted candidate should be top");
-    assertEq(
-      membershipCouncil.getCandidate(testUsers[5]).delegationCount,
-      19, // 18 delegators + self
-      "W3:New top candidate should have 19 delegations"
-    );
-    assertEq(membershipCouncil.getSortedGroupDelegationCount(0), 19, "E1: Top group should be 19 delegations");
+    _verifyState("Wave3", "19:5,11:0,6:1,1:3-4");
 
     // 5 delegators of candidate 0 undelegate
     _undelegateUsers(10, 15);
 
-    assertEq(
-      membershipCouncil.getCandidate(testUsers[0]).delegationCount,
-      6, // 5 delegators + self
-      "U1: Candidate 0 should have 6 delegations"
-    );
+    _verifyState("Undelegate1", "19:5,6:1-0,1:3-4");
 
-    assertEq(
-      membershipCouncil.getNumberOfSortedGroups(),
-      3,
-      "U1: There should be 3 sorted groups after undelegation and candidate 0 merging with candidate 1 for 6 delegations"
-    );
-    // Verify candidate 0 moved down in ranking
-    secondGroup = membershipCouncil.getSortedGroupAtIndex(1);
-    assertEq(secondGroup.length, 2, "U1: Second group should have 2 candidates now.");
-    assertEq(
-      membershipCouncil.getCandidate(testUsers[0]).delegationCount,
-      6, // 5 delegators + self
-      "U1: Original top candidate should have 6 delegations"
-    );
-    assertEq(membershipCouncil.getSortedGroupDelegationCount(1), 6, "U1: Second group should be 6 delegations");
-
-    // Final wave: Multiple candidates (including candidate 2 again) enlist and get same number of delegations
+    // Wave Four: Multiple candidates (including candidate 2 again) enlist and get same number of delegations
     vm.prank(testUsers[2]);
     membershipCouncil.enlistAsCandidate();
     vm.prank(testUsers[6]);
@@ -231,27 +174,7 @@ contract MembershipDelegationTest is Test {
       membershipCouncil.enlistAsCandidate();
     }
 
-    assertEq(
-      membershipCouncil.getNumberOfSortedGroups(),
-      4,
-      "W4: There should be 4 sorted groups after new candidates enlist"
-    );
-    uint256 numberOfGroups = membershipCouncil.getNumberOfSortedGroups();
-    assertEq(
-      membershipCouncil.getSortedGroupDelegationCount(numberOfGroups - 2),
-      4,
-      "W4: Second from bottom group should be 4 delegations"
-    );
-    assertEq(
-      membershipCouncil.getSortedGroupAtIndex(numberOfGroups - 2).length,
-      3,
-      "W4: Second from bottom group should have 3 candidates"
-    );
-    assertEq(
-      membershipCouncil.getSortedGroupAtIndex(numberOfGroups - 1).length,
-      7,
-      "W4: Bottom group should have 7 candidates"
-    );
+    _verifyState("Wave4", "19:5,6:0-1,4:2-6-7,1:3-4-8-9-10-11-12");
 
     // Fifth wave: Complex delegation patterns
     // Group/Users here: 19:5, 6:0-1, 4:6-7-2, 1:3-4-8-9-10-11-12
@@ -267,45 +190,34 @@ contract MembershipDelegationTest is Test {
     // Some users redelegate
     _delegateUsers(testUsers[11], 56, 58); // 2 supporters of candidate 7 now support candidate 11
 
-    // New Group/Users here: 14:5, 7:9, 6:8-0-1, 5:10, 4:2, 3:11, 2:6-7, 1:3-4-12
+    // New Counts/Users here: 14:5, 7:9, 6:8-0-1, 5:10, 4:2, 3:11, 2:6-7, 1:3-4-12
     _verifyState("Wave5", "14:5,7:9,6:8-0-1,5:10,4:2,3:11,2:6-7,1:3-4-12");
 
-    // // Fourth wave: Rapid delegation changes
-    // // Quick switches between candidates
-    // _undelegateUsers(46, 49); // Remove some from user 9
-    // _delegateUsers(testUsers[12], 46, 49); // Move them to user 12
-    // _undelegateUsers(47, 48); // One user undelegates
-    // _delegateUsers(testUsers[10], 47, 48); // And goes to user 10 instead
+    // Sixth wave: More complex delegation and various actions
+    // Candidate 8 resigns
+    vm.startPrank(testUsers[8]);
+    membershipCouncil.resignAsCandidate();
+    membershipCouncil.undelegate();
+    vm.stopPrank();
+    _undelegateUsers(32, 33); // Remove 1 delegations from candidate 8
+    _delegateUsers(testUsers[3], 33, 35); // 2 delegations from candidate 8 to candidate 3, candidate 8 has 2 other delegations left
+    assertEq(
+      membershipCouncil.getCandidate(testUsers[8]).delegationCount,
+      2,
+      "Candidate 8 should have 2 delegations left"
+    );
+    // New delegations to multiple candidates
+    _delegateUsers(testUsers[0], 70, 75); // 5 delegations to user 0
+    _delegateUsers(testUsers[12], 75, 80); // 5 delegations to user 12
+    _delegateUsers(testUsers[4], 80, 88); // 8 delegations to user 4
+    _delegateUsers(testUsers[7], 88, 90); // 2 delegations to user 7
+    vm.prank(testUsers[11]);
+    membershipCouncil.delegate(testUsers[6]); // candidate 11 delegates their own membership to candidate 6
+    vm.prank(testUsers[8]);
+    membershipCouncil.enlistAsCandidate(); // candidate 8 rejoins, gets 1 auto-self-delegation and had 2 delegations left
 
-    // // Mass movement between candidates
-    // _undelegateUsers(30, 35); // Remove several delegations
-    // _delegateUsers(testUsers[11], 30, 32); // Split them between user 11
-    // _delegateUsers(testUsers[12], 32, 35); // and user 12
-
-    // // Verify complex movements maintained sorting integrity
-    // uint256 totalGroups = membershipCouncil.getNumberOfSortedGroups();
-
-    // // Verify delegation counts are properly updated
-    // for (uint256 i = 0; i < totalGroups - 1; i++) {
-    //   address[] memory currentGroup = membershipCouncil.getSortedGroupAtIndex(i);
-    //   address[] memory nextGroup = membershipCouncil.getSortedGroupAtIndex(i + 1);
-    //   assertTrue(
-    //     membershipCouncil.getCandidate(currentGroup[0]).delegationCount >=
-    //       membershipCouncil.getCandidate(nextGroup[0]).delegationCount,
-    //     "Groups should be properly sorted by delegation count"
-    //   );
-    // }
-
-    // // Final state verification
-    // assertEq(membershipCouncil.getNumberOfSortedGroups(), 12, "Should have correct number of sorted groups");
-
-    // // Verify no delegation count is negative or invalid
-    // for (uint256 i = 0; i < 13; i++) {
-    //   if (i >= 8) {
-    //     MembershipCouncil.Candidate memory candidate = membershipCouncil.getCandidate(testUsers[i]);
-    //     assertTrue(candidate.delegationCount > 0, "All candidates should have at least self-delegation");
-    //   }
-    // }
+    // Verify state after Wave Six
+    _verifyState("Wave6", "14:5,11:0,9:4,7:9,6:1-12,5:10,4:2-7,3:3-6-8,2:11");
   }
 
   // UTILITY FUNCTIONS
@@ -313,9 +225,8 @@ contract MembershipDelegationTest is Test {
   function _setUpCandidates(uint256 numCandidates) internal {
     for (uint256 i = 0; i < numCandidates; i++) {
       address user = testUsers[i];
-      vm.startPrank(user);
+      vm.prank(user);
       membershipCouncil.enlistAsCandidate();
-      vm.stopPrank();
     }
   }
 
@@ -336,7 +247,11 @@ contract MembershipDelegationTest is Test {
   function _verifyState(string memory _label, string memory expectedState) internal {
     // Parse the expected state
     string[] memory groups = split(expectedState, ",");
-    assertEq(groups.length, membershipCouncil.getNumberOfSortedGroups(), "Number of total groups mismatch");
+    assertEq(
+      groups.length,
+      membershipCouncil.getNumberOfSortedGroups(),
+      string(abi.encodePacked(_label, " Number of total groups mismatch"))
+    );
     for (uint256 i = 0; i < groups.length; i++) {
       string[] memory groupInfo = split(groups[i], ":");
       uint256 expectedDelegationCount = parseUint(groupInfo[0]);
@@ -346,7 +261,7 @@ contract MembershipDelegationTest is Test {
       assertEq(
         membershipCouncil.getSortedGroupDelegationCount(i),
         expectedDelegationCount,
-        string(abi.encodePacked(_label, "Delegation count mismatch group index ", Strings.toString(i)))
+        string(abi.encodePacked(_label, " Delegation count mismatch group index ", Strings.toString(i)))
       );
 
       // Verify the candidates in the group
@@ -372,6 +287,25 @@ contract MembershipDelegationTest is Test {
               Strings.toString(i),
               ", candidate ",
               Strings.toString(expectedCandidateIndex)
+            )
+          )
+        );
+        bool candidateFound = false;
+        for (uint256 k = 0; k < actualCandidates.length; k++) {
+          if (actualCandidates[k] == testUsers[expectedCandidateIndex]) {
+            candidateFound = true;
+            break;
+          }
+        }
+        assertTrue(
+          candidateFound,
+          string(
+            abi.encodePacked(
+              _label,
+              " Candidate index ",
+              Strings.toString(expectedCandidateIndex),
+              " not found in group index ",
+              Strings.toString(i)
             )
           )
         );

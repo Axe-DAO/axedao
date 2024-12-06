@@ -125,7 +125,6 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     }
     uint256 groupIndex = candidates[msg.sender].delegationCount;
     addCandidateToGroup(msg.sender, groupIndex);
-
     if (delegationGroups[groupIndex].length == 1) {
       insertSortedGroup(groupIndex);
     }
@@ -136,7 +135,6 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     candidates[msg.sender].available = false;
     uint256 groupIndex = candidates[msg.sender].delegationCount;
     removeCandidateFromGroup(msg.sender, groupIndex);
-
     if (delegationGroups[groupIndex].length == 0) {
       removeSortedGroup(groupIndex);
     }
@@ -147,7 +145,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     require(candidates[_candidate].available, "Candidate not available");
     address currentDelegate = delegations[msg.sender];
     if (currentDelegate == _candidate) return;
-    if (currentDelegate != address(0) && candidates[currentDelegate].available) {
+    if (currentDelegate != address(0)) {
       moveCandidate(currentDelegate, false);
     }
     moveCandidate(_candidate, true);
