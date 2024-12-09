@@ -8,8 +8,8 @@
     "build": "tsc --noEmit && forge compile",
     "lint": "eslint --ignore-path .gitignore --ext .js,.ts,.tsx",
     "format": "prettier --write .",
-    "test": "npx hardhat test",
-    "coverage": "npx hardhat coverage"
+    "test": "forge test --no-match-contract IntegrationTest",
+    "coverage": "forge coverage"
   },
   "devDependencies": {
     "@daohaus/baal-contracts": "^1.2.18",

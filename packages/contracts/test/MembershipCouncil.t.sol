@@ -1,24 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "forge-std/Test.sol";
-import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+import { MockERC20 } from "../contracts/test/MockERC20.sol";
+import "./MembershipCouncilBase.sol";
 
-import "../contracts/test/MockERC20.sol";
-import { MembershipCouncil } from "../contracts/tokens/MembershipCouncil.sol";
-
-contract MembershipDelegationTest is Test {
-  MockERC20 paymentToken;
-  MembershipCouncil membershipCouncil;
-  uint256 constant NUM_TEST_USERS = 100;
-  address[] testUsers = new address[](NUM_TEST_USERS);
-  uint256 tokenDonationAmount;
-
+contract MembershipCouncilTest is MembershipCouncilBase {
   function setUp() public {
     // Deploy the MockERC20 token
     paymentToken = new MockERC20("Payment Token", "PTK");
-    tokenDonationAmount = 10 ** 10 * IERC20Metadata(paymentToken).decimals();
+    tokenDonationAmount = 10 ** 10 * IERC20Metadata(address(paymentToken)).decimals();
 
     // Deploy the MembershipToken NFT
     membershipCouncil = new MembershipCouncil(
@@ -31,19 +21,10 @@ contract MembershipDelegationTest is Test {
     );
 
     // Set up test users
-    for (uint256 i = 0; i < NUM_TEST_USERS; i++) {
-      address user = address(uint160(uint256(keccak256(abi.encodePacked(i)))));
-      testUsers[i] = user;
-      vm.deal(user, 1 ether); // Give each user some ether
-      paymentToken.mint(user, 1000 ** 10 * 18); // Mint payment tokens to each user
-      vm.startPrank(user);
-      paymentToken.approve(address(membershipCouncil), tokenDonationAmount);
-      membershipCouncil.donate();
-      vm.stopPrank();
-    }
+    initiateTestUsers(address(this), 100);
   }
 
-  function testEnlistAndResign() public {
+  function test_EnlistAndResign() public {
     address candidate = testUsers[0];
     vm.prank(candidate);
     membershipCouncil.enlistAsCandidate();
@@ -90,7 +71,7 @@ contract MembershipDelegationTest is Test {
     );
   }
 
-  function testDelegateUndelegate() public {
+  function test_DelegateUndelegate() public {
     address delegator = testUsers[0];
     address delegatee = testUsers[1];
     vm.prank(delegatee);
@@ -112,7 +93,7 @@ contract MembershipDelegationTest is Test {
    * - Undelegations and their effects on sorting
    * - Group merging and sorting integrity
    */
-  function testComplexDelegationScenario() public {
+  function test_ComplexDelegationScenario() public {
     // Set up initial candidates (first 5 users become candidates)
     _setUpCandidates(5);
     // Verify initial state (5 self-delegations)
@@ -218,137 +199,5 @@ contract MembershipDelegationTest is Test {
 
     // Verify state after Wave Six
     _verifyState("Wave6", "14:5,11:0,9:4,7:9,6:1-12,5:10,4:2-7,3:3-6-8,2:11");
-  }
-
-  // UTILITY FUNCTIONS
-
-  function _setUpCandidates(uint256 numCandidates) internal {
-    for (uint256 i = 0; i < numCandidates; i++) {
-      address user = testUsers[i];
-      vm.prank(user);
-      membershipCouncil.enlistAsCandidate();
-    }
-  }
-
-  function _delegateUsers(address candidate, uint256 fromUser, uint256 toUser) internal {
-    for (uint256 i = fromUser; i < toUser; i++) {
-      vm.prank(testUsers[i]);
-      membershipCouncil.delegate(candidate);
-    }
-  }
-
-  function _undelegateUsers(uint256 fromUser, uint256 toUser) internal {
-    for (uint256 i = fromUser; i < toUser; i++) {
-      vm.prank(testUsers[i]);
-      membershipCouncil.undelegate();
-    }
-  }
-
-  function _verifyState(string memory _label, string memory expectedState) internal {
-    // Parse the expected state
-    string[] memory groups = split(expectedState, ",");
-    assertEq(
-      groups.length,
-      membershipCouncil.getNumberOfSortedGroups(),
-      string(abi.encodePacked(_label, " Number of total groups mismatch"))
-    );
-    for (uint256 i = 0; i < groups.length; i++) {
-      string[] memory groupInfo = split(groups[i], ":");
-      uint256 expectedDelegationCount = parseUint(groupInfo[0]);
-      string[] memory candidates = split(groupInfo[1], "-");
-
-      // Verify the delegation count
-      assertEq(
-        membershipCouncil.getSortedGroupDelegationCount(i),
-        expectedDelegationCount,
-        string(abi.encodePacked(_label, " Delegation count mismatch group index ", Strings.toString(i)))
-      );
-
-      // Verify the candidates in the group
-      address[] memory actualCandidates = membershipCouncil.getSortedGroupAtIndex(i);
-      assertEq(
-        actualCandidates.length,
-        candidates.length,
-        string(abi.encodePacked(_label, " Number of candidates mismatch group index ", Strings.toString(i)))
-      );
-
-      for (uint256 j = 0; j < candidates.length; j++) {
-        uint256 expectedCandidateIndex = parseUint(candidates[j]);
-        MembershipCouncil.Candidate memory candidate = membershipCouncil.getCandidate(
-          testUsers[expectedCandidateIndex]
-        );
-        assertEq(
-          candidate.delegationCount,
-          expectedDelegationCount,
-          string(
-            abi.encodePacked(
-              _label,
-              " Candidate/Group delegation count mismatch group index ",
-              Strings.toString(i),
-              ", candidate ",
-              Strings.toString(expectedCandidateIndex)
-            )
-          )
-        );
-        bool candidateFound = false;
-        for (uint256 k = 0; k < actualCandidates.length; k++) {
-          if (actualCandidates[k] == testUsers[expectedCandidateIndex]) {
-            candidateFound = true;
-            break;
-          }
-        }
-        assertTrue(
-          candidateFound,
-          string(
-            abi.encodePacked(
-              _label,
-              " Candidate index ",
-              Strings.toString(expectedCandidateIndex),
-              " not found in group index ",
-              Strings.toString(i)
-            )
-          )
-        );
-      }
-    }
-  }
-
-  // Utility function to split a string by a delimiter
-  function split(string memory str, string memory delimiter) internal pure returns (string[] memory) {
-    bytes memory strBytes = bytes(str);
-    bytes memory delimiterBytes = bytes(delimiter);
-    uint256[] memory splitIndices = new uint256[](strBytes.length);
-    uint256 splitCount = 0;
-
-    for (uint256 i = 0; i < strBytes.length; i++) {
-      if (strBytes[i] == delimiterBytes[0]) {
-        splitIndices[splitCount] = i;
-        splitCount++;
-      }
-    }
-
-    string[] memory parts = new string[](splitCount + 1);
-    uint256 start = 0;
-    for (uint256 i = 0; i <= splitCount; i++) {
-      uint256 end = (i == splitCount) ? strBytes.length : splitIndices[i];
-      bytes memory part = new bytes(end - start);
-      for (uint256 j = start; j < end; j++) {
-        part[j - start] = strBytes[j];
-      }
-      parts[i] = string(part);
-      start = end + 1;
-    }
-    return parts;
-  }
-
-  // Utility function to parse a string to uint
-  function parseUint(string memory str) internal pure returns (uint256) {
-    bytes memory b = bytes(str);
-    uint256 result = 0;
-    for (uint256 i = 0; i < b.length; i++) {
-      require(b[i] >= 0x30 && b[i] <= 0x39, "Invalid character in string");
-      result = result * 10 + (uint256(uint8(b[i])) - 48);
-    }
-    return result;
   }
 }

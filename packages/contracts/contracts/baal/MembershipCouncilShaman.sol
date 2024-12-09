@@ -5,6 +5,8 @@ pragma solidity ^0.8.20;
 import { IBaal } from "@daohaus/baal-contracts/contracts/interfaces/IBaal.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+
 import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
 
 contract MembershipCouncilShaman is Ownable {
@@ -14,11 +16,13 @@ contract MembershipCouncilShaman is Ownable {
   IMembershipCouncil public immutable membershipCouncil;
   IBaal public immutable baal;
   uint256 public councilSize = MIN_COUNCIL_SIZE;
-  uint256 public shareAmount = 1;
   mapping(address => bool) public currentCouncilMembers;
   address[] public currentCouncilList;
 
   constructor(address _membershipCouncil, address _owner, address _baal) Ownable(_owner) {
+    require(_membershipCouncil != address(0), "MembershipCouncilShaman: MembershipCouncil cannot be the zero address");
+    require(_baal != address(0), "MembershipCouncilShaman: Baal cannot be the zero address");
+
     membershipCouncil = IMembershipCouncil(_membershipCouncil);
     baal = IBaal(_baal);
   }
@@ -30,6 +34,8 @@ contract MembershipCouncilShaman is Ownable {
 
   function formMembershipCouncil() external {
     IERC20 sharesToken = IERC20(baal.sharesToken());
+    uint256 shareAmount = 1 ** IERC20Metadata(address(sharesToken)).decimals();
+
     (address[] memory remainingMembers, address[] memory newMembers) = determineCouncilChanges();
 
     // set all current council members to false
@@ -80,31 +86,50 @@ contract MembershipCouncilShaman is Ownable {
    * @return The new council separated into members who will remain on the council and members who will be added.
    */
   function determineCouncilChanges() internal view returns (address[] memory, address[] memory) {
+    // Create arrays in memory with some initial capacity
     address[] memory remainingMembers;
     address[] memory newMembers;
-    uint256 remainingMembersIndex = 0;
-    uint256 newMembersIndex = 0;
+    uint256 size = councilSize;
+
+    // Use assembly to allocate dynamic memory arrays
+    assembly {
+      // Array length is stored at the first 32 bytes
+      // Store initial capacity after length
+      remainingMembers := mload(0x40) // get free memory pointer
+      mstore(remainingMembers, 0) // store length (initially 0)
+      mstore(add(remainingMembers, 0x20), size) // store capacity
+      mstore(0x40, add(remainingMembers, 0x40)) // update free memory pointer
+
+      newMembers := mload(0x40)
+      mstore(newMembers, 0) // store length (initially 0)
+      mstore(add(newMembers, 0x20), size) // store capacity
+      mstore(0x40, add(newMembers, 0x40)) // update free memory pointer
+    }
+
     uint256 councilIndex = 0;
     uint256 numOfGroups = membershipCouncil.getNumberOfSortedGroups();
     IERC20 lootToken = IERC20(baal.lootToken());
+    uint256 lootThreshold = 1 * 10 ** IERC20Metadata(address(lootToken)).decimals();
 
     // Determine new council from sorted delegation ranking in MembershipCouncil
-    for (uint256 i = 0; i < numOfGroups && councilIndex < councilSize; ) {
+    for (uint256 i = 0; i < numOfGroups && councilIndex < size; ) {
       address[] memory group = membershipCouncil.getSortedGroupAtIndex(i);
-      address member;
 
-      for (uint256 j = 0; j < group.length && councilIndex < councilSize; ) {
-        member = group[j];
-        // Candidates must either be on the council already or have at least 1 loot to be converted to shares
-        // IMPORTANT if shares ever become transferable, we need to revisit this logic as it could be exploited
-        // to receive shares, give them away, and then re-delegate to get back on the council.
+      for (uint256 j = 0; j < group.length && councilIndex < size; ) {
+        address member = group[j];
         if (currentCouncilMembers[member]) {
-          remainingMembers[remainingMembersIndex] = member;
-          remainingMembersIndex++;
+          assembly {
+            let len := mload(remainingMembers)
+            mstore(add(add(remainingMembers, 0x20), mul(len, 0x20)), member)
+            mstore(remainingMembers, add(len, 1))
+          }
           councilIndex++;
-        } else if (lootToken.balanceOf(member) >= 1) {
-          newMembers[newMembersIndex] = member;
-          newMembersIndex++;
+        } else if (lootToken.balanceOf(member) >= lootThreshold) {
+          assembly {
+            let len := mload(newMembers)
+            mstore(add(add(newMembers, 0x20), mul(len, 0x20)), member)
+            mstore(newMembers, add(len, 1))
+          }
           councilIndex++;
         }
         unchecked {

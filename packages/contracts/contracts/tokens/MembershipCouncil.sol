@@ -42,7 +42,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
    * @notice Modifier blocking callers who are not members.
    */
   modifier memberOnly() {
-    if (!isMember(msg.sender)) revert NotAMemberError();
+    if (!isMember(_msgSender())) revert NotAMemberError();
     _;
   }
 
@@ -50,8 +50,9 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
    * @notice Modifier for non-members to automatically register as a member.
    */
   modifier registerNewMember() {
-    if (isMember(msg.sender)) revert AlreadyMemberError(msg.sender);
-    members[msg.sender] = ++memberCount;
+    address sender = _msgSender();
+    if (isMember(sender)) revert AlreadyMemberError(sender);
+    members[sender] = ++memberCount;
     _;
   }
 
@@ -80,11 +81,12 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
   }
 
   function donate() external override registerNewMember {
+    address sender = _msgSender();
     require(
-      IERC20(donationToken).transferFrom(msg.sender, donationReceiver, donationAmount),
+      IERC20(donationToken).transferFrom(sender, donationReceiver, donationAmount),
       "Failed to transfer donation"
     );
-    _mint(msg.sender, memberCount);
+    _mint(sender, memberCount);
   }
 
   function isMember(address _user) public view override returns (bool) {
@@ -93,7 +95,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
 
   receive() external payable registerNewMember {
     _handleNativeDonation();
-    _mint(msg.sender, memberCount);
+    _mint(_msgSender(), memberCount);
   }
 
   function _handleNativeDonation() internal {
@@ -104,7 +106,8 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     (bool success, ) = donationReceiver.call{ value: nativeDonationAmount }("");
     require(success, "Failed to forward donation");
     if (refundAmount > 0) {
-      (bool refundSuccess, ) = msg.sender.call{ value: refundAmount }("");
+      address sender = _msgSender();
+      (bool refundSuccess, ) = sender.call{ value: refundAmount }("");
       require(refundSuccess, "Failed to refund excess amount");
     }
   }
@@ -115,48 +118,52 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
    * should undelegate first or can undelegate and then delegate to themselves afterwards.
    */
   function enlistAsCandidate() external memberOnly {
-    require(!candidates[msg.sender].available, "Already enlisted");
+    address sender = _msgSender();
+    require(!candidates[sender].available, "Already enlisted");
 
-    candidates[msg.sender].available = true;
+    candidates[sender].available = true;
     // Self-delegate for convenience
-    if (delegations[msg.sender] == address(0)) {
-      delegations[msg.sender] = msg.sender;
-      candidates[msg.sender].delegationCount++;
+    if (delegations[sender] == address(0)) {
+      delegations[sender] = sender;
+      candidates[sender].delegationCount++;
     }
-    uint256 groupIndex = candidates[msg.sender].delegationCount;
-    addCandidateToGroup(msg.sender, groupIndex);
+    uint256 groupIndex = candidates[sender].delegationCount;
+    addCandidateToGroup(sender, groupIndex);
     if (delegationGroups[groupIndex].length == 1) {
       insertSortedGroup(groupIndex);
     }
   }
 
   function resignAsCandidate() external {
-    require(candidates[msg.sender].available == true, "Not a candidate");
-    candidates[msg.sender].available = false;
-    uint256 groupIndex = candidates[msg.sender].delegationCount;
-    removeCandidateFromGroup(msg.sender, groupIndex);
+    address sender = _msgSender();
+    require(candidates[sender].available == true, "Not a candidate");
+    candidates[sender].available = false;
+    uint256 groupIndex = candidates[sender].delegationCount;
+    removeCandidateFromGroup(sender, groupIndex);
     if (delegationGroups[groupIndex].length == 0) {
       removeSortedGroup(groupIndex);
     }
   }
 
   function delegate(address _candidate) external memberOnly {
+    address sender = _msgSender();
     require(_candidate != address(0), "Cannot delegate to the zero address. Use undelegate.");
     require(candidates[_candidate].available, "Candidate not available");
-    address currentDelegate = delegations[msg.sender];
+    address currentDelegate = delegations[sender];
     if (currentDelegate == _candidate) return;
     if (currentDelegate != address(0)) {
       moveCandidate(currentDelegate, false);
     }
     moveCandidate(_candidate, true);
-    delegations[msg.sender] = _candidate;
+    delegations[sender] = _candidate;
   }
 
   function undelegate() external memberOnly {
-    address candidate = delegations[msg.sender];
+    address sender = _msgSender();
+    address candidate = delegations[sender];
     require(candidate != address(0), "No delegation");
     moveCandidate(candidate, false);
-    delegations[msg.sender] = address(0);
+    delegations[sender] = address(0);
   }
 
   function getCandidate(address _candidate) external view returns (Candidate memory) {

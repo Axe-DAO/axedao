@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
 import { IBaal } from "@daohaus/baal-contracts/contracts/interfaces/IBaal.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { IAXE } from "../contracts/interfaces/IAXE.sol";
+import { MultiSendProposal } from "./MultiSendProposal.sol";
 
 /**
  * @notice Tests the lifecycle of an issuance proposal, i.e. a DAO proposal to
  */
-contract ProposalIssuance is Test {
+contract ProposalsIntegrationTest is MultiSendProposal {
   event AxeIssued(uint256 _amount);
   event LiquidationSettingsChanged(address router, address swapToken, address pair);
 
@@ -34,18 +35,27 @@ contract ProposalIssuance is Test {
     Defeated /* 7 - terminal state, yes votes <= no votes, counts as processed */
   }
 
-  function setUp() public {}
+  function setUp() public {
+    string memory testMode = vm.envOr("TEST_MODE", string("normal"));
+    vm.skip(keccak256(abi.encodePacked(testMode)) != keccak256(abi.encodePacked("integration")));
+    vm.createSelectFork("http://127.0.0.1:8545");
+  }
 
   function test_IssuanceProposal() public {
     // Multisend encoded bytes to issue 500 mil on AXESource at 0xaE8F6454fa13EbA1Be4ea60019d1bd34F9D04895
-    bytes
-      memory issuanceProposalData = hex"8d80ff0a0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000007900aE8F6454fa13EbA1Be4ea60019d1bd34F9D0489500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000024cc872b660000000000000000000000000000000000000000019d971e4fe8401e7400000000000000000000";
+    address[] memory targets = new address[](1);
+    uint256[] memory values = new uint256[](1);
+    bytes[] memory calldatas = new bytes[](1);
+    targets[0] = axeToken;
+    values[0] = 0;
+    calldatas[0] = abi.encodeWithSignature("issue(uint256)", 500_000_000 * (10 ** 18));
+
+    // Execute the multi-call from the secondary safe
+    bytes memory issuanceProposalData = encodeMultiCall(targets, values, calldatas, treasury);
 
     vm.startPrank(shareholder);
     IBaal baal = IBaal(dao);
-    uint32 propId = uint32(
-      baal.submitProposal(issuanceProposalData, 0, 16000000, "Show me the money!")
-    );
+    uint32 propId = uint32(baal.submitProposal(issuanceProposalData, 0, 16000000, "Show me the money!"));
 
     // [cancelled, processed, passed, actionFailed]
     bool[4] memory propStatus;
@@ -80,11 +90,7 @@ contract ProposalIssuance is Test {
     assertTrue(propStatus[1]);
 
     uint256 balanceAfter = IERC20(axeToken).balanceOf(treasury);
-    assertEq(
-      balanceAfter,
-      balanceBefore + 500_000_000 * (10 ** 18),
-      "Issued amount not in treasury"
-    );
+    assertEq(balanceAfter, balanceBefore + 500_000_000 * (10 ** 18), "Issued amount not in treasury");
 
     vm.stopPrank();
   }

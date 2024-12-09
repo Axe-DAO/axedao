@@ -1,11 +1,13 @@
-# axedao
+```ascii
+    ___          __     ____  ___   ____
+   /   |  _  ___/_/    / __ \/   | / __ \
+  / /| | | |/_/ _ \   / / / / /| |/ / / /
+ / ___ |_>  </  __/  / /_/ / ___ / /_/ /
+/_/  |_/_/|_|\___/  /_____/_/  |_\____/
 
-Roadmap:
+```
 
-- Build badge / NFT system for roles (graduados), events, collections
-- Create revenue streams via liquidity provision
-- Create revenue streams via NFT - AXÉ integration
-- Create revenue streams via services (group management, payments, events, tickets / admission), services could be free in bundle for certain level of yearly DAO contribution (again, something the DAO can set via proposal).
+# Axé DAO
 
 ## Local Development
 
