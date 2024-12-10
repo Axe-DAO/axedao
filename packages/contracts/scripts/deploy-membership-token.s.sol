@@ -14,8 +14,8 @@ contract Deploy is Script {
     address owner = vm.envAddress("AXE_DAO_TREASURY_ADDRESS");
     address receiver = vm.envAddress("AXE_TREASURY_ADDRESS");
     address donationToken = vm.envAddress("AXE_SWAP_TOKEN_ADDRESS");
-    uint256 donationAmount = 10 ** 10 * IERC20Metadata(donationToken).decimals(); // should b stable coin $10
-    uint256 nativeDonationAmount = 0.0001 ether;
+    uint256 donationAmount = 10 ** 10 * IERC20Metadata(donationToken).decimals(); // should be a USD stable coin $10
+    uint256 nativeDonationAmount = 10 ether; // 10 XDAI on Gnosis
 
     require(owner != address(0), "ENV var for owner is not set!");
     require(receiver != address(0), "ENV var for receiver is not set!");

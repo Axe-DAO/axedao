@@ -85,14 +85,14 @@ forge script scripts/deploy-AXE.s.sol:Deploy --rpc-url http://localhost:8545 --a
 3. After verifying local deployment, simulate the deployment against the target network:
 
 ```shell
-forge script scripts/deploy.s.sol:Deploy --fork-url $HTTPS_PROVIDER_URL_SEPOLIA --account axe-deployer --sender 0x7e95A312E398431a26AC266B9215A7DddD5Ea60B -vvv --verify
+forge script scripts/deploy-AXE.s.sol:Deploy --fork-url $HTTPS_PROVIDER_URL_SEPOLIA --account axe-deployer --sender 0x7e95A312E398431a26AC266B9215A7DddD5Ea60B -vvv --verify
 ```
 
 When all looks good, add the `--broadcast` flag and run for final deployment.
 
 ### Contract verification
 
-If you're not using the `--verify` parameter when deploying (see above) you can manually verify the contract:
+If you're not using the `--verify` parameter when deploying (see above) you can manually verify the contract afterwards:
 
 ```shell
 forge verify-contract \

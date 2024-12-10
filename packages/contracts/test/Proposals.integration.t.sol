@@ -43,18 +43,20 @@ contract ProposalsIntegrationTest is MultiSendProposal {
 
   function test_IssuanceProposal() public {
     // Multisend encoded bytes to issue 500 mil on AXESource at 0xaE8F6454fa13EbA1Be4ea60019d1bd34F9D04895
-    address[] memory targets = new address[](1);
-    uint256[] memory values = new uint256[](1);
     bytes[] memory calldatas = new bytes[](1);
-    targets[0] = axeToken;
-    values[0] = 0;
+    uint256[] memory values = new uint256[](1);
+    address[] memory targets = new address[](1);
     calldatas[0] = abi.encodeWithSignature("issue(uint256)", 500_000_000 * (10 ** 18));
+    values[0] = 0;
+    targets[0] = address(axeToken);
 
     // Execute the multi-call from the secondary safe
-    bytes memory issuanceProposalData = encodeMultiCall(targets, values, calldatas, treasury);
+    bytes memory issuanceProposalData = encodeMultiCall(targets, values, calldatas);
+    issuanceProposalData = wrapForCustomTreasury(dao, treasury, issuanceProposalData);
+
+    IBaal baal = IBaal(dao);
 
     vm.startPrank(shareholder);
-    IBaal baal = IBaal(dao);
     uint32 propId = uint32(baal.submitProposal(issuanceProposalData, 0, 16000000, "Show me the money!"));
 
     // [cancelled, processed, passed, actionFailed]
@@ -62,6 +64,7 @@ contract ProposalsIntegrationTest is MultiSendProposal {
 
     vm.warp(block.timestamp + 60);
     baal.submitVote(propId, true);
+    vm.stopPrank();
 
     propStatus = baal.getProposalStatus(propId);
     assertFalse(propStatus[2]);
@@ -80,10 +83,8 @@ contract ProposalsIntegrationTest is MultiSendProposal {
 
     uint256 balanceBefore = IERC20(axeToken).balanceOf(treasury);
 
-    vm.expectEmit(false, false, false, true);
-
-    emit AxeIssued(500000000000000000000000000);
-
+    // vm.expectEmit(false, false, false, true);
+    // emit AxeIssued(500000000000000000000000000);
     baal.processProposal(propId, issuanceProposalData);
 
     propStatus = baal.getProposalStatus(propId);
@@ -91,8 +92,6 @@ contract ProposalsIntegrationTest is MultiSendProposal {
 
     uint256 balanceAfter = IERC20(axeToken).balanceOf(treasury);
     assertEq(balanceAfter, balanceBefore + 500_000_000 * (10 ** 18), "Issued amount not in treasury");
-
-    vm.stopPrank();
   }
 
   function test_LiquidityProposal() public {

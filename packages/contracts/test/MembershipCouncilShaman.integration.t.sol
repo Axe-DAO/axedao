@@ -5,6 +5,7 @@ import { IBaal } from "@daohaus/baal-contracts/contracts/interfaces/IBaal.sol";
 
 import "./MembershipCouncilBase.sol";
 import { MembershipCouncilShaman } from "../contracts/baal/MembershipCouncilShaman.sol";
+import { IMembershipCouncilShaman } from "../contracts/baal/IMembershipCouncilShaman.sol";
 import { MockERC20 } from "../contracts/test/MockERC20.sol";
 import { MultiSendProposal } from "./MultiSendProposal.sol";
 
@@ -23,8 +24,9 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
   address swapTokenAddress = 0xD44Eb94380bff68a827604fDb2dA7b0A3Ec6Ad0B;
   address swapTokenOwner = 0x7e95A312E398431a26AC266B9215A7DddD5Ea60B;
   uint256 forkBlockNumber = 7224997; // Using a fixed block number speeds things up
+  uint256 shareThreshold;
 
-  TestMembershipCouncilShaman shaman;
+  IMembershipCouncilShaman shaman;
 
   function setUp() public {
     string memory testMode = vm.envOr("TEST_MODE", string("normal"));
@@ -34,6 +36,7 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
     // Similar setup but with shaman-specific initialization
     paymentToken = MockERC20(swapTokenAddress);
     tokenDonationAmount = 10 ** 10 * IERC20Metadata(swapTokenAddress).decimals();
+    shareThreshold = 1 * 10 ** IERC20Metadata(address(baal.sharesToken())).decimals();
 
     // Deploy the MembershipToken NFT with shaman configuration
     membershipCouncil = new MembershipCouncil(
@@ -44,7 +47,15 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
       0.00001 ether,
       "ipfs://Qmb6cxks2ZMfWTXravK5RHf7LYLRYrtgxL14Zg47hFNxjU/quilombo-early-design.json"
     );
-    shaman = new TestMembershipCouncilShaman(address(membershipCouncil), owner, address(baal));
+
+    // set up the Shaman
+    shaman = new MembershipCouncilShaman(address(membershipCouncil), owner, address(baal));
+    address[] memory shamans = new address[](1);
+    uint256[] memory permissions = new uint256[](1);
+    permissions[0] = 2; // Manager
+    shamans[0] = address(shaman);
+    vm.prank(owner);
+    baal.setShamans(shamans, permissions);
 
     // Set up test users
     initiateTestUsers(swapTokenOwner, 500);
@@ -98,7 +109,7 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
     for (uint256 i = 0; i < numCandidates; i++) {
       vm.prank(testUsers[i]);
       membershipCouncil.enlistAsCandidate();
-      loot[i] = 1 * 10 ** IERC20Metadata(address(baal.lootToken())).decimals();
+      loot[i] = shareThreshold;
       topIndex = lastIndex + candidatesDelegations[i];
       _delegateUsers(testUsers[i], lastIndex, topIndex);
       candidates[i] = testUsers[i];
@@ -118,22 +129,75 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
   }
 
   function test_CouncilDetermination() public {
-    (address[] memory remaining, address[] memory added) = shaman.determineCouncil();
+    (address[] memory remaining, address[] memory added) = shaman.determineCouncilChanges();
     assertEq(remaining.length, 0, "Expected 0 candidates to be removed from the council");
     assertEq(added.length, 21, "Expected 21 candidates to be added to the council");
+
+    address[] memory target = new address[](21);
+    target[0] = testUsers[5];
+    target[1] = testUsers[4];
+    target[2] = testUsers[3];
+    target[3] = testUsers[6];
+    target[4] = testUsers[20];
+    target[5] = testUsers[11];
+    target[6] = testUsers[14];
+    target[7] = testUsers[23];
+    target[8] = testUsers[10];
+    target[9] = testUsers[21];
+    target[10] = testUsers[7];
+    target[11] = testUsers[16];
+    target[12] = testUsers[25];
+    target[13] = testUsers[15];
+    target[14] = testUsers[24];
+    target[15] = testUsers[29];
+    target[16] = testUsers[17];
+    target[17] = testUsers[18];
+    target[18] = testUsers[31];
+    target[19] = testUsers[32];
+    target[20] = testUsers[0];
+
+    for (uint256 i = 0; i < target.length; i++) {
+      assertTrue(contains(added, target[i]), "Expected candidate missing from added array");
+    }
+
+    // Make two candidates uneligible and verify outcome
+    address[] memory candidateChanges = new address[](2);
+    // Users 16 and 17 are the two candidates that will be made uneligible
+    candidateChanges[0] = testUsers[16];
+    candidateChanges[1] = testUsers[17];
+    uint256[] memory lootChanges = new uint256[](2);
+    lootChanges[0] = shareThreshold;
+    lootChanges[1] = shareThreshold;
+    vm.prank(owner);
+    baal.burnLoot(candidateChanges, lootChanges);
+    (remaining, added) = shaman.determineCouncilChanges();
+    // Users 30 and 9 should've moved up the list due to the uneligiblity of users 16 and 17
+    assertFalse(contains(added, testUsers[16]), "Expected candidate 16 to be removed from added array");
+    assertFalse(contains(added, testUsers[17]), "Expected candidate 17 to be removed from added array");
+    target[11] = testUsers[30];
+    target[16] = testUsers[9];
+    for (uint256 i = 0; i < target.length; i++) {
+      assertTrue(contains(added, target[i]), "Expected candidate missing after uneligiblity changes");
+    }
   }
 
-  function test_CouncilFormation() public {}
-}
+  function test_CouncilFormation() public {
+    address[] memory current = shaman.getCurrentCouncil();
+    assertTrue(current.length == 0, "Expected current council to be empty");
+    current = shaman.formCouncil();
+    assertTrue(current.length == 21, "Expected current council to be 21");
+    for (uint256 i = 0; i < current.length; i++) {
+      assertTrue(
+        IERC20(baal.sharesToken()).balanceOf(current[i]) == shareThreshold,
+        "Expected current council members to have 1 share"
+      );
+    }
+  }
 
-contract TestMembershipCouncilShaman is MembershipCouncilShaman {
-  constructor(
-    address _membershipCouncil,
-    address _owner,
-    address _baal
-  ) MembershipCouncilShaman(_membershipCouncil, _owner, _baal) {}
-
-  function determineCouncil() public view returns (address[] memory, address[] memory) {
-    return super.determineCouncilChanges();
+  function contains(address[] memory array, address element) internal pure returns (bool) {
+    for (uint256 i = 0; i < array.length; i++) {
+      if (array[i] == element) return true;
+    }
+    return false;
   }
 }

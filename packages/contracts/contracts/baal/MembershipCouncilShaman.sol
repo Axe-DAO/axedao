@@ -8,8 +8,9 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
+import { IMembershipCouncilShaman } from "./IMembershipCouncilShaman.sol";
 
-contract MembershipCouncilShaman is Ownable {
+contract MembershipCouncilShaman is IMembershipCouncilShaman, Ownable {
   error MinCouncilSizeRequiredError(uint256 _minSize, uint256 _requestedSize);
 
   uint256 public constant MIN_COUNCIL_SIZE = 21;
@@ -32,9 +33,9 @@ contract MembershipCouncilShaman is Ownable {
     councilSize = _councilSize;
   }
 
-  function formMembershipCouncil() external {
+  function formCouncil() external returns (address[] memory) {
     IERC20 sharesToken = IERC20(baal.sharesToken());
-    uint256 shareAmount = 1 ** IERC20Metadata(address(sharesToken)).decimals();
+    uint256 shareAmount = 1 * 10 ** IERC20Metadata(address(sharesToken)).decimals();
 
     (address[] memory remainingMembers, address[] memory newMembers) = determineCouncilChanges();
 
@@ -66,7 +67,7 @@ contract MembershipCouncilShaman is Ownable {
     for (uint256 i = 0; i < newMembers.length; ) {
       address member = newMembers[i];
       councilMembers[0] = member;
-      if (sharesToken.balanceOf(member) <= 1) {
+      if (sharesToken.balanceOf(member) <= shareAmount) {
         baal.burnLoot(councilMembers, shareAmounts);
         baal.mintShares(councilMembers, shareAmounts);
       }
@@ -77,6 +78,8 @@ contract MembershipCouncilShaman is Ownable {
         i++;
       }
     }
+
+    return currentCouncilList;
   }
 
   /**
@@ -85,7 +88,7 @@ contract MembershipCouncilShaman is Ownable {
    * to be converted to shares, otherwise they will not be eligible for the council and will be skipped.
    * @return The new council separated into members who will remain on the council and members who will be added.
    */
-  function determineCouncilChanges() internal view returns (address[] memory, address[] memory) {
+  function determineCouncilChanges() public view returns (address[] memory, address[] memory) {
     // Create arrays in memory with some initial capacity
     address[] memory remainingMembers;
     address[] memory newMembers;
@@ -142,5 +145,9 @@ contract MembershipCouncilShaman is Ownable {
     }
 
     return (remainingMembers, newMembers);
+  }
+
+  function getCurrentCouncil() external view override returns (address[] memory) {
+    return currentCouncilList;
   }
 }

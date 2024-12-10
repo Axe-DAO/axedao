@@ -22,10 +22,10 @@ contract Deploy is Script {
     require(treasury != address(0), "ENV var for treasury is not set!");
     require(founder != address(0), "ENV var for founder is not set!");
 
-    vm.startBroadcast();
     console.log("AXE Deployer: %s", msg.sender);
     require(msg.sender == axeDeployer, "Wrong AXE deployer account!");
 
+    vm.startBroadcast();
     // Gnosis + Sepolia are the home chains where AXESource must be deployed
     bool sourceChain = block.chainid == 100 || block.chainid == 11155111;
     // The creation of AXE is salted with a ladainha and the msg.sender
@@ -37,9 +37,9 @@ contract Deploy is Script {
     address instance = ICREATE3Factory(create3Factory).deploy(_salt, _bytecode);
     require(instance == axeTargetAddress, "CREATE3 did not generate the expected target address!");
 
+    vm.stopBroadcast();
+
     string memory axeType = sourceChain ? "AXESource" : "AXE";
     console.log("Deployed %s to address %s on network %s", axeType, instance, block.chainid);
-
-    vm.stopBroadcast();
   }
 }
