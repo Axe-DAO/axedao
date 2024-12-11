@@ -26,12 +26,12 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
   uint256 forkBlockNumber = 7224997; // Using a fixed block number speeds things up
   uint256 shareThreshold;
 
-  IMembershipCouncilShaman shaman;
+  MembershipCouncilShaman shaman;
 
   function setUp() public {
     string memory testMode = vm.envOr("TEST_MODE", string("normal"));
     vm.skip(keccak256(abi.encodePacked(testMode)) != keccak256(abi.encodePacked("integration")));
-    vm.createSelectFork("http://127.0.0.1:8545");
+    vm.createSelectFork("http://127.0.0.1:8545", forkBlockNumber);
 
     // Similar setup but with shaman-specific initialization
     paymentToken = MockERC20(swapTokenAddress);
@@ -128,10 +128,18 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
     return candidates;
   }
 
-  function test_CouncilDetermination() public {
-    (address[] memory remaining, address[] memory added) = shaman.determineCouncilChanges();
-    assertEq(remaining.length, 0, "Expected 0 candidates to be removed from the council");
-    assertEq(added.length, 21, "Expected 21 candidates to be added to the council");
+  function test_CouncilUpdateRequest() public {
+    address[] memory outgoing = shaman.getLeavingMembers();
+    address[] memory incoming = shaman.getJoiningMembers();
+    assertEq(outgoing.length, 0, "Expected 0 outgoing candidates at start");
+    assertEq(incoming.length, 0, "Expected 0 incoming candidates at start");
+
+    shaman.requestCouncilUpdate();
+
+    outgoing = shaman.getLeavingMembers();
+    incoming = shaman.getJoiningMembers();
+    assertEq(outgoing.length, 0, "Expected 0 candidates to be removed from the council");
+    assertEq(incoming.length, 21, "Expected 21 candidates to be added to the council");
 
     address[] memory target = new address[](21);
     target[0] = testUsers[5];
@@ -157,12 +165,12 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
     target[20] = testUsers[0];
 
     for (uint256 i = 0; i < target.length; i++) {
-      assertTrue(contains(added, target[i]), "Expected candidate missing from added array");
+      assertTrue(contains(incoming, target[i]), "Expected candidate missing from incoming council");
     }
 
     // Make two candidates uneligible and verify outcome
     address[] memory candidateChanges = new address[](2);
-    // Users 16 and 17 are the two candidates that will be made uneligible
+    // Users 16 and 17 are the two candidates that will be made uneligible by burning their loot
     candidateChanges[0] = testUsers[16];
     candidateChanges[1] = testUsers[17];
     uint256[] memory lootChanges = new uint256[](2);
@@ -170,28 +178,87 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
     lootChanges[1] = shareThreshold;
     vm.prank(owner);
     baal.burnLoot(candidateChanges, lootChanges);
-    (remaining, added) = shaman.determineCouncilChanges();
+
+    vm.warp(block.timestamp + 25 hours);
+    shaman.requestCouncilUpdate();
+    outgoing = shaman.getLeavingMembers();
+    incoming = shaman.getJoiningMembers();
+
     // Users 30 and 9 should've moved up the list due to the uneligiblity of users 16 and 17
-    assertFalse(contains(added, testUsers[16]), "Expected candidate 16 to be removed from added array");
-    assertFalse(contains(added, testUsers[17]), "Expected candidate 17 to be removed from added array");
+    assertFalse(contains(incoming, testUsers[16]), "Expected candidate 16 to be removed from added array");
+    assertFalse(contains(incoming, testUsers[17]), "Expected candidate 17 to be removed from added array");
     target[11] = testUsers[30];
     target[16] = testUsers[9];
     for (uint256 i = 0; i < target.length; i++) {
-      assertTrue(contains(added, target[i]), "Expected candidate missing after uneligiblity changes");
+      assertTrue(contains(incoming, target[i]), "Expected candidate missing after uneligiblity changes");
     }
   }
 
-  function test_CouncilFormation() public {
-    address[] memory current = shaman.getCurrentCouncil();
-    assertTrue(current.length == 0, "Expected current council to be empty");
-    current = shaman.formCouncil();
-    assertTrue(current.length == 21, "Expected current council to be 21");
-    for (uint256 i = 0; i < current.length; i++) {
-      assertTrue(
-        IERC20(baal.sharesToken()).balanceOf(current[i]) == shareThreshold,
-        "Expected current council members to have 1 share"
+  function test_ClaimSeats() public {
+    shaman.requestCouncilUpdate();
+
+    uint256 councilSize = shaman.getCouncilSize();
+    uint256 numOfSeats = shaman.getJoiningMembers().length;
+    assertEq(councilSize, 0, "Expected 0 council members at start");
+    assertEq(numOfSeats, 21, "Expected 21 seats to be claimed");
+
+    vm.startPrank(testUsers[0]);
+    shaman.claimSeat(address(0));
+    // seat already claimed
+    vm.expectRevert(abi.encodeWithSelector(IMembershipCouncilShaman.InvalidSeatClaim.selector, address(testUsers[0])));
+    shaman.claimSeat(address(0));
+    vm.stopPrank();
+
+    councilSize = shaman.getCouncilSize();
+    assertEq(councilSize, 1, "Expected 1 council member after claiming seat");
+
+    vm.startPrank(testUsers[3]);
+    address last = testUsers[testUsers.length - 1];
+    vm.expectRevert(
+      abi.encodeWithSelector(IMembershipCouncilShaman.InvalidSeatReplacement.selector, address(testUsers[3]), last)
+    );
+    shaman.claimSeat(last);
+    shaman.claimSeat(address(0));
+    vm.stopPrank();
+
+    numOfSeats = shaman.getJoiningMembers().length;
+    assertEq(numOfSeats, 19, "Expected 19 seats to be claimable after 2 seats claimed");
+
+    // Remaining top candidates
+    address[] memory seatClaimers = new address[](19);
+    seatClaimers[0] = testUsers[5];
+    seatClaimers[1] = testUsers[4];
+    seatClaimers[2] = testUsers[6];
+    seatClaimers[3] = testUsers[20];
+    seatClaimers[4] = testUsers[11];
+    seatClaimers[5] = testUsers[14];
+    seatClaimers[6] = testUsers[23];
+    seatClaimers[7] = testUsers[10];
+    seatClaimers[8] = testUsers[21];
+    seatClaimers[9] = testUsers[7];
+    seatClaimers[10] = testUsers[16];
+    seatClaimers[11] = testUsers[25];
+    seatClaimers[12] = testUsers[15];
+    seatClaimers[13] = testUsers[24];
+    seatClaimers[14] = testUsers[29];
+    seatClaimers[15] = testUsers[17];
+    seatClaimers[16] = testUsers[18];
+    seatClaimers[17] = testUsers[31];
+    seatClaimers[18] = testUsers[32];
+
+    for (uint256 i = 0; i < seatClaimers.length; i++) {
+      vm.prank(seatClaimers[i]);
+      shaman.claimSeat(address(0));
+      assertEq(
+        IERC20(address(baal.sharesToken())).balanceOf(seatClaimers[i]),
+        shareThreshold,
+        "Expected newly joined council member to have 1 share"
       );
     }
+
+    // have user resign and also delegate to a new user
+    // request a new council and check claimable seat changes
+    // test replacements
   }
 
   function contains(address[] memory array, address element) internal pure returns (bool) {

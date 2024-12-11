@@ -3,13 +3,30 @@
 pragma solidity ^0.8.20;
 
 interface IMembershipCouncilShaman {
-  function getCurrentCouncil() external view returns (address[] memory);
+  struct CouncilMember {
+    uint256 index;
+    bool active;
+  }
 
-  /**
-   * @return remainingMembers - the members that are already in the council
-   * @return newMembers - the members that are not in the council
-   */
-  function determineCouncilChanges() external view returns (address[] memory, address[] memory);
+  error InvalidCouncilSize(uint256 _minSize, uint256 _requestedSize);
+  error FormationCooldownError();
+  error InvalidSeatReplacement(address _candidate, address _existingSeat);
+  error InvalidSeatClaim(address _candidate);
+  error InsufficientLoot(address _candidate);
+  error OnlyReplacementAllowed(address _candidate);
 
-  function formCouncil() external returns (address[] memory);
+  event CouncilUpdateRequested(uint256 currentSize, uint256 numJoining, uint256 numLeaving);
+  event SeatClaimed(address indexed candidate, address indexed replaced);
+
+  function getCouncilSize() external view returns (uint256);
+
+  function getCouncilMemberAtIndex(uint256 _index) external view returns (address);
+
+  function getJoiningMembers() external view returns (address[] memory);
+
+  function getLeavingMembers() external view returns (address[] memory);
+
+  function requestCouncilUpdate() external;
+
+  function claimSeat(address _existingSeat) external;
 }
