@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
 
@@ -21,6 +22,9 @@ import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
  * list of delegation counts to allow for efficient querying of the top candidates.
  */
 contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
+  // The donation token could be a custom implementation, so we'll stay on the safe side with SafeERC20
+  using SafeERC20 for IERC20;
+
   address internal donationReceiver;
   address internal donationToken;
   uint256 internal donationAmount;

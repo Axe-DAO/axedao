@@ -6,6 +6,7 @@ import { IBaal } from "@daohaus/baal-contracts/contracts/interfaces/IBaal.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
 import { IMembershipCouncilShaman } from "./IMembershipCouncilShaman.sol";
@@ -22,6 +23,9 @@ import { IMembershipCouncilShaman } from "./IMembershipCouncilShaman.sol";
  * proposal voting.
  */
 contract MembershipCouncilShaman is IMembershipCouncilShaman, Ownable {
+  // the loot and shares tokens could be custom implementations, so we'll stay on the safe side with SafeERC20
+  using SafeERC20 for IERC20;
+
   uint256 public constant MIN_COUNCIL_SIZE = 21;
   uint256 public constant FORMATION_COOLDOWN = 24 hours;
   uint256 public lastFormationRequest;
