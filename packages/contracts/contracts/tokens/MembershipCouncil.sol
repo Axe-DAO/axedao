@@ -6,6 +6,7 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
 
@@ -21,7 +22,7 @@ import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
  * membership to a candidate of their choice. The contract keeps track of delegations and candidate availability and maintains a sorted
  * list of delegation counts to allow for efficient querying of the top candidates.
  */
-contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
+contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGuard {
   // The donation token could be a custom implementation, so we'll stay on the safe side with SafeERC20
   using SafeERC20 for IERC20;
 
@@ -84,12 +85,9 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     baseTokenURI = _baseTokenURI;
   }
 
-  function donate() external override registerNewMember {
+  function donate() external override registerNewMember nonReentrant {
     address sender = _msgSender();
-    require(
-      IERC20(donationToken).transferFrom(sender, donationReceiver, donationAmount),
-      "Failed to transfer donation"
-    );
+    IERC20(donationToken).safeTransferFrom(sender, donationReceiver, donationAmount);
     _mint(sender, memberCount);
   }
 
@@ -97,7 +95,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable {
     return members[_user] != 0;
   }
 
-  receive() external payable registerNewMember {
+  receive() external payable registerNewMember nonReentrant {
     _handleNativeDonation();
     _mint(_msgSender(), memberCount);
   }

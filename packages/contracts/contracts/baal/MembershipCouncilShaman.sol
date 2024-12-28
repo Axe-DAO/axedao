@@ -7,6 +7,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
 import { IMembershipCouncilShaman } from "./IMembershipCouncilShaman.sol";
@@ -22,7 +23,7 @@ import { IMembershipCouncilShaman } from "./IMembershipCouncilShaman.sol";
  * The idea is to make it the decision of the eligible candidate to actively join the council which decreases the chance of a negative impact on ongoing
  * proposal voting.
  */
-contract MembershipCouncilShaman is IMembershipCouncilShaman, Ownable {
+contract MembershipCouncilShaman is IMembershipCouncilShaman, Ownable, ReentrancyGuard {
   // the loot and shares tokens could be custom implementations, so we'll stay on the safe side with SafeERC20
   using SafeERC20 for IERC20;
 
@@ -53,7 +54,7 @@ contract MembershipCouncilShaman is IMembershipCouncilShaman, Ownable {
    * If the council is full, a seat can only be claimed by replacing an existing council member.
    * @param _existingSeat The address of the current council member to replace, if any.
    */
-  function claimSeat(address _existingSeat) external {
+  function claimSeat(address _existingSeat) external nonReentrant {
     address sender = _msgSender();
     if (!incomingCouncil[sender].active) revert InvalidSeatClaim(sender);
     bool isReplacement = _existingSeat != address(0);
