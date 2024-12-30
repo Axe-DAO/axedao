@@ -12,6 +12,8 @@ type ConfigType = {
   axeDaoSharesAddress: Address;
   axeDaoLootAddress: Address;
   axeSwapTokenAddress: Address;
+  membershipCouncilAddress: Address;
+  councilShamanAddress: Address;
   uniswapV2PairAddress: Address;
   uniswapV2RouterAddress: Address;
   pinataGatewayUrl: string;
@@ -66,6 +68,14 @@ const ENV: ConfigType = {
   axeSwapTokenAddress: required(
     process.env.NEXT_PUBLIC_AXE_SWAP_TOKEN_ADDRESS,
     'NEXT_PUBLIC_AXE_SWAP_TOKEN_ADDRESS',
+  ) as Address,
+  membershipCouncilAddress: required(
+    process.env.NEXT_PUBLIC_MEMBERSHIP_COUNCIL_ADDRESS,
+    'NEXT_PUBLIC_MEMBERSHIP_COUNCIL_ADDRESS',
+  ) as Address,
+  councilShamanAddress: required(
+    process.env.NEXT_PUBLIC_COUNCIL_SHAMAN_ADDRESS,
+    'NEXT_PUBLIC_COUNCIL_SHAMAN_ADDRESS',
   ) as Address,
   uniswapV2PairAddress: required(
     process.env.NEXT_PUBLIC_UNISWAPV2PAIR_ADDRESS,

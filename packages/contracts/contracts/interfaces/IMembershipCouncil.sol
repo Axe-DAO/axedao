@@ -45,4 +45,16 @@ interface IMembershipCouncil is IERC721 {
   function getSortedGroupAtIndex(uint256 _sortedIndex) external view returns (address[] memory);
 
   function getSortedGroupDelegationCount(uint256 _sortedIndex) external view returns (uint256);
+
+  function getNativeDonationAmount() external view returns (uint256);
+
+  function setNativeDonationAmount(uint256 _amount) external;
+
+  function getTokenDonationAmount() external view returns (uint256);
+
+  function setTokenDonationAmount(uint256 _amount) external;
+
+  function setDonationToken(address _token) external;
+
+  function setDonationReceiver(address _receiver) external;
 }

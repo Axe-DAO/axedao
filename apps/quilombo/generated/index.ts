@@ -2218,6 +2218,20 @@ export const eip712Abi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ERC165
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const erc165Abi = [
+  {
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ERC20
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2619,6 +2633,233 @@ export const erc20PermitAbi = [
     type: 'error',
     inputs: [{ name: 'str', internalType: 'string', type: 'string' }],
     name: 'StringTooLong',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ERC721
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const erc721Abi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getApproved',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'operator', internalType: 'address', type: 'address' },
+    ],
+    name: 'isApprovedForAll',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'approved', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'tokenURI',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'approved',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'operator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'ApprovalForAll',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Transfer',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'sender', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'owner', internalType: 'address', type: 'address' },
+    ],
+    name: 'ERC721IncorrectOwner',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'ERC721InsufficientApproval',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'approver', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidApprover',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'operator', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidOperator',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidOwner',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'receiver', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidReceiver',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'sender', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidSender',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ERC721NonexistentToken',
   },
 ] as const
 
@@ -4324,6 +4565,742 @@ export const ierc721ErrorsAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IERC721Metadata
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const ierc721MetadataAbi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: 'balance', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getApproved',
+    outputs: [{ name: 'operator', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'operator', internalType: 'address', type: 'address' },
+    ],
+    name: 'isApprovedForAll',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'approved', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'tokenURI',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'approved',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'operator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'ApprovalForAll',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Transfer',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IERC721Receiver
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const ierc721ReceiverAbi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'onERC721Received',
+    outputs: [{ name: '', internalType: 'bytes4', type: 'bytes4' }],
+    stateMutability: 'nonpayable',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IMembershipCouncil
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const iMembershipCouncilAbi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: 'balance', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'delegate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'donate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'enlistAsCandidate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getApproved',
+    outputs: [{ name: 'operator', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'getCandidate',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct IMembershipCouncil.Candidate',
+        type: 'tuple',
+        components: [
+          { name: 'available', internalType: 'bool', type: 'bool' },
+          { name: 'index', internalType: 'uint256', type: 'uint256' },
+          { name: 'delegationCount', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getMemberCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_user', internalType: 'address', type: 'address' }],
+    name: 'getMemberId',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getNativeDonationAmount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getNumberOfSortedGroups',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_sortedIndex', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getSortedGroupAtIndex',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_sortedIndex', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getSortedGroupDelegationCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getTokenDonationAmount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'operator', internalType: 'address', type: 'address' },
+    ],
+    name: 'isApprovedForAll',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_user', internalType: 'address', type: 'address' }],
+    name: 'isMember',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'resignAsCandidate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'approved', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_receiver', internalType: 'address', type: 'address' }],
+    name: 'setDonationReceiver',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_token', internalType: 'address', type: 'address' }],
+    name: 'setDonationToken',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_amount', internalType: 'uint256', type: 'uint256' }],
+    name: 'setNativeDonationAmount',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_amount', internalType: 'uint256', type: 'uint256' }],
+    name: 'setTokenDonationAmount',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'undelegate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'approved',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'operator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'ApprovalForAll',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_candidate',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'CandidateEnlisted',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_candidate',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'CandidateResigned',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_donator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: '_amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ERC20DonationReceived',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_donator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: '_amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'NativeDonationReceived',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Transfer',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_delegator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: '_candidate',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'VoteDelegated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_delegator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'VoteUndelegated',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: '_member', internalType: 'address', type: 'address' }],
+    name: 'AlreadyMemberError',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+      { name: '_requiredAmount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'InsufficientDonationError',
+  },
+  { type: 'error', inputs: [], name: 'NotAMemberError' },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IMembershipCouncilShaman
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const iMembershipCouncilShamanAbi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: '_existingSeat', internalType: 'address', type: 'address' },
+    ],
+    name: 'claimSeat',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_index', internalType: 'uint256', type: 'uint256' }],
+    name: 'getCouncilMemberAtIndex',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getCouncilSize',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getJoiningMembers',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getLeavingMembers',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'requestCouncilUpdate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'currentSize',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'numJoining',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'numLeaving',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'CouncilUpdateRequested',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'candidate',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'replaced',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'SeatClaimed',
+  },
+  { type: 'error', inputs: [], name: 'FormationCooldownError' },
+  {
+    type: 'error',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'InsufficientLoot',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: '_minSize', internalType: 'uint256', type: 'uint256' },
+      { name: '_requestedSize', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'InvalidCouncilSize',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'InvalidSeatClaim',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: '_candidate', internalType: 'address', type: 'address' },
+      { name: '_existingSeat', internalType: 'address', type: 'address' },
+    ],
+    name: 'InvalidSeatReplacement',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'OnlyReplacementAllowed',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // IMulticall3
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -5789,6 +6766,1855 @@ export const ixerc20Abi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MembershipCouncil
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const membershipCouncilAbi = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: '_owner', internalType: 'address', type: 'address' },
+      { name: '_donationReceiver', internalType: 'address', type: 'address' },
+      { name: '_donationToken', internalType: 'address', type: 'address' },
+      { name: '_donationAmount', internalType: 'uint256', type: 'uint256' },
+      {
+        name: '_nativeDonationAmount',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+      { name: '_baseTokenURI', internalType: 'string', type: 'string' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  { type: 'receive', stateMutability: 'payable' },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'candidates',
+    outputs: [
+      { name: 'available', internalType: 'bool', type: 'bool' },
+      { name: 'index', internalType: 'uint256', type: 'uint256' },
+      { name: 'delegationCount', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'delegate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'delegations',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'donate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'enlistAsCandidate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getApproved',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'getCandidate',
+    outputs: [
+      {
+        name: '',
+        internalType: 'struct IMembershipCouncil.Candidate',
+        type: 'tuple',
+        components: [
+          { name: 'available', internalType: 'bool', type: 'bool' },
+          { name: 'index', internalType: 'uint256', type: 'uint256' },
+          { name: 'delegationCount', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getMemberCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_user', internalType: 'address', type: 'address' }],
+    name: 'getMemberId',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getNativeDonationAmount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getNumberOfSortedGroups',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_sortedIndex', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getSortedGroupAtIndex',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_sortedIndex', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'getSortedGroupDelegationCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getTokenDonationAmount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'operator', internalType: 'address', type: 'address' },
+    ],
+    name: 'isApprovedForAll',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_user', internalType: 'address', type: 'address' }],
+    name: 'isMember',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'members',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'resignAsCandidate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'approved', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_donationReceiver', internalType: 'address', type: 'address' },
+    ],
+    name: 'setDonationReceiver',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_donationToken', internalType: 'address', type: 'address' },
+    ],
+    name: 'setDonationToken',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: '_nativeDonationAmount',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+    ],
+    name: 'setNativeDonationAmount',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_donationAmount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'setTokenDonationAmount',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'tokenURI',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'undelegate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'approved',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'operator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'ApprovalForAll',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_candidate',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'CandidateEnlisted',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_candidate',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'CandidateResigned',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_donator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: '_amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ERC20DonationReceived',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_donator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: '_amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'NativeDonationReceived',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Transfer',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_delegator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: '_candidate',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'VoteDelegated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: '_delegator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'VoteUndelegated',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: '_member', internalType: 'address', type: 'address' }],
+    name: 'AlreadyMemberError',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'sender', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'owner', internalType: 'address', type: 'address' },
+    ],
+    name: 'ERC721IncorrectOwner',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'ERC721InsufficientApproval',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'approver', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidApprover',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'operator', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidOperator',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidOwner',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'receiver', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidReceiver',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'sender', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidSender',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ERC721NonexistentToken',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+      { name: '_requiredAmount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'InsufficientDonationError',
+  },
+  { type: 'error', inputs: [], name: 'NotAMemberError' },
+  {
+    type: 'error',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'OwnableInvalidOwner',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'OwnableUnauthorizedAccount',
+  },
+  { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
+  {
+    type: 'error',
+    inputs: [{ name: 'token', internalType: 'address', type: 'address' }],
+    name: 'SafeERC20FailedOperation',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MembershipCouncilBase
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const membershipCouncilBaseAbi = [
+  {
+    type: 'function',
+    inputs: [],
+    name: 'IS_TEST',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'excludeArtifacts',
+    outputs: [
+      {
+        name: 'excludedArtifacts_',
+        internalType: 'string[]',
+        type: 'string[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'excludeContracts',
+    outputs: [
+      {
+        name: 'excludedContracts_',
+        internalType: 'address[]',
+        type: 'address[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'excludeSenders',
+    outputs: [
+      {
+        name: 'excludedSenders_',
+        internalType: 'address[]',
+        type: 'address[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'failed',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetArtifactSelectors',
+    outputs: [
+      {
+        name: 'targetedArtifactSelectors_',
+        internalType: 'struct StdInvariant.FuzzSelector[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'addr', internalType: 'address', type: 'address' },
+          { name: 'selectors', internalType: 'bytes4[]', type: 'bytes4[]' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetArtifacts',
+    outputs: [
+      {
+        name: 'targetedArtifacts_',
+        internalType: 'string[]',
+        type: 'string[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetContracts',
+    outputs: [
+      {
+        name: 'targetedContracts_',
+        internalType: 'address[]',
+        type: 'address[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetInterfaces',
+    outputs: [
+      {
+        name: 'targetedInterfaces_',
+        internalType: 'struct StdInvariant.FuzzInterface[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'addr', internalType: 'address', type: 'address' },
+          { name: 'artifacts', internalType: 'string[]', type: 'string[]' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetSelectors',
+    outputs: [
+      {
+        name: 'targetedSelectors_',
+        internalType: 'struct StdInvariant.FuzzSelector[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'addr', internalType: 'address', type: 'address' },
+          { name: 'selectors', internalType: 'bytes4[]', type: 'bytes4[]' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetSenders',
+    outputs: [
+      {
+        name: 'targetedSenders_',
+        internalType: 'address[]',
+        type: 'address[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'log',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'address', type: 'address', indexed: false },
+    ],
+    name: 'log_address',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'val',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'val',
+        internalType: 'int256[]',
+        type: 'int256[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'val',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'bytes', type: 'bytes', indexed: false },
+    ],
+    name: 'log_bytes',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'bytes32', type: 'bytes32', indexed: false },
+    ],
+    name: 'log_bytes32',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'int256', type: 'int256', indexed: false },
+    ],
+    name: 'log_int',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'address', type: 'address', indexed: false },
+    ],
+    name: 'log_named_address',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'val',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'val',
+        internalType: 'int256[]',
+        type: 'int256[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'val',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'bytes', type: 'bytes', indexed: false },
+    ],
+    name: 'log_named_bytes',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'bytes32', type: 'bytes32', indexed: false },
+    ],
+    name: 'log_named_bytes32',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'int256', type: 'int256', indexed: false },
+      {
+        name: 'decimals',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_decimal_int',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'uint256', type: 'uint256', indexed: false },
+      {
+        name: 'decimals',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_decimal_uint',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'int256', type: 'int256', indexed: false },
+    ],
+    name: 'log_named_int',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'log_named_string',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'log_named_uint',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'log_string',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'log_uint',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'bytes', type: 'bytes', indexed: false },
+    ],
+    name: 'logs',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MembershipCouncilShaman
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const membershipCouncilShamanAbi = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: '_membershipCouncil', internalType: 'address', type: 'address' },
+      { name: '_owner', internalType: 'address', type: 'address' },
+      { name: '_baal', internalType: 'address', type: 'address' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'FORMATION_COOLDOWN',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_COUNCIL_SIZE',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'baal',
+    outputs: [{ name: '', internalType: 'contract IBaal', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_existingSeat', internalType: 'address', type: 'address' },
+    ],
+    name: 'claimSeat',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'councilSize',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_index', internalType: 'uint256', type: 'uint256' }],
+    name: 'getCouncilMemberAtIndex',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getCouncilSize',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getJoiningMembers',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getLeavingMembers',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lastFormationRequest',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'membershipCouncil',
+    outputs: [
+      {
+        name: '',
+        internalType: 'contract IMembershipCouncil',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'requestCouncilUpdate',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_councilSize', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'setCouncilSize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'currentSize',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'numJoining',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'numLeaving',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'CouncilUpdateRequested',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'candidate',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'replaced',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'SeatClaimed',
+  },
+  { type: 'error', inputs: [], name: 'FormationCooldownError' },
+  {
+    type: 'error',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'InsufficientLoot',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: '_minSize', internalType: 'uint256', type: 'uint256' },
+      { name: '_requestedSize', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'InvalidCouncilSize',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'InvalidSeatClaim',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: '_candidate', internalType: 'address', type: 'address' },
+      { name: '_existingSeat', internalType: 'address', type: 'address' },
+    ],
+    name: 'InvalidSeatReplacement',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: '_candidate', internalType: 'address', type: 'address' }],
+    name: 'OnlyReplacementAllowed',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'OwnableInvalidOwner',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'OwnableUnauthorizedAccount',
+  },
+  { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MockNFT
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const mockNftAbi = [
+  {
+    type: 'constructor',
+    inputs: [
+      { name: '_receiver', internalType: 'address', type: 'address' },
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+      { name: '_baseTokenURI', internalType: 'string', type: 'string' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  { type: 'receive', stateMutability: 'payable' },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'getApproved',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'operator', internalType: 'address', type: 'address' },
+    ],
+    name: 'isApprovedForAll',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'safeTransferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'approved', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setApprovalForAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
+    name: 'supportsInterface',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'tokenURI',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'approved',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'operator',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'ApprovalForAll',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'tokenId',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'Transfer',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'sender', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'owner', internalType: 'address', type: 'address' },
+    ],
+    name: 'ERC721IncorrectOwner',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'operator', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'ERC721InsufficientApproval',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'approver', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidApprover',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'operator', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidOperator',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidOwner',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'receiver', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidReceiver',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'sender', internalType: 'address', type: 'address' }],
+    name: 'ERC721InvalidSender',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ERC721NonexistentToken',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// MultiSendProposal
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const multiSendProposalAbi = [
+  {
+    type: 'function',
+    inputs: [],
+    name: 'IS_TEST',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'targets', internalType: 'address[]', type: 'address[]' },
+      { name: 'values', internalType: 'uint256[]', type: 'uint256[]' },
+      { name: 'calldatas', internalType: 'bytes[]', type: 'bytes[]' },
+    ],
+    name: 'encodeMultiCall',
+    outputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'excludeArtifacts',
+    outputs: [
+      {
+        name: 'excludedArtifacts_',
+        internalType: 'string[]',
+        type: 'string[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'excludeContracts',
+    outputs: [
+      {
+        name: 'excludedContracts_',
+        internalType: 'address[]',
+        type: 'address[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'excludeSenders',
+    outputs: [
+      {
+        name: 'excludedSenders_',
+        internalType: 'address[]',
+        type: 'address[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'failed',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetArtifactSelectors',
+    outputs: [
+      {
+        name: 'targetedArtifactSelectors_',
+        internalType: 'struct StdInvariant.FuzzSelector[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'addr', internalType: 'address', type: 'address' },
+          { name: 'selectors', internalType: 'bytes4[]', type: 'bytes4[]' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetArtifacts',
+    outputs: [
+      {
+        name: 'targetedArtifacts_',
+        internalType: 'string[]',
+        type: 'string[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetContracts',
+    outputs: [
+      {
+        name: 'targetedContracts_',
+        internalType: 'address[]',
+        type: 'address[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetInterfaces',
+    outputs: [
+      {
+        name: 'targetedInterfaces_',
+        internalType: 'struct StdInvariant.FuzzInterface[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'addr', internalType: 'address', type: 'address' },
+          { name: 'artifacts', internalType: 'string[]', type: 'string[]' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetSelectors',
+    outputs: [
+      {
+        name: 'targetedSelectors_',
+        internalType: 'struct StdInvariant.FuzzSelector[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'addr', internalType: 'address', type: 'address' },
+          { name: 'selectors', internalType: 'bytes4[]', type: 'bytes4[]' },
+        ],
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'targetSenders',
+    outputs: [
+      {
+        name: 'targetedSenders_',
+        internalType: 'address[]',
+        type: 'address[]',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'mainTreasury', internalType: 'address', type: 'address' },
+      { name: 'secondaryTreasury', internalType: 'address', type: 'address' },
+      { name: 'innerMultiSend', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'wrapForCustomTreasury',
+    outputs: [{ name: '', internalType: 'bytes', type: 'bytes' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'log',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'address', type: 'address', indexed: false },
+    ],
+    name: 'log_address',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'val',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'val',
+        internalType: 'int256[]',
+        type: 'int256[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'val',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'bytes', type: 'bytes', indexed: false },
+    ],
+    name: 'log_bytes',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'bytes32', type: 'bytes32', indexed: false },
+    ],
+    name: 'log_bytes32',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'int256', type: 'int256', indexed: false },
+    ],
+    name: 'log_int',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'address', type: 'address', indexed: false },
+    ],
+    name: 'log_named_address',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'val',
+        internalType: 'uint256[]',
+        type: 'uint256[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'val',
+        internalType: 'int256[]',
+        type: 'int256[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'val',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_array',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'bytes', type: 'bytes', indexed: false },
+    ],
+    name: 'log_named_bytes',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'bytes32', type: 'bytes32', indexed: false },
+    ],
+    name: 'log_named_bytes32',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'int256', type: 'int256', indexed: false },
+      {
+        name: 'decimals',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_decimal_int',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'uint256', type: 'uint256', indexed: false },
+      {
+        name: 'decimals',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'log_named_decimal_uint',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'int256', type: 'int256', indexed: false },
+    ],
+    name: 'log_named_int',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'log_named_string',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'key', internalType: 'string', type: 'string', indexed: false },
+      { name: 'val', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'log_named_uint',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'log_string',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'uint256', type: 'uint256', indexed: false },
+    ],
+    name: 'log_uint',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: '', internalType: 'bytes', type: 'bytes', indexed: false },
+    ],
+    name: 'logs',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Nonces
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -5865,6 +8691,14 @@ export const ownableAbi = [
     inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
     name: 'OwnableUnauthorizedAccount',
   },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ReentrancyGuard
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const reentrancyGuardAbi = [
+  { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -8424,6 +11258,22 @@ export const useWatchEip712Eip712DomainChangedEvent =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc165Abi}__
+ */
+export const useReadErc165 = /*#__PURE__*/ createUseReadContract({
+  abi: erc165Abi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc165Abi}__ and `functionName` set to `"supportsInterface"`
+ */
+export const useReadErc165SupportsInterface =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc165Abi,
+    functionName: 'supportsInterface',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20Abi}__
  */
 export const useReadErc20 = /*#__PURE__*/ createUseReadContract({
@@ -8759,6 +11609,195 @@ export const useWatchErc20PermitEip712DomainChangedEvent =
 export const useWatchErc20PermitTransferEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: erc20PermitAbi,
+    eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc721Abi}__
+ */
+export const useReadErc721 = /*#__PURE__*/ createUseReadContract({
+  abi: erc721Abi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadErc721BalanceOf = /*#__PURE__*/ createUseReadContract({
+  abi: erc721Abi,
+  functionName: 'balanceOf',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"getApproved"`
+ */
+export const useReadErc721GetApproved = /*#__PURE__*/ createUseReadContract({
+  abi: erc721Abi,
+  functionName: 'getApproved',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"isApprovedForAll"`
+ */
+export const useReadErc721IsApprovedForAll =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc721Abi,
+    functionName: 'isApprovedForAll',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"name"`
+ */
+export const useReadErc721Name = /*#__PURE__*/ createUseReadContract({
+  abi: erc721Abi,
+  functionName: 'name',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"ownerOf"`
+ */
+export const useReadErc721OwnerOf = /*#__PURE__*/ createUseReadContract({
+  abi: erc721Abi,
+  functionName: 'ownerOf',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"supportsInterface"`
+ */
+export const useReadErc721SupportsInterface =
+  /*#__PURE__*/ createUseReadContract({
+    abi: erc721Abi,
+    functionName: 'supportsInterface',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"symbol"`
+ */
+export const useReadErc721Symbol = /*#__PURE__*/ createUseReadContract({
+  abi: erc721Abi,
+  functionName: 'symbol',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"tokenURI"`
+ */
+export const useReadErc721TokenUri = /*#__PURE__*/ createUseReadContract({
+  abi: erc721Abi,
+  functionName: 'tokenURI',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc721Abi}__
+ */
+export const useWriteErc721 = /*#__PURE__*/ createUseWriteContract({
+  abi: erc721Abi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"approve"`
+ */
+export const useWriteErc721Approve = /*#__PURE__*/ createUseWriteContract({
+  abi: erc721Abi,
+  functionName: 'approve',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useWriteErc721SafeTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: erc721Abi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useWriteErc721SetApprovalForAll =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: erc721Abi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useWriteErc721TransferFrom = /*#__PURE__*/ createUseWriteContract({
+  abi: erc721Abi,
+  functionName: 'transferFrom',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc721Abi}__
+ */
+export const useSimulateErc721 = /*#__PURE__*/ createUseSimulateContract({
+  abi: erc721Abi,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"approve"`
+ */
+export const useSimulateErc721Approve = /*#__PURE__*/ createUseSimulateContract(
+  { abi: erc721Abi, functionName: 'approve' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useSimulateErc721SafeTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: erc721Abi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useSimulateErc721SetApprovalForAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: erc721Abi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc721Abi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useSimulateErc721TransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: erc721Abi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link erc721Abi}__
+ */
+export const useWatchErc721Event = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: erc721Abi,
+})
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link erc721Abi}__ and `eventName` set to `"Approval"`
+ */
+export const useWatchErc721ApprovalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: erc721Abi,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link erc721Abi}__ and `eventName` set to `"ApprovalForAll"`
+ */
+export const useWatchErc721ApprovalForAllEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: erc721Abi,
+    eventName: 'ApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link erc721Abi}__ and `eventName` set to `"Transfer"`
+ */
+export const useWatchErc721TransferEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: erc721Abi,
     eventName: 'Transfer',
   })
 
@@ -10511,6 +13550,814 @@ export const useWatchIerc5267Eip712DomainChangedEvent =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc721MetadataAbi}__
+ */
+export const useReadIerc721Metadata = /*#__PURE__*/ createUseReadContract({
+  abi: ierc721MetadataAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadIerc721MetadataBalanceOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'balanceOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"getApproved"`
+ */
+export const useReadIerc721MetadataGetApproved =
+  /*#__PURE__*/ createUseReadContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'getApproved',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"isApprovedForAll"`
+ */
+export const useReadIerc721MetadataIsApprovedForAll =
+  /*#__PURE__*/ createUseReadContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'isApprovedForAll',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"name"`
+ */
+export const useReadIerc721MetadataName = /*#__PURE__*/ createUseReadContract({
+  abi: ierc721MetadataAbi,
+  functionName: 'name',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"ownerOf"`
+ */
+export const useReadIerc721MetadataOwnerOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'ownerOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"supportsInterface"`
+ */
+export const useReadIerc721MetadataSupportsInterface =
+  /*#__PURE__*/ createUseReadContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'supportsInterface',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"symbol"`
+ */
+export const useReadIerc721MetadataSymbol = /*#__PURE__*/ createUseReadContract(
+  { abi: ierc721MetadataAbi, functionName: 'symbol' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"tokenURI"`
+ */
+export const useReadIerc721MetadataTokenUri =
+  /*#__PURE__*/ createUseReadContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'tokenURI',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link ierc721MetadataAbi}__
+ */
+export const useWriteIerc721Metadata = /*#__PURE__*/ createUseWriteContract({
+  abi: ierc721MetadataAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"approve"`
+ */
+export const useWriteIerc721MetadataApprove =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useWriteIerc721MetadataSafeTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useWriteIerc721MetadataSetApprovalForAll =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useWriteIerc721MetadataTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link ierc721MetadataAbi}__
+ */
+export const useSimulateIerc721Metadata =
+  /*#__PURE__*/ createUseSimulateContract({ abi: ierc721MetadataAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"approve"`
+ */
+export const useSimulateIerc721MetadataApprove =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useSimulateIerc721MetadataSafeTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useSimulateIerc721MetadataSetApprovalForAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useSimulateIerc721MetadataTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: ierc721MetadataAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link ierc721MetadataAbi}__
+ */
+export const useWatchIerc721MetadataEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: ierc721MetadataAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `eventName` set to `"Approval"`
+ */
+export const useWatchIerc721MetadataApprovalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: ierc721MetadataAbi,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `eventName` set to `"ApprovalForAll"`
+ */
+export const useWatchIerc721MetadataApprovalForAllEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: ierc721MetadataAbi,
+    eventName: 'ApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link ierc721MetadataAbi}__ and `eventName` set to `"Transfer"`
+ */
+export const useWatchIerc721MetadataTransferEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: ierc721MetadataAbi,
+    eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link ierc721ReceiverAbi}__
+ */
+export const useWriteIerc721Receiver = /*#__PURE__*/ createUseWriteContract({
+  abi: ierc721ReceiverAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link ierc721ReceiverAbi}__ and `functionName` set to `"onERC721Received"`
+ */
+export const useWriteIerc721ReceiverOnErc721Received =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: ierc721ReceiverAbi,
+    functionName: 'onERC721Received',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link ierc721ReceiverAbi}__
+ */
+export const useSimulateIerc721Receiver =
+  /*#__PURE__*/ createUseSimulateContract({ abi: ierc721ReceiverAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link ierc721ReceiverAbi}__ and `functionName` set to `"onERC721Received"`
+ */
+export const useSimulateIerc721ReceiverOnErc721Received =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: ierc721ReceiverAbi,
+    functionName: 'onERC721Received',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__
+ */
+export const useReadIMembershipCouncil = /*#__PURE__*/ createUseReadContract({
+  abi: iMembershipCouncilAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadIMembershipCouncilBalanceOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'balanceOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"getApproved"`
+ */
+export const useReadIMembershipCouncilGetApproved =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'getApproved',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"getCandidate"`
+ */
+export const useReadIMembershipCouncilGetCandidate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'getCandidate',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"getMemberCount"`
+ */
+export const useReadIMembershipCouncilGetMemberCount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'getMemberCount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"getMemberId"`
+ */
+export const useReadIMembershipCouncilGetMemberId =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'getMemberId',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"getNativeDonationAmount"`
+ */
+export const useReadIMembershipCouncilGetNativeDonationAmount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'getNativeDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"getNumberOfSortedGroups"`
+ */
+export const useReadIMembershipCouncilGetNumberOfSortedGroups =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'getNumberOfSortedGroups',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"getSortedGroupAtIndex"`
+ */
+export const useReadIMembershipCouncilGetSortedGroupAtIndex =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'getSortedGroupAtIndex',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"getSortedGroupDelegationCount"`
+ */
+export const useReadIMembershipCouncilGetSortedGroupDelegationCount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'getSortedGroupDelegationCount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"getTokenDonationAmount"`
+ */
+export const useReadIMembershipCouncilGetTokenDonationAmount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'getTokenDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"isApprovedForAll"`
+ */
+export const useReadIMembershipCouncilIsApprovedForAll =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'isApprovedForAll',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"isMember"`
+ */
+export const useReadIMembershipCouncilIsMember =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'isMember',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"ownerOf"`
+ */
+export const useReadIMembershipCouncilOwnerOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'ownerOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"supportsInterface"`
+ */
+export const useReadIMembershipCouncilSupportsInterface =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'supportsInterface',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__
+ */
+export const useWriteIMembershipCouncil = /*#__PURE__*/ createUseWriteContract({
+  abi: iMembershipCouncilAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"approve"`
+ */
+export const useWriteIMembershipCouncilApprove =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"delegate"`
+ */
+export const useWriteIMembershipCouncilDelegate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'delegate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"donate"`
+ */
+export const useWriteIMembershipCouncilDonate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'donate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"enlistAsCandidate"`
+ */
+export const useWriteIMembershipCouncilEnlistAsCandidate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'enlistAsCandidate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"resignAsCandidate"`
+ */
+export const useWriteIMembershipCouncilResignAsCandidate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'resignAsCandidate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useWriteIMembershipCouncilSafeTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useWriteIMembershipCouncilSetApprovalForAll =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setDonationReceiver"`
+ */
+export const useWriteIMembershipCouncilSetDonationReceiver =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setDonationReceiver',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setDonationToken"`
+ */
+export const useWriteIMembershipCouncilSetDonationToken =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setDonationToken',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setNativeDonationAmount"`
+ */
+export const useWriteIMembershipCouncilSetNativeDonationAmount =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setNativeDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setTokenDonationAmount"`
+ */
+export const useWriteIMembershipCouncilSetTokenDonationAmount =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setTokenDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useWriteIMembershipCouncilTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"undelegate"`
+ */
+export const useWriteIMembershipCouncilUndelegate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'undelegate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__
+ */
+export const useSimulateIMembershipCouncil =
+  /*#__PURE__*/ createUseSimulateContract({ abi: iMembershipCouncilAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"approve"`
+ */
+export const useSimulateIMembershipCouncilApprove =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"delegate"`
+ */
+export const useSimulateIMembershipCouncilDelegate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'delegate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"donate"`
+ */
+export const useSimulateIMembershipCouncilDonate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'donate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"enlistAsCandidate"`
+ */
+export const useSimulateIMembershipCouncilEnlistAsCandidate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'enlistAsCandidate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"resignAsCandidate"`
+ */
+export const useSimulateIMembershipCouncilResignAsCandidate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'resignAsCandidate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useSimulateIMembershipCouncilSafeTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useSimulateIMembershipCouncilSetApprovalForAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setDonationReceiver"`
+ */
+export const useSimulateIMembershipCouncilSetDonationReceiver =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setDonationReceiver',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setDonationToken"`
+ */
+export const useSimulateIMembershipCouncilSetDonationToken =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setDonationToken',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setNativeDonationAmount"`
+ */
+export const useSimulateIMembershipCouncilSetNativeDonationAmount =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setNativeDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"setTokenDonationAmount"`
+ */
+export const useSimulateIMembershipCouncilSetTokenDonationAmount =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'setTokenDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useSimulateIMembershipCouncilTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `functionName` set to `"undelegate"`
+ */
+export const useSimulateIMembershipCouncilUndelegate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilAbi,
+    functionName: 'undelegate',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__
+ */
+export const useWatchIMembershipCouncilEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: iMembershipCouncilAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `eventName` set to `"Approval"`
+ */
+export const useWatchIMembershipCouncilApprovalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilAbi,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `eventName` set to `"ApprovalForAll"`
+ */
+export const useWatchIMembershipCouncilApprovalForAllEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilAbi,
+    eventName: 'ApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `eventName` set to `"CandidateEnlisted"`
+ */
+export const useWatchIMembershipCouncilCandidateEnlistedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilAbi,
+    eventName: 'CandidateEnlisted',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `eventName` set to `"CandidateResigned"`
+ */
+export const useWatchIMembershipCouncilCandidateResignedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilAbi,
+    eventName: 'CandidateResigned',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `eventName` set to `"ERC20DonationReceived"`
+ */
+export const useWatchIMembershipCouncilErc20DonationReceivedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilAbi,
+    eventName: 'ERC20DonationReceived',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `eventName` set to `"NativeDonationReceived"`
+ */
+export const useWatchIMembershipCouncilNativeDonationReceivedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilAbi,
+    eventName: 'NativeDonationReceived',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `eventName` set to `"Transfer"`
+ */
+export const useWatchIMembershipCouncilTransferEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilAbi,
+    eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `eventName` set to `"VoteDelegated"`
+ */
+export const useWatchIMembershipCouncilVoteDelegatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilAbi,
+    eventName: 'VoteDelegated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilAbi}__ and `eventName` set to `"VoteUndelegated"`
+ */
+export const useWatchIMembershipCouncilVoteUndelegatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilAbi,
+    eventName: 'VoteUndelegated',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__
+ */
+export const useReadIMembershipCouncilShaman =
+  /*#__PURE__*/ createUseReadContract({ abi: iMembershipCouncilShamanAbi })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `functionName` set to `"getCouncilMemberAtIndex"`
+ */
+export const useReadIMembershipCouncilShamanGetCouncilMemberAtIndex =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilShamanAbi,
+    functionName: 'getCouncilMemberAtIndex',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `functionName` set to `"getCouncilSize"`
+ */
+export const useReadIMembershipCouncilShamanGetCouncilSize =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilShamanAbi,
+    functionName: 'getCouncilSize',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `functionName` set to `"getJoiningMembers"`
+ */
+export const useReadIMembershipCouncilShamanGetJoiningMembers =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilShamanAbi,
+    functionName: 'getJoiningMembers',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `functionName` set to `"getLeavingMembers"`
+ */
+export const useReadIMembershipCouncilShamanGetLeavingMembers =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMembershipCouncilShamanAbi,
+    functionName: 'getLeavingMembers',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__
+ */
+export const useWriteIMembershipCouncilShaman =
+  /*#__PURE__*/ createUseWriteContract({ abi: iMembershipCouncilShamanAbi })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `functionName` set to `"claimSeat"`
+ */
+export const useWriteIMembershipCouncilShamanClaimSeat =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilShamanAbi,
+    functionName: 'claimSeat',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `functionName` set to `"requestCouncilUpdate"`
+ */
+export const useWriteIMembershipCouncilShamanRequestCouncilUpdate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMembershipCouncilShamanAbi,
+    functionName: 'requestCouncilUpdate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__
+ */
+export const useSimulateIMembershipCouncilShaman =
+  /*#__PURE__*/ createUseSimulateContract({ abi: iMembershipCouncilShamanAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `functionName` set to `"claimSeat"`
+ */
+export const useSimulateIMembershipCouncilShamanClaimSeat =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilShamanAbi,
+    functionName: 'claimSeat',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `functionName` set to `"requestCouncilUpdate"`
+ */
+export const useSimulateIMembershipCouncilShamanRequestCouncilUpdate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMembershipCouncilShamanAbi,
+    functionName: 'requestCouncilUpdate',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__
+ */
+export const useWatchIMembershipCouncilShamanEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilShamanAbi,
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `eventName` set to `"CouncilUpdateRequested"`
+ */
+export const useWatchIMembershipCouncilShamanCouncilUpdateRequestedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilShamanAbi,
+    eventName: 'CouncilUpdateRequested',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMembershipCouncilShamanAbi}__ and `eventName` set to `"SeatClaimed"`
+ */
+export const useWatchIMembershipCouncilShamanSeatClaimedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMembershipCouncilShamanAbi,
+    eventName: 'SeatClaimed',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMulticall3Abi}__
  */
 export const useReadIMulticall3 = /*#__PURE__*/ createUseReadContract({
@@ -12093,6 +15940,1618 @@ export const useWatchIxerc20LockboxSetEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: ixerc20Abi,
     eventName: 'LockboxSet',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__
+ */
+export const useReadMembershipCouncil = /*#__PURE__*/ createUseReadContract({
+  abi: membershipCouncilAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadMembershipCouncilBalanceOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'balanceOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"candidates"`
+ */
+export const useReadMembershipCouncilCandidates =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'candidates',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"delegations"`
+ */
+export const useReadMembershipCouncilDelegations =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'delegations',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"getApproved"`
+ */
+export const useReadMembershipCouncilGetApproved =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'getApproved',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"getCandidate"`
+ */
+export const useReadMembershipCouncilGetCandidate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'getCandidate',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"getMemberCount"`
+ */
+export const useReadMembershipCouncilGetMemberCount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'getMemberCount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"getMemberId"`
+ */
+export const useReadMembershipCouncilGetMemberId =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'getMemberId',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"getNativeDonationAmount"`
+ */
+export const useReadMembershipCouncilGetNativeDonationAmount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'getNativeDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"getNumberOfSortedGroups"`
+ */
+export const useReadMembershipCouncilGetNumberOfSortedGroups =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'getNumberOfSortedGroups',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"getSortedGroupAtIndex"`
+ */
+export const useReadMembershipCouncilGetSortedGroupAtIndex =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'getSortedGroupAtIndex',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"getSortedGroupDelegationCount"`
+ */
+export const useReadMembershipCouncilGetSortedGroupDelegationCount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'getSortedGroupDelegationCount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"getTokenDonationAmount"`
+ */
+export const useReadMembershipCouncilGetTokenDonationAmount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'getTokenDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"isApprovedForAll"`
+ */
+export const useReadMembershipCouncilIsApprovedForAll =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'isApprovedForAll',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"isMember"`
+ */
+export const useReadMembershipCouncilIsMember =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'isMember',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"members"`
+ */
+export const useReadMembershipCouncilMembers =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'members',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"name"`
+ */
+export const useReadMembershipCouncilName = /*#__PURE__*/ createUseReadContract(
+  { abi: membershipCouncilAbi, functionName: 'name' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"owner"`
+ */
+export const useReadMembershipCouncilOwner =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'owner',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"ownerOf"`
+ */
+export const useReadMembershipCouncilOwnerOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'ownerOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"supportsInterface"`
+ */
+export const useReadMembershipCouncilSupportsInterface =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'supportsInterface',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"symbol"`
+ */
+export const useReadMembershipCouncilSymbol =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'symbol',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"tokenURI"`
+ */
+export const useReadMembershipCouncilTokenUri =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilAbi,
+    functionName: 'tokenURI',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__
+ */
+export const useWriteMembershipCouncil = /*#__PURE__*/ createUseWriteContract({
+  abi: membershipCouncilAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"approve"`
+ */
+export const useWriteMembershipCouncilApprove =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"delegate"`
+ */
+export const useWriteMembershipCouncilDelegate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'delegate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"donate"`
+ */
+export const useWriteMembershipCouncilDonate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'donate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"enlistAsCandidate"`
+ */
+export const useWriteMembershipCouncilEnlistAsCandidate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'enlistAsCandidate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"renounceOwnership"`
+ */
+export const useWriteMembershipCouncilRenounceOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"resignAsCandidate"`
+ */
+export const useWriteMembershipCouncilResignAsCandidate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'resignAsCandidate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useWriteMembershipCouncilSafeTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useWriteMembershipCouncilSetApprovalForAll =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setDonationReceiver"`
+ */
+export const useWriteMembershipCouncilSetDonationReceiver =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setDonationReceiver',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setDonationToken"`
+ */
+export const useWriteMembershipCouncilSetDonationToken =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setDonationToken',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setNativeDonationAmount"`
+ */
+export const useWriteMembershipCouncilSetNativeDonationAmount =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setNativeDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setTokenDonationAmount"`
+ */
+export const useWriteMembershipCouncilSetTokenDonationAmount =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setTokenDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useWriteMembershipCouncilTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useWriteMembershipCouncilTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"undelegate"`
+ */
+export const useWriteMembershipCouncilUndelegate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilAbi,
+    functionName: 'undelegate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__
+ */
+export const useSimulateMembershipCouncil =
+  /*#__PURE__*/ createUseSimulateContract({ abi: membershipCouncilAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"approve"`
+ */
+export const useSimulateMembershipCouncilApprove =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"delegate"`
+ */
+export const useSimulateMembershipCouncilDelegate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'delegate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"donate"`
+ */
+export const useSimulateMembershipCouncilDonate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'donate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"enlistAsCandidate"`
+ */
+export const useSimulateMembershipCouncilEnlistAsCandidate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'enlistAsCandidate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"renounceOwnership"`
+ */
+export const useSimulateMembershipCouncilRenounceOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"resignAsCandidate"`
+ */
+export const useSimulateMembershipCouncilResignAsCandidate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'resignAsCandidate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useSimulateMembershipCouncilSafeTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useSimulateMembershipCouncilSetApprovalForAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setDonationReceiver"`
+ */
+export const useSimulateMembershipCouncilSetDonationReceiver =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setDonationReceiver',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setDonationToken"`
+ */
+export const useSimulateMembershipCouncilSetDonationToken =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setDonationToken',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setNativeDonationAmount"`
+ */
+export const useSimulateMembershipCouncilSetNativeDonationAmount =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setNativeDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"setTokenDonationAmount"`
+ */
+export const useSimulateMembershipCouncilSetTokenDonationAmount =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'setTokenDonationAmount',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useSimulateMembershipCouncilTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useSimulateMembershipCouncilTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilAbi}__ and `functionName` set to `"undelegate"`
+ */
+export const useSimulateMembershipCouncilUndelegate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilAbi,
+    functionName: 'undelegate',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__
+ */
+export const useWatchMembershipCouncilEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: membershipCouncilAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"Approval"`
+ */
+export const useWatchMembershipCouncilApprovalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"ApprovalForAll"`
+ */
+export const useWatchMembershipCouncilApprovalForAllEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'ApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"CandidateEnlisted"`
+ */
+export const useWatchMembershipCouncilCandidateEnlistedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'CandidateEnlisted',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"CandidateResigned"`
+ */
+export const useWatchMembershipCouncilCandidateResignedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'CandidateResigned',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"ERC20DonationReceived"`
+ */
+export const useWatchMembershipCouncilErc20DonationReceivedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'ERC20DonationReceived',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"NativeDonationReceived"`
+ */
+export const useWatchMembershipCouncilNativeDonationReceivedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'NativeDonationReceived',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ */
+export const useWatchMembershipCouncilOwnershipTransferredEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"Transfer"`
+ */
+export const useWatchMembershipCouncilTransferEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"VoteDelegated"`
+ */
+export const useWatchMembershipCouncilVoteDelegatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'VoteDelegated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilAbi}__ and `eventName` set to `"VoteUndelegated"`
+ */
+export const useWatchMembershipCouncilVoteUndelegatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilAbi,
+    eventName: 'VoteUndelegated',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__
+ */
+export const useReadMembershipCouncilBase = /*#__PURE__*/ createUseReadContract(
+  { abi: membershipCouncilBaseAbi },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"IS_TEST"`
+ */
+export const useReadMembershipCouncilBaseIsTest =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'IS_TEST',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"excludeArtifacts"`
+ */
+export const useReadMembershipCouncilBaseExcludeArtifacts =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'excludeArtifacts',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"excludeContracts"`
+ */
+export const useReadMembershipCouncilBaseExcludeContracts =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'excludeContracts',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"excludeSenders"`
+ */
+export const useReadMembershipCouncilBaseExcludeSenders =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'excludeSenders',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"targetArtifactSelectors"`
+ */
+export const useReadMembershipCouncilBaseTargetArtifactSelectors =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'targetArtifactSelectors',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"targetArtifacts"`
+ */
+export const useReadMembershipCouncilBaseTargetArtifacts =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'targetArtifacts',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"targetContracts"`
+ */
+export const useReadMembershipCouncilBaseTargetContracts =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'targetContracts',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"targetInterfaces"`
+ */
+export const useReadMembershipCouncilBaseTargetInterfaces =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'targetInterfaces',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"targetSelectors"`
+ */
+export const useReadMembershipCouncilBaseTargetSelectors =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'targetSelectors',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"targetSenders"`
+ */
+export const useReadMembershipCouncilBaseTargetSenders =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'targetSenders',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__
+ */
+export const useWriteMembershipCouncilBase =
+  /*#__PURE__*/ createUseWriteContract({ abi: membershipCouncilBaseAbi })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"failed"`
+ */
+export const useWriteMembershipCouncilBaseFailed =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'failed',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__
+ */
+export const useSimulateMembershipCouncilBase =
+  /*#__PURE__*/ createUseSimulateContract({ abi: membershipCouncilBaseAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `functionName` set to `"failed"`
+ */
+export const useSimulateMembershipCouncilBaseFailed =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilBaseAbi,
+    functionName: 'failed',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__
+ */
+export const useWatchMembershipCouncilBaseEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: membershipCouncilBaseAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log"`
+ */
+export const useWatchMembershipCouncilBaseLogEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_address"`
+ */
+export const useWatchMembershipCouncilBaseLogAddressEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_address',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_array"`
+ */
+export const useWatchMembershipCouncilBaseLogArrayEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_array',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_bytes"`
+ */
+export const useWatchMembershipCouncilBaseLogBytesEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_bytes',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_bytes32"`
+ */
+export const useWatchMembershipCouncilBaseLogBytes32Event =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_bytes32',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_int"`
+ */
+export const useWatchMembershipCouncilBaseLogIntEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_int',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_named_address"`
+ */
+export const useWatchMembershipCouncilBaseLogNamedAddressEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_named_address',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_named_array"`
+ */
+export const useWatchMembershipCouncilBaseLogNamedArrayEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_named_array',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_named_bytes"`
+ */
+export const useWatchMembershipCouncilBaseLogNamedBytesEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_named_bytes',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_named_bytes32"`
+ */
+export const useWatchMembershipCouncilBaseLogNamedBytes32Event =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_named_bytes32',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_named_decimal_int"`
+ */
+export const useWatchMembershipCouncilBaseLogNamedDecimalIntEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_named_decimal_int',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_named_decimal_uint"`
+ */
+export const useWatchMembershipCouncilBaseLogNamedDecimalUintEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_named_decimal_uint',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_named_int"`
+ */
+export const useWatchMembershipCouncilBaseLogNamedIntEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_named_int',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_named_string"`
+ */
+export const useWatchMembershipCouncilBaseLogNamedStringEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_named_string',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_named_uint"`
+ */
+export const useWatchMembershipCouncilBaseLogNamedUintEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_named_uint',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_string"`
+ */
+export const useWatchMembershipCouncilBaseLogStringEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_string',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"log_uint"`
+ */
+export const useWatchMembershipCouncilBaseLogUintEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'log_uint',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilBaseAbi}__ and `eventName` set to `"logs"`
+ */
+export const useWatchMembershipCouncilBaseLogsEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilBaseAbi,
+    eventName: 'logs',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__
+ */
+export const useReadMembershipCouncilShaman =
+  /*#__PURE__*/ createUseReadContract({ abi: membershipCouncilShamanAbi })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"FORMATION_COOLDOWN"`
+ */
+export const useReadMembershipCouncilShamanFormationCooldown =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'FORMATION_COOLDOWN',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"MIN_COUNCIL_SIZE"`
+ */
+export const useReadMembershipCouncilShamanMinCouncilSize =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'MIN_COUNCIL_SIZE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"baal"`
+ */
+export const useReadMembershipCouncilShamanBaal =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'baal',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"councilSize"`
+ */
+export const useReadMembershipCouncilShamanCouncilSize =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'councilSize',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"getCouncilMemberAtIndex"`
+ */
+export const useReadMembershipCouncilShamanGetCouncilMemberAtIndex =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'getCouncilMemberAtIndex',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"getCouncilSize"`
+ */
+export const useReadMembershipCouncilShamanGetCouncilSize =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'getCouncilSize',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"getJoiningMembers"`
+ */
+export const useReadMembershipCouncilShamanGetJoiningMembers =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'getJoiningMembers',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"getLeavingMembers"`
+ */
+export const useReadMembershipCouncilShamanGetLeavingMembers =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'getLeavingMembers',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"lastFormationRequest"`
+ */
+export const useReadMembershipCouncilShamanLastFormationRequest =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'lastFormationRequest',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"membershipCouncil"`
+ */
+export const useReadMembershipCouncilShamanMembershipCouncil =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'membershipCouncil',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"owner"`
+ */
+export const useReadMembershipCouncilShamanOwner =
+  /*#__PURE__*/ createUseReadContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'owner',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__
+ */
+export const useWriteMembershipCouncilShaman =
+  /*#__PURE__*/ createUseWriteContract({ abi: membershipCouncilShamanAbi })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"claimSeat"`
+ */
+export const useWriteMembershipCouncilShamanClaimSeat =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'claimSeat',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"renounceOwnership"`
+ */
+export const useWriteMembershipCouncilShamanRenounceOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"requestCouncilUpdate"`
+ */
+export const useWriteMembershipCouncilShamanRequestCouncilUpdate =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'requestCouncilUpdate',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"setCouncilSize"`
+ */
+export const useWriteMembershipCouncilShamanSetCouncilSize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'setCouncilSize',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useWriteMembershipCouncilShamanTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__
+ */
+export const useSimulateMembershipCouncilShaman =
+  /*#__PURE__*/ createUseSimulateContract({ abi: membershipCouncilShamanAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"claimSeat"`
+ */
+export const useSimulateMembershipCouncilShamanClaimSeat =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'claimSeat',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"renounceOwnership"`
+ */
+export const useSimulateMembershipCouncilShamanRenounceOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"requestCouncilUpdate"`
+ */
+export const useSimulateMembershipCouncilShamanRequestCouncilUpdate =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'requestCouncilUpdate',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"setCouncilSize"`
+ */
+export const useSimulateMembershipCouncilShamanSetCouncilSize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'setCouncilSize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useSimulateMembershipCouncilShamanTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: membershipCouncilShamanAbi,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilShamanAbi}__
+ */
+export const useWatchMembershipCouncilShamanEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: membershipCouncilShamanAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `eventName` set to `"CouncilUpdateRequested"`
+ */
+export const useWatchMembershipCouncilShamanCouncilUpdateRequestedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilShamanAbi,
+    eventName: 'CouncilUpdateRequested',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ */
+export const useWatchMembershipCouncilShamanOwnershipTransferredEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilShamanAbi,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link membershipCouncilShamanAbi}__ and `eventName` set to `"SeatClaimed"`
+ */
+export const useWatchMembershipCouncilShamanSeatClaimedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: membershipCouncilShamanAbi,
+    eventName: 'SeatClaimed',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link mockNftAbi}__
+ */
+export const useReadMockNft = /*#__PURE__*/ createUseReadContract({
+  abi: mockNftAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadMockNftBalanceOf = /*#__PURE__*/ createUseReadContract({
+  abi: mockNftAbi,
+  functionName: 'balanceOf',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"getApproved"`
+ */
+export const useReadMockNftGetApproved = /*#__PURE__*/ createUseReadContract({
+  abi: mockNftAbi,
+  functionName: 'getApproved',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"isApprovedForAll"`
+ */
+export const useReadMockNftIsApprovedForAll =
+  /*#__PURE__*/ createUseReadContract({
+    abi: mockNftAbi,
+    functionName: 'isApprovedForAll',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"name"`
+ */
+export const useReadMockNftName = /*#__PURE__*/ createUseReadContract({
+  abi: mockNftAbi,
+  functionName: 'name',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"ownerOf"`
+ */
+export const useReadMockNftOwnerOf = /*#__PURE__*/ createUseReadContract({
+  abi: mockNftAbi,
+  functionName: 'ownerOf',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"supportsInterface"`
+ */
+export const useReadMockNftSupportsInterface =
+  /*#__PURE__*/ createUseReadContract({
+    abi: mockNftAbi,
+    functionName: 'supportsInterface',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"symbol"`
+ */
+export const useReadMockNftSymbol = /*#__PURE__*/ createUseReadContract({
+  abi: mockNftAbi,
+  functionName: 'symbol',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"tokenURI"`
+ */
+export const useReadMockNftTokenUri = /*#__PURE__*/ createUseReadContract({
+  abi: mockNftAbi,
+  functionName: 'tokenURI',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link mockNftAbi}__
+ */
+export const useWriteMockNft = /*#__PURE__*/ createUseWriteContract({
+  abi: mockNftAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"approve"`
+ */
+export const useWriteMockNftApprove = /*#__PURE__*/ createUseWriteContract({
+  abi: mockNftAbi,
+  functionName: 'approve',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useWriteMockNftSafeTransferFrom =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: mockNftAbi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useWriteMockNftSetApprovalForAll =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: mockNftAbi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useWriteMockNftTransferFrom = /*#__PURE__*/ createUseWriteContract(
+  { abi: mockNftAbi, functionName: 'transferFrom' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link mockNftAbi}__
+ */
+export const useSimulateMockNft = /*#__PURE__*/ createUseSimulateContract({
+  abi: mockNftAbi,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"approve"`
+ */
+export const useSimulateMockNftApprove =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: mockNftAbi,
+    functionName: 'approve',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"safeTransferFrom"`
+ */
+export const useSimulateMockNftSafeTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: mockNftAbi,
+    functionName: 'safeTransferFrom',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"setApprovalForAll"`
+ */
+export const useSimulateMockNftSetApprovalForAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: mockNftAbi,
+    functionName: 'setApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link mockNftAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useSimulateMockNftTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: mockNftAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link mockNftAbi}__
+ */
+export const useWatchMockNftEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: mockNftAbi,
+})
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link mockNftAbi}__ and `eventName` set to `"Approval"`
+ */
+export const useWatchMockNftApprovalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: mockNftAbi,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link mockNftAbi}__ and `eventName` set to `"ApprovalForAll"`
+ */
+export const useWatchMockNftApprovalForAllEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: mockNftAbi,
+    eventName: 'ApprovalForAll',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link mockNftAbi}__ and `eventName` set to `"Transfer"`
+ */
+export const useWatchMockNftTransferEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: mockNftAbi,
+    eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__
+ */
+export const useReadMultiSendProposal = /*#__PURE__*/ createUseReadContract({
+  abi: multiSendProposalAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"IS_TEST"`
+ */
+export const useReadMultiSendProposalIsTest =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'IS_TEST',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"encodeMultiCall"`
+ */
+export const useReadMultiSendProposalEncodeMultiCall =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'encodeMultiCall',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"excludeArtifacts"`
+ */
+export const useReadMultiSendProposalExcludeArtifacts =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'excludeArtifacts',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"excludeContracts"`
+ */
+export const useReadMultiSendProposalExcludeContracts =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'excludeContracts',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"excludeSenders"`
+ */
+export const useReadMultiSendProposalExcludeSenders =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'excludeSenders',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"targetArtifactSelectors"`
+ */
+export const useReadMultiSendProposalTargetArtifactSelectors =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'targetArtifactSelectors',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"targetArtifacts"`
+ */
+export const useReadMultiSendProposalTargetArtifacts =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'targetArtifacts',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"targetContracts"`
+ */
+export const useReadMultiSendProposalTargetContracts =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'targetContracts',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"targetInterfaces"`
+ */
+export const useReadMultiSendProposalTargetInterfaces =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'targetInterfaces',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"targetSelectors"`
+ */
+export const useReadMultiSendProposalTargetSelectors =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'targetSelectors',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"targetSenders"`
+ */
+export const useReadMultiSendProposalTargetSenders =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'targetSenders',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"wrapForCustomTreasury"`
+ */
+export const useReadMultiSendProposalWrapForCustomTreasury =
+  /*#__PURE__*/ createUseReadContract({
+    abi: multiSendProposalAbi,
+    functionName: 'wrapForCustomTreasury',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link multiSendProposalAbi}__
+ */
+export const useWriteMultiSendProposal = /*#__PURE__*/ createUseWriteContract({
+  abi: multiSendProposalAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"failed"`
+ */
+export const useWriteMultiSendProposalFailed =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: multiSendProposalAbi,
+    functionName: 'failed',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link multiSendProposalAbi}__
+ */
+export const useSimulateMultiSendProposal =
+  /*#__PURE__*/ createUseSimulateContract({ abi: multiSendProposalAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link multiSendProposalAbi}__ and `functionName` set to `"failed"`
+ */
+export const useSimulateMultiSendProposalFailed =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: multiSendProposalAbi,
+    functionName: 'failed',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__
+ */
+export const useWatchMultiSendProposalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: multiSendProposalAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log"`
+ */
+export const useWatchMultiSendProposalLogEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_address"`
+ */
+export const useWatchMultiSendProposalLogAddressEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_address',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_array"`
+ */
+export const useWatchMultiSendProposalLogArrayEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_array',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_bytes"`
+ */
+export const useWatchMultiSendProposalLogBytesEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_bytes',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_bytes32"`
+ */
+export const useWatchMultiSendProposalLogBytes32Event =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_bytes32',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_int"`
+ */
+export const useWatchMultiSendProposalLogIntEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_int',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_named_address"`
+ */
+export const useWatchMultiSendProposalLogNamedAddressEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_named_address',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_named_array"`
+ */
+export const useWatchMultiSendProposalLogNamedArrayEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_named_array',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_named_bytes"`
+ */
+export const useWatchMultiSendProposalLogNamedBytesEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_named_bytes',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_named_bytes32"`
+ */
+export const useWatchMultiSendProposalLogNamedBytes32Event =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_named_bytes32',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_named_decimal_int"`
+ */
+export const useWatchMultiSendProposalLogNamedDecimalIntEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_named_decimal_int',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_named_decimal_uint"`
+ */
+export const useWatchMultiSendProposalLogNamedDecimalUintEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_named_decimal_uint',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_named_int"`
+ */
+export const useWatchMultiSendProposalLogNamedIntEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_named_int',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_named_string"`
+ */
+export const useWatchMultiSendProposalLogNamedStringEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_named_string',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_named_uint"`
+ */
+export const useWatchMultiSendProposalLogNamedUintEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_named_uint',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_string"`
+ */
+export const useWatchMultiSendProposalLogStringEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_string',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"log_uint"`
+ */
+export const useWatchMultiSendProposalLogUintEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'log_uint',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link multiSendProposalAbi}__ and `eventName` set to `"logs"`
+ */
+export const useWatchMultiSendProposalLogsEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: multiSendProposalAbi,
+    eventName: 'logs',
   })
 
 /**

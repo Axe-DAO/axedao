@@ -189,8 +189,16 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     return members[_user];
   }
 
+  function getTokenDonationAmount() external view override returns (uint256) {
+    return donationAmount;
+  }
+
   function setTokenDonationAmount(uint256 _donationAmount) external onlyOwner {
     donationAmount = _donationAmount;
+  }
+
+  function getNativeDonationAmount() external view override returns (uint256) {
+    return nativeDonationAmount;
   }
 
   function setNativeDonationAmount(uint256 _nativeDonationAmount) external onlyOwner {

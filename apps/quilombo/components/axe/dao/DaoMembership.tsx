@@ -1,75 +1,45 @@
 'use client';
 
+import { Button } from '@nextui-org/button';
+import { useDisclosure } from '@nextui-org/use-disclosure';
 import { Address } from 'viem';
 import { useAccount } from 'wagmi';
 
-import ENV from '@/config/environment';
-import { useReadErc20BalanceOf, useReadErc20TotalSupply } from '@/generated';
-import { add, divide, format, from, greaterThan, multiply } from 'dnum';
-import { Suspense } from 'react';
-import { CouncilBadge, MemberBadge } from './Badges';
+import { useReadMembershipCouncilIsMember } from '@/generated';
+import { MemberBadge } from './Badges';
+import MembershipDonationModal from './MembershipDonationModal';
 
-const DaoMembershipPanel: React.FC = () => {
+const DaoMembership: React.FC = () => {
   const account = useAccount();
-  // SHARES
-  const { data: userDaoShares } = useReadErc20BalanceOf({
-    address: ENV.axeDaoSharesAddress,
-    args: [account.address as Address],
-  });
-  const { data: totalShares } = useReadErc20TotalSupply({
-    address: ENV.axeDaoSharesAddress,
-  });
-  // LOOT
-  const { data: userDaoLoot } = useReadErc20BalanceOf({
-    address: ENV.axeDaoLootAddress,
-    args: [account.address as Address],
-  });
-  const { data: totalLoot } = useReadErc20TotalSupply({
-    address: ENV.axeDaoLootAddress,
-  });
-  const { data: usdDao } = useReadErc20BalanceOf({
-    address: ENV.axeSwapTokenAddress,
-    args: [ENV.axeDaoTreasuryAddress],
-  });
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const isMember = !!userDaoLoot && userDaoLoot > 0;
-  const isCouncil = !!userDaoShares && userDaoShares > 0;
-  const totalRageQuitShares = add([userDaoShares || BigInt(0), 18], [userDaoLoot || BigInt(0), 18]);
-  const sumOfAllShares = add([totalShares || BigInt(0), 18], [totalLoot || BigInt(0), 18]);
-  const userTreasuryPercent = greaterThan(sumOfAllShares, 0)
-    ? multiply(divide(totalRageQuitShares, sumOfAllShares), 100)
-    : from(0);
-  const userTreasuryUsdTotal = multiply(divide([usdDao || BigInt(0), 18], from(100)), userTreasuryPercent);
+  const { data: isMember = false } = useReadMembershipCouncilIsMember({
+    args: [account.address as Address],
+  });
 
   return (
     <div className="flex flex-col w-full items-center">
       <div className="text-2xl mb-1 sm:mb-2">Membership</div>
-      <div className="flex flex-col gap-2 w-full px-2">
-        <div className="flex gap-2 sm:gap-4">
-          <MemberBadge isMember={isMember} />
-          {isMember ? (
-            `You own ${format(totalRageQuitShares)} shares of the community treasury equivalent to ${format(userTreasuryPercent, 2)}% (or $ ${format(userTreasuryUsdTotal, 2)})`
-          ) : (
+      <div className="flex flex-col gap-2 sm:gap-4 w-full">
+        <MemberBadge isMember={isMember} />
+        {isMember ? (
+          <span>Thanks for being a member!</span>
+        ) : (
+          <div className="flex flex-col gap-2 sm:gap-4">
             <span>
               You&apos;re not a member.
               <br />
-              Join the DAO (coming soon)
+              Donate $10 once for lifetime membership.
             </span>
-          )}
-        </div>
-        <div className="flex gap-2 sm:gap-4">
-          <CouncilBadge isCouncil={isCouncil} />
-          {isCouncil ? `You own ${format([userDaoShares, 18])} voting shares` : 'Not a council member'}
-        </div>
+            <Button onPress={onOpen} color="primary" className="w-full">
+              Join the DAO
+            </Button>
+          </div>
+        )}
+        <MembershipDonationModal isOpen={isOpen} onOpenChange={onOpenChange} />
       </div>
     </div>
   );
 };
 
-export default function DaoMembership() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <DaoMembershipPanel />
-    </Suspense>
-  );
-}
+export default DaoMembership;

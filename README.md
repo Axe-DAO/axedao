@@ -54,11 +54,11 @@ cast wallet import axe-deployer --interactive
 
 ### Deployment (with Forge)
 
-BUG ALERT:The UX around key-management in Foundry is lacking. For the time being, you MUST specify the public address of the wallet to use via `--sender 0x7e95A312E398431a26AC266B9215A7DddD5Ea60B`, otherwise the Forge deploy script ignores the `--account` and uses the default account to `startBroadcast()`! (See https://github.com/foundry-rs/foundry/issues/6034)
+BUG ALERT:The UX around key-management in Foundry is lacking. For the time being, you MUST specify the public address of the wallet to use via `--sender 0x7e95A312E398431a26AC266B9215A7DddD5Ea60B`, otherwise the Forge deploy script ignores the `--account` parameter and uses the default account to `startBroadcast()`! (See https://github.com/foundry-rs/foundry/issues/6034)
 
 #### Requirements
 
-ENV vars need to be available and can be set in front of the command in the commandline or exported:
+ENV vars need to be available in the shell and can be set in front of the command in the commandline or exported:
 
 ```shell
 export ETHERSCAN_API_KEY=XXXXXXXXXX

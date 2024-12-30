@@ -57,7 +57,7 @@ const Transfer: React.FC = () => {
       // TODO check balance once more?
       transfer({ address: ENV.axeTokenAddress, args: [to as Address, bigInput] });
     } catch (error) {
-      console.error('Error during swap.', error);
+      console.error('Error during transfer', error);
       throw error;
     }
   };
