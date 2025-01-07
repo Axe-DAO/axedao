@@ -42,16 +42,16 @@ const ProfileForm = () => {
     [updateProfile, router],
   );
 
-  const requestEmail = useCallback(async (): Promise<string> => {
+  const requestEmail = useCallback(async (): Promise<string | undefined> => {
     const silk = connectors.find((connector) => connector.id === 'silk');
     if (silk) {
       const email = await (silk as unknown as SilkEthereumProviderInterface)
         .requestEmail()
         .then((email) => email)
         .catch((error) => enqueueSnackbar(error.message, { variant: 'error' }));
-      return typeof email === 'string' ? (email as string) : '';
+      return typeof email === 'string' ? (email as string) : undefined;
     }
-    return '';
+    return undefined;
   }, [connectors]);
 
   if (!user) return <Spinner />;
@@ -61,7 +61,7 @@ const ProfileForm = () => {
     name: user.name || '',
     nickname: user.nickname || '',
     title: user.title || undefined,
-    email: user.email || '',
+    email: user.email || undefined,
     phone: user.phone || '',
     links: user.links || [],
   };
