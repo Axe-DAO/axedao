@@ -43,7 +43,7 @@ const ProfileForm = () => {
   );
 
   const requestEmail = useCallback(async (): Promise<string | undefined> => {
-    const silk = connectors.find((connector) => connector.id === 'silk');
+    const silk = connectors.find((connector: { id: string }) => connector.id === 'silk');
     if (silk) {
       const email = await (silk as unknown as SilkEthereumProviderInterface)
         .requestEmail()

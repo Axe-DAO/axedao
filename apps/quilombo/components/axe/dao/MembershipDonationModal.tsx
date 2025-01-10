@@ -18,19 +18,21 @@ import {
   useWriteIMembershipCouncilDonate,
 } from '@/generated';
 
-type Props = Omit<ModalProps, 'children'>;
+type Props = Omit<ModalProps, 'children'> & { onSuccess?: () => void };
 
-export default function MembershipDonationModal({ onClose, ...props }: Props) {
+const hasApprovalAtom = atom<boolean>(false);
+
+export default function MembershipDonationModal({ onClose, onSuccess, ...props }: Props) {
   const account = useAccount();
-  const [hasApproval, setHasApproval] = useAtom(atom<boolean>(false));
+  const [hasApproval, setHasApproval] = useAtom(hasApprovalAtom);
 
   // Get native token balance
-  const { data: nativeBalance, refetch: updateNativeBalance } = useBalance({
+  const { data: nativeBalance } = useBalance({
     address: account.address,
   });
 
   // Get ERC20 token balance
-  const { data: erc20Balance, refetch: updateErc20Balance } = useReadErc20BalanceOf({
+  const { data: erc20Balance } = useReadErc20BalanceOf({
     address: ENV.axeSwapTokenAddress,
     args: [account.address as Address],
   });
@@ -72,11 +74,15 @@ export default function MembershipDonationModal({ onClose, ...props }: Props) {
     args: [account.address as Address, ENV.membershipCouncilAddress],
   });
 
+  // Update hasApproval state
   useEffect(() => {
     if (erc20DonationAmount && allowanceAmount) {
-      setHasApproval(allowanceAmount >= erc20DonationAmount);
+      const newApprovalState = allowanceAmount >= erc20DonationAmount;
+      if (newApprovalState !== hasApproval) {
+        setHasApproval(newApprovalState);
+      }
     }
-  }, [allowanceAmount, erc20DonationAmount, setHasApproval]);
+  }, [allowanceAmount, erc20DonationAmount, hasApproval, setHasApproval]);
 
   // Effect for approval result
   useEffect(() => {
@@ -99,12 +105,13 @@ export default function MembershipDonationModal({ onClose, ...props }: Props) {
         autoHideDuration: 3000,
       });
     } else if (donateSuccess) {
-      updateErc20Balance();
       enqueueSnackbar('Donation confirmed!');
+      onSuccess?.();
+      onClose?.();
     } else if (donateError) {
       enqueueSnackbar(`Donation failed: ${donateError.message}`);
     }
-  }, [donateLoading, donateSuccess, donateError, updateErc20Balance]);
+  }, [donateLoading, donateSuccess, donateError, onSuccess, onClose]);
 
   // Effect for send result
   useEffect(() => {
@@ -113,12 +120,13 @@ export default function MembershipDonationModal({ onClose, ...props }: Props) {
         autoHideDuration: 3000,
       });
     } else if (sendSuccess) {
-      updateNativeBalance();
       enqueueSnackbar('Send confirmed!');
+      onSuccess?.();
+      onClose?.();
     } else if (sendError) {
       enqueueSnackbar(`Send failed: ${sendError.message}`);
     }
-  }, [sendLoading, sendSuccess, sendError, updateNativeBalance]);
+  }, [sendLoading, sendSuccess, sendError, onSuccess, onClose]);
 
   const handleNativeDonation = async () => {
     if (!nativeDonationAmount) {

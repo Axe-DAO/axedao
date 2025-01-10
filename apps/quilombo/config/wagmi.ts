@@ -1,4 +1,3 @@
-import { Transport } from 'viem';
 import { Config, createConfig, http } from 'wagmi';
 import { Chain, gnosis, localhost, optimism, sepolia } from 'wagmi/chains';
 
@@ -6,10 +5,10 @@ import ENV from '@/config/environment';
 import silk from '@/utils/silk.connector';
 
 export const configureChains = (): [Chain, ...Chain[]] => {
-  let chains: [Chain, ...Chain[]] = [gnosis];
+  let chains: [Chain, ...Chain[]] = [gnosis, optimism];
   const appEnv = process.env.NEXT_PUBLIC_APP_ENV?.toLowerCase();
   if (appEnv === 'local') chains = [localhost];
-  else if (appEnv === 'test') chains = [sepolia];
+  else if (appEnv === 'test') chains = [sepolia, gnosis];
   console.info(`Chains configured for '${appEnv}' mode.`);
   return chains;
 };
@@ -25,7 +24,7 @@ export const getDefaultChain = (): Chain => {
   }
 };
 
-export const getTransport = (chain: Chain | undefined): Transport => {
+export const getTransport = (chain: Chain | undefined) => {
   switch (chain?.id) {
     case gnosis.id:
       return http(ENV.gnosisProviderUrl);

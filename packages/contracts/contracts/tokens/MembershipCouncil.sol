@@ -168,14 +168,35 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     delegations[sender] = address(0);
   }
 
+  /**
+   * @notice Get the candidate details for the given candidate address.
+   * @param _candidate The address of the candidate.
+   * @return The candidate details.
+   */
   function getCandidate(address _candidate) external view returns (Candidate memory) {
     return candidates[_candidate];
   }
 
+  /**
+   * @notice The base URI for the membership NFT metadata.
+   * @return The base URI.
+   */
   function _baseURI() internal view override returns (string memory) {
     return baseTokenURI;
   }
 
+  /**
+   * @notice The token URI for the membership NFT metadata.
+   * @return The token URI.
+   */
+  function tokenURI(uint256 /* tokenId */) public view override returns (string memory) {
+    return _baseURI();
+  }
+
+  /**
+   * @notice Get the number of members.
+   * @return The number of members = the number of minted NFTs.
+   */
   function getMemberCount() external view override returns (uint256) {
     return memberCount;
   }
@@ -189,18 +210,34 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     return members[_user];
   }
 
+  /**
+   * @notice Get the donation amount required to mint a membership NFT.
+   * @return The donation amount.
+   */
   function getTokenDonationAmount() external view override returns (uint256) {
     return donationAmount;
   }
 
+  /**
+   * @notice Set the donation amount required to mint a membership NFT.
+   * @param _donationAmount The new donation amount.
+   */
   function setTokenDonationAmount(uint256 _donationAmount) external onlyOwner {
     donationAmount = _donationAmount;
   }
 
+  /**
+   * @notice Get the native donation amount required to mint a membership NFT.
+   * @return The donation amount.
+   */
   function getNativeDonationAmount() external view override returns (uint256) {
     return nativeDonationAmount;
   }
 
+  /**
+   * @notice Set the native donation amount required to mint a membership NFT.
+   * @param _nativeDonationAmount The new donation amount.
+   */
   function setNativeDonationAmount(uint256 _nativeDonationAmount) external onlyOwner {
     nativeDonationAmount = _nativeDonationAmount;
   }

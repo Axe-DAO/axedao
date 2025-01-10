@@ -100,11 +100,27 @@ forge verify-contract \
 --num-of-optimizations 200 \
 --constructor-args $(cast abi-encode "constructor(address,address)" 0xee2ac838c83e5d6bf6eb1c8a425c007345ace39e 0x6EF543d0Cce1171F696f82cB6f698133037d5b32) \
 --etherscan-api-key $ETHERSCAN_API_KEY \
---compiler-version v0.8.23+commit.f704f362 \
+--compiler-version 0.8.24+commit.e11b9ed9 \
 --watch \
 0xaE8F6454fa13EbA1Be4ea60019d1bd34F9D04895 \
 contracts/AXESource.sol:AXESource
 ```
+
+Another example:
+
+```shell
+forge verify-contract \
+--chain-id 11155111 \
+--num-of-optimizations 200 \
+--constructor-args $(cast abi-encode "constructor(address,address,address,uint256,uint256,string)" 0xee2ac838c83e5d6bf6eb1c8a425c007345ace39e 0x114D5F3904dB2b4635528C08b1687ECB5468EE17 0xD44Eb94380bff68a827604fDb2dA7b0A3Ec6Ad0B 10000000000000000000 100000000000000 ipfs://Qmb6cxks2ZMfWTXravK5RHf7LYLRYrtgxL14Zg47hFNxjU/quilombo-early-design.json) \
+--etherscan-api-key $ETHERSCAN_API_KEY \
+--compiler-version v0.8.24+commit.e11b9ed9 \
+--watch \
+0x4970C6Fd50B846A0E3686484d1D0C43157547E82 \
+contracts/tokens/MembershipCouncil.sol:MembershipCouncil
+```
+
+You can find out the compiler version for a contract by running, e.g., `forge inspect MembershipCouncil metadata` and looking at the `compiler` field.
 
 Forge tests are currently not run automatically. We're using them for targeted testing, example:
 
