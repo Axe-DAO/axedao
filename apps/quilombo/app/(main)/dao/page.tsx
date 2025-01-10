@@ -2,10 +2,9 @@
 
 import { Tab, Tabs } from '@nextui-org/tabs';
 
-import { DaoMembership, Treasury } from '@/components/axe/dao';
+import { DaoMembership, Proposals, Treasury, TreasuryShares } from '@/components/axe/dao';
 
 const DaoPage = () => {
-
   return (
     <section className="flex flex-col items-center justify-center max-w-lg pt-2 sm:pt-4 w-full mx-auto">
       <Tabs aria-label="Axé DAO Membership and Council" color="primary" size="lg" fullWidth>
@@ -20,6 +19,7 @@ const DaoPage = () => {
           <div className="flex w-full flex-col gap-2 sm:gap-4 items-center">
             <h2 className="text-3xl font-bold text-center mb-1">Council</h2>
             <p className="text-center">The Council is the decision-making body of the Axé DAO.</p>
+            <Proposals />
           </div>
         </Tab>
         <Tab key="assets" title="Assets" className="w-full">
@@ -27,7 +27,7 @@ const DaoPage = () => {
             <h2 className="text-3xl font-bold text-center mb-1">Assets</h2>
             <p className="text-center">The Axé DAO controls multiple treasuries.</p>
             <Treasury />
-            <DaoMembership />
+            <TreasuryShares />
           </div>
         </Tab>
       </Tabs>

@@ -4,6 +4,11 @@ import { Chain, gnosis, localhost, optimism, sepolia } from 'wagmi/chains';
 import ENV from '@/config/environment';
 import silk from '@/utils/silk.connector';
 
+declare module 'wagmi' {
+  interface Register {
+    config: typeof wagmiConfig;
+  }
+}
 export const configureChains = (): [Chain, ...Chain[]] => {
   let chains: [Chain, ...Chain[]] = [gnosis, optimism];
   const appEnv = process.env.NEXT_PUBLIC_APP_ENV?.toLowerCase();

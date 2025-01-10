@@ -2002,6 +2002,1028 @@ export const addressAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Baal
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const baalAbi = [
+  { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
+  {
+    type: 'error',
+    inputs: [{ name: 'guard_', internalType: 'address', type: 'address' }],
+    name: 'NotIERC165Compliant',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'spender',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousAvatar',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newAvatar',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'AvatarSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposal',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'CancelProposal',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'guard',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+    ],
+    name: 'ChangedGuard',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'voting',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      { name: 'grace', internalType: 'uint32', type: 'uint32', indexed: false },
+      {
+        name: 'newOffering',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'quorum',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'sponsor',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'minRetention',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'GovernanceConfigSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'version', internalType: 'uint8', type: 'uint8', indexed: false },
+    ],
+    name: 'Initialized',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'adminLock', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'LockAdmin',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'governorLock',
+        internalType: 'bool',
+        type: 'bool',
+        indexed: false,
+      },
+    ],
+    name: 'LockGovernor',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'managerLock',
+        internalType: 'bool',
+        type: 'bool',
+        indexed: false,
+      },
+    ],
+    name: 'LockManager',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'paused', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'LootPaused',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposal',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      { name: 'passed', internalType: 'bool', type: 'bool', indexed: false },
+      {
+        name: 'actionFailed',
+        internalType: 'bool',
+        type: 'bool',
+        indexed: false,
+      },
+    ],
+    name: 'ProcessProposal',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'member',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      { name: 'to', internalType: 'address', type: 'address', indexed: false },
+      {
+        name: 'lootToBurn',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'sharesToBurn',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'tokens',
+        internalType: 'address[]',
+        type: 'address[]',
+        indexed: false,
+      },
+    ],
+    name: 'Ragequit',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'forwarder',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'SetTrustedForwarder',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'lootPaused',
+        internalType: 'bool',
+        type: 'bool',
+        indexed: false,
+      },
+      {
+        name: 'sharesPaused',
+        internalType: 'bool',
+        type: 'bool',
+        indexed: false,
+      },
+      {
+        name: 'gracePeriod',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      {
+        name: 'votingPeriod',
+        internalType: 'uint32',
+        type: 'uint32',
+        indexed: false,
+      },
+      {
+        name: 'proposalOffering',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'quorumPercent',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'sponsorThreshold',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'minRetentionPercent',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      { name: 'name', internalType: 'string', type: 'string', indexed: false },
+      {
+        name: 'symbol',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+      {
+        name: 'totalShares',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'totalLoot',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'SetupComplete',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'shaman',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'permission',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'ShamanSet',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'paused', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'SharesPaused',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'member',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'proposal',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'votingStarts',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+    ],
+    name: 'SponsorProposal',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'proposal',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      {
+        name: 'proposalDataHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        name: 'votingPeriod',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'proposalData',
+        internalType: 'bytes',
+        type: 'bytes',
+        indexed: false,
+      },
+      {
+        name: 'expiration',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'baalGas',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'selfSponsor',
+        internalType: 'bool',
+        type: 'bool',
+        indexed: false,
+      },
+      {
+        name: 'timestamp',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'details',
+        internalType: 'string',
+        type: 'string',
+        indexed: false,
+      },
+    ],
+    name: 'SubmitProposal',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'member',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'balance',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'proposal',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: true,
+      },
+      { name: 'approved', internalType: 'bool', type: 'bool', indexed: true },
+    ],
+    name: 'SubmitVote',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousTarget',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newTarget',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'TargetSet',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'adminLock',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'avatar',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address[]', type: 'address[]' },
+      { name: 'amount', internalType: 'uint256[]', type: 'uint256[]' },
+    ],
+    name: 'burnLoot',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address[]', type: 'address[]' },
+      { name: 'amount', internalType: 'uint256[]', type: 'uint256[]' },
+    ],
+    name: 'burnShares',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'id', internalType: 'uint32', type: 'uint32' }],
+    name: 'cancelProposal',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_calls', internalType: 'bytes[]', type: 'bytes[]' },
+      { name: '_target', internalType: 'address', type: 'address' },
+    ],
+    name: 'encodeMultisend',
+    outputs: [
+      { name: 'encodedMultisend', internalType: 'bytes', type: 'bytes' },
+    ],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_to', internalType: 'address', type: 'address' },
+      { name: '_value', internalType: 'uint256', type: 'uint256' },
+      { name: '_data', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'executeAsBaal',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getGuard',
+    outputs: [{ name: '_guard', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'id', internalType: 'uint32', type: 'uint32' }],
+    name: 'getProposalStatus',
+    outputs: [{ name: '', internalType: 'bool[4]', type: 'bool[4]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'governorLock',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'gracePeriod',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'guard',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_transactions', internalType: 'bytes', type: 'bytes' }],
+    name: 'hashOperation',
+    outputs: [{ name: 'hash', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'shaman', internalType: 'address', type: 'address' }],
+    name: 'isAdmin',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'shaman', internalType: 'address', type: 'address' }],
+    name: 'isGovernor',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'shaman', internalType: 'address', type: 'address' }],
+    name: 'isManager',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'forwarder', internalType: 'address', type: 'address' }],
+    name: 'isTrustedForwarder',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'latestSponsoredProposalId',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lockAdmin',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lockGovernor',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lockManager',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lootToken',
+    outputs: [
+      { name: '', internalType: 'contract IBaalToken', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'managerLock',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'memberVoted',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'minRetentionPercent',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address[]', type: 'address[]' },
+      { name: 'amount', internalType: 'uint256[]', type: 'uint256[]' },
+    ],
+    name: 'mintLoot',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address[]', type: 'address[]' },
+      { name: 'amount', internalType: 'uint256[]', type: 'uint256[]' },
+    ],
+    name: 'mintShares',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'multisendLibrary',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'id', internalType: 'uint32', type: 'uint32' },
+      { name: 'proposalData', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'processProposal',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proposalCount',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'proposalOffering',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'proposals',
+    outputs: [
+      { name: 'id', internalType: 'uint32', type: 'uint32' },
+      { name: 'prevProposalId', internalType: 'uint32', type: 'uint32' },
+      { name: 'votingStarts', internalType: 'uint32', type: 'uint32' },
+      { name: 'votingEnds', internalType: 'uint32', type: 'uint32' },
+      { name: 'graceEnds', internalType: 'uint32', type: 'uint32' },
+      { name: 'expiration', internalType: 'uint32', type: 'uint32' },
+      { name: 'baalGas', internalType: 'uint256', type: 'uint256' },
+      { name: 'yesVotes', internalType: 'uint256', type: 'uint256' },
+      { name: 'noVotes', internalType: 'uint256', type: 'uint256' },
+      {
+        name: 'maxTotalSharesAndLootAtVote',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+      {
+        name: 'maxTotalSharesAtSponsor',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+      { name: 'sponsor', internalType: 'address', type: 'address' },
+      { name: 'proposalDataHash', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'quorumPercent',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'sharesToBurn', internalType: 'uint256', type: 'uint256' },
+      { name: 'lootToBurn', internalType: 'uint256', type: 'uint256' },
+      { name: 'tokens', internalType: 'address[]', type: 'address[]' },
+    ],
+    name: 'ragequit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'pauseShares', internalType: 'bool', type: 'bool' },
+      { name: 'pauseLoot', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setAdminConfig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_avatar', internalType: 'address', type: 'address' }],
+    name: 'setAvatar',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_governanceConfig', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'setGovernanceConfig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_guard', internalType: 'address', type: 'address' }],
+    name: 'setGuard',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_shamans', internalType: 'address[]', type: 'address[]' },
+      { name: '_permissions', internalType: 'uint256[]', type: 'uint256[]' },
+    ],
+    name: 'setShamans',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_target', internalType: 'address', type: 'address' }],
+    name: 'setTarget',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: '_trustedForwarderAddress',
+        internalType: 'address',
+        type: 'address',
+      },
+    ],
+    name: 'setTrustedForwarder',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_initializationParams', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'setUp',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'shamans',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'sharesToken',
+    outputs: [
+      { name: '', internalType: 'contract IBaalToken', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'id', internalType: 'uint32', type: 'uint32' }],
+    name: 'sponsorProposal',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'sponsorThreshold',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'id', internalType: 'uint32', type: 'uint32' }],
+    name: 'state',
+    outputs: [
+      { name: '', internalType: 'enum Baal.ProposalState', type: 'uint8' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'proposalData', internalType: 'bytes', type: 'bytes' },
+      { name: 'expiration', internalType: 'uint32', type: 'uint32' },
+      { name: 'baalGas', internalType: 'uint256', type: 'uint256' },
+      { name: 'details', internalType: 'string', type: 'string' },
+    ],
+    name: 'submitProposal',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'payable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'id', internalType: 'uint32', type: 'uint32' },
+      { name: 'approved', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'submitVote',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'voter', internalType: 'address', type: 'address' },
+      { name: 'expiry', internalType: 'uint256', type: 'uint256' },
+      { name: 'nonce', internalType: 'uint256', type: 'uint256' },
+      { name: 'id', internalType: 'uint32', type: 'uint32' },
+      { name: 'approved', internalType: 'bool', type: 'bool' },
+      { name: 'v', internalType: 'uint8', type: 'uint8' },
+      { name: 'r', internalType: 'bytes32', type: 'bytes32' },
+      { name: 's', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'submitVoteWithSig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'target',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalLoot',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalShares',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'trustedForwarder',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'versionRecipient',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'votingNonces',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'votingPeriod',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'view',
+  },
+] as const
+
+/**
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const baalAddress = {
+  11155111: '0x1c3ac998b698206CD2fb22bb422Bf14367470866',
+} as const
+
+/**
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const baalConfig = { address: baalAddress, abi: baalAbi } as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // DSTest
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -7069,7 +8091,7 @@ export const membershipCouncilAbi = [
   },
   {
     type: 'function',
-    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     name: 'tokenURI',
     outputs: [{ name: '', internalType: 'string', type: 'string' }],
     stateMutability: 'view',
@@ -11030,6 +12052,1257 @@ export const useWatchAxeSourceTreasuryChangedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: axeSourceAbi,
     eventName: 'TreasuryChanged',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaal = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"adminLock"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalAdminLock = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'adminLock',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"avatar"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalAvatar = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'avatar',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"encodeMultisend"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalEncodeMultisend = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'encodeMultisend',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"getGuard"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalGetGuard = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'getGuard',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"getProposalStatus"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalGetProposalStatus = /*#__PURE__*/ createUseReadContract(
+  { abi: baalAbi, address: baalAddress, functionName: 'getProposalStatus' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"governorLock"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalGovernorLock = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'governorLock',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"gracePeriod"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalGracePeriod = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'gracePeriod',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"guard"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalGuard = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'guard',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"hashOperation"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalHashOperation = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'hashOperation',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"isAdmin"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalIsAdmin = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'isAdmin',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"isGovernor"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalIsGovernor = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'isGovernor',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"isManager"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalIsManager = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'isManager',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"isTrustedForwarder"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalIsTrustedForwarder =
+  /*#__PURE__*/ createUseReadContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'isTrustedForwarder',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"latestSponsoredProposalId"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalLatestSponsoredProposalId =
+  /*#__PURE__*/ createUseReadContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'latestSponsoredProposalId',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"lootToken"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalLootToken = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'lootToken',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"managerLock"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalManagerLock = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'managerLock',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"memberVoted"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalMemberVoted = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'memberVoted',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"minRetentionPercent"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalMinRetentionPercent =
+  /*#__PURE__*/ createUseReadContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'minRetentionPercent',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"multisendLibrary"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalMultisendLibrary = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'multisendLibrary',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"owner"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalOwner = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"proposalCount"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalProposalCount = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'proposalCount',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"proposalOffering"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalProposalOffering = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'proposalOffering',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"proposals"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalProposals = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'proposals',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"quorumPercent"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalQuorumPercent = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'quorumPercent',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"shamans"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalShamans = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'shamans',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"sharesToken"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalSharesToken = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'sharesToken',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"sponsorThreshold"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalSponsorThreshold = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'sponsorThreshold',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"state"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalState = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'state',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"target"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalTarget = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'target',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"totalLoot"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalTotalLoot = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'totalLoot',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"totalShares"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalTotalShares = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'totalShares',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"totalSupply"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalTotalSupply = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'totalSupply',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"trustedForwarder"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalTrustedForwarder = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'trustedForwarder',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"versionRecipient"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalVersionRecipient = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'versionRecipient',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"votingNonces"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalVotingNonces = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'votingNonces',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"votingPeriod"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useReadBaalVotingPeriod = /*#__PURE__*/ createUseReadContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'votingPeriod',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaal = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"burnLoot"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalBurnLoot = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'burnLoot',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"burnShares"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalBurnShares = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'burnShares',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"cancelProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalCancelProposal = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'cancelProposal',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"executeAsBaal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalExecuteAsBaal = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'executeAsBaal',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"lockAdmin"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalLockAdmin = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'lockAdmin',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"lockGovernor"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalLockGovernor = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'lockGovernor',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"lockManager"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalLockManager = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'lockManager',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"mintLoot"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalMintLoot = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'mintLoot',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"mintShares"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalMintShares = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'mintShares',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"processProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalProcessProposal = /*#__PURE__*/ createUseWriteContract(
+  { abi: baalAbi, address: baalAddress, functionName: 'processProposal' },
+)
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"ragequit"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalRagequit = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'ragequit',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalRenounceOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setAdminConfig"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSetAdminConfig = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'setAdminConfig',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setAvatar"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSetAvatar = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'setAvatar',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setGovernanceConfig"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSetGovernanceConfig =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'setGovernanceConfig',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setGuard"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSetGuard = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'setGuard',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setShamans"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSetShamans = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'setShamans',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setTarget"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSetTarget = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'setTarget',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setTrustedForwarder"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSetTrustedForwarder =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'setTrustedForwarder',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setUp"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSetUp = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'setUp',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"sponsorProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSponsorProposal = /*#__PURE__*/ createUseWriteContract(
+  { abi: baalAbi, address: baalAddress, functionName: 'sponsorProposal' },
+)
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"submitProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSubmitProposal = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'submitProposal',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"submitVote"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSubmitVote = /*#__PURE__*/ createUseWriteContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'submitVote',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"submitVoteWithSig"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalSubmitVoteWithSig =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'submitVoteWithSig',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWriteBaalTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaal = /*#__PURE__*/ createUseSimulateContract({
+  abi: baalAbi,
+  address: baalAddress,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"burnLoot"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalBurnLoot = /*#__PURE__*/ createUseSimulateContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'burnLoot',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"burnShares"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalBurnShares =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'burnShares',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"cancelProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalCancelProposal =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'cancelProposal',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"executeAsBaal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalExecuteAsBaal =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'executeAsBaal',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"lockAdmin"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalLockAdmin = /*#__PURE__*/ createUseSimulateContract(
+  { abi: baalAbi, address: baalAddress, functionName: 'lockAdmin' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"lockGovernor"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalLockGovernor =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'lockGovernor',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"lockManager"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalLockManager =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'lockManager',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"mintLoot"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalMintLoot = /*#__PURE__*/ createUseSimulateContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'mintLoot',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"mintShares"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalMintShares =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'mintShares',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"processProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalProcessProposal =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'processProposal',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"ragequit"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalRagequit = /*#__PURE__*/ createUseSimulateContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'ragequit',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"renounceOwnership"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalRenounceOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setAdminConfig"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSetAdminConfig =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'setAdminConfig',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setAvatar"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSetAvatar = /*#__PURE__*/ createUseSimulateContract(
+  { abi: baalAbi, address: baalAddress, functionName: 'setAvatar' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setGovernanceConfig"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSetGovernanceConfig =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'setGovernanceConfig',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setGuard"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSetGuard = /*#__PURE__*/ createUseSimulateContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'setGuard',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setShamans"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSetShamans =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'setShamans',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setTarget"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSetTarget = /*#__PURE__*/ createUseSimulateContract(
+  { abi: baalAbi, address: baalAddress, functionName: 'setTarget' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setTrustedForwarder"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSetTrustedForwarder =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'setTrustedForwarder',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"setUp"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSetUp = /*#__PURE__*/ createUseSimulateContract({
+  abi: baalAbi,
+  address: baalAddress,
+  functionName: 'setUp',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"sponsorProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSponsorProposal =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'sponsorProposal',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"submitProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSubmitProposal =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'submitProposal',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"submitVote"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSubmitVote =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'submitVote',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"submitVoteWithSig"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalSubmitVoteWithSig =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'submitVoteWithSig',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link baalAbi}__ and `functionName` set to `"transferOwnership"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useSimulateBaalTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: baalAbi,
+    address: baalAddress,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: baalAbi,
+  address: baalAddress,
+})
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"Approval"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalApprovalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"AvatarSet"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalAvatarSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'AvatarSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"CancelProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalCancelProposalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'CancelProposal',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"ChangedGuard"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalChangedGuardEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'ChangedGuard',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"GovernanceConfigSet"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalGovernanceConfigSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'GovernanceConfigSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"Initialized"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'Initialized',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"LockAdmin"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalLockAdminEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'LockAdmin',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"LockGovernor"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalLockGovernorEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'LockGovernor',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"LockManager"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalLockManagerEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'LockManager',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"LootPaused"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalLootPausedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'LootPaused',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalOwnershipTransferredEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"ProcessProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalProcessProposalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'ProcessProposal',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"Ragequit"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalRagequitEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'Ragequit',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"SetTrustedForwarder"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalSetTrustedForwarderEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'SetTrustedForwarder',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"SetupComplete"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalSetupCompleteEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'SetupComplete',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"ShamanSet"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalShamanSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'ShamanSet',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"SharesPaused"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalSharesPausedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'SharesPaused',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"SponsorProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalSponsorProposalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'SponsorProposal',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"SubmitProposal"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalSubmitProposalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'SubmitProposal',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"SubmitVote"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalSubmitVoteEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'SubmitVote',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link baalAbi}__ and `eventName` set to `"TargetSet"`
+ *
+ * [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x1c3ac998b698206cd2fb22bb422bf14367470866)
+ */
+export const useWatchBaalTargetSetEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: baalAbi,
+    address: baalAddress,
+    eventName: 'TargetSet',
   })
 
 /**
