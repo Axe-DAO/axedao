@@ -2,7 +2,6 @@
 
 import { atom, useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
-import { Address } from 'viem';
 import { usePublicClient } from 'wagmi';
 
 import ENV from '@/config/environment';
@@ -31,6 +30,11 @@ export const proposalsAtom = atom<ProposalsState>({
   initialized: false,
 });
 
+export const activeProposalsAtom = atom<Map<bigint, Proposal>>((get) => {
+  const proposals = get(proposalsAtom);
+  return new Map(Array.from(proposals.proposals.entries()).filter(([, proposal]) => proposal.status === 'active'));
+});
+
 export function useProposals() {
   const [state, setState] = useAtom(proposalsAtom);
   const publicClient = usePublicClient();
@@ -40,11 +44,11 @@ export function useProposals() {
   const loadProposals = useCallback(async () => {
     if (!publicClient) return;
 
-    console.log('🔄 Loading historical proposals for DAO:', ENV.axeDaoAddress);
+    console.log('Loading historical proposals for DAO:', ENV.axeDaoAddress);
     setState((prev) => ({ ...prev, loading: true }));
 
     try {
-      const [submitLogs, processLogs] = await Promise.all([
+      const [submitLogs, processLogs, cancelLogs] = await Promise.all([
         publicClient.getContractEvents({
           address: ENV.axeDaoAddress,
           abi: baalAbi,
@@ -57,23 +61,38 @@ export function useProposals() {
           eventName: 'ProcessProposal',
           fromBlock: 'earliest',
         }),
+        publicClient.getContractEvents({
+          address: ENV.axeDaoAddress,
+          abi: baalAbi,
+          eventName: 'CancelProposal',
+          fromBlock: 'earliest',
+        }),
       ]);
 
-      console.log('📝 Raw Submit Events:', submitLogs);
-      console.log('⚙️ Raw Process Events:', processLogs);
+      console.log('Raw Submit Events:', submitLogs);
+      console.log('Raw Process Events:', processLogs);
+      console.log('Raw Cancel Events:', cancelLogs);
 
-      // Track processed proposals
-      const processedProposalIds = new Set<bigint>(
-        processLogs.map((log) => (log.args as { proposalId: bigint }).proposalId),
-      );
+      // Track proposal statuses
+      const proposalStatuses = new Map<bigint, 'executed' | 'failed' | 'cancelled'>([
+        ...processLogs.map((log) => {
+          const args = log.args as { proposal: bigint; passed: boolean };
+          return [args.proposal, args.passed ? 'executed' : 'failed'] as const;
+        }),
+        ...cancelLogs.map((log) => {
+          const args = log.args as { proposal: bigint };
+          return [args.proposal, 'cancelled'] as const;
+        }),
+      ]);
 
-      const newProposals = new Map<bigint, Proposal>();
+      const proposalResults = new Map<bigint, Proposal>();
 
       // Parse submit logs
       submitLogs.forEach((log) => {
         const args = log.args as {
-          proposalId: bigint;
-          proposalDataHash: Address;
+          proposal: bigint;
+          proposalData: string;
+          proposalDataHash: `0x${string}`;
           votingPeriod: bigint;
           expiration: bigint;
           baalGas: bigint;
@@ -81,26 +100,30 @@ export function useProposals() {
           details: string;
         };
 
-        const id = args.proposalId;
+        const id = args.proposal;
+        const timestamp = Number(args.timestamp);
+        const expiration = timestamp + Number(args.votingPeriod);
+        const isExpired = expiration < Date.now() / 1000;
 
-        // Skip if proposal is processed
-        if (processedProposalIds.has(id)) return;
+        const status = proposalStatuses.get(id) || (isExpired ? 'cancelled' : 'active');
 
-        // Add to proposals map
-        newProposals.set(id, {
+        const result: Proposal = {
           id,
           proposalDataHash: args.proposalDataHash,
           votingPeriod: Number(args.votingPeriod),
-          expiration: Number(args.expiration),
+          expiration,
           baalGas: args.baalGas,
-          timestamp: Number(args.timestamp),
+          timestamp,
           details: args.details,
-          status: 'active',
-        });
+          status,
+        };
+
+        console.log('Proposal:', result);
+        proposalResults.set(id, result);
       });
 
-      console.log('Active proposals:', Array.from(newProposals.entries()));
-      setState((prev) => ({ ...prev, proposals: newProposals, initialized: true }));
+      console.log('All proposals:', Array.from(proposalResults.entries()));
+      setState((prev) => ({ ...prev, proposals: proposalResults, initialized: true }));
     } catch (error) {
       console.error('Error loading proposals:', error);
     } finally {
