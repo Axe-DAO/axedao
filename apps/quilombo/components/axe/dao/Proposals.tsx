@@ -1,13 +1,9 @@
-import ENV from '@/config/environment';
+'use client';
+
 import { useProposals } from '@/hooks/state/dao';
-import { useEffect } from 'react';
 
 export default function Proposals() {
-  const { proposals, loading, refresh } = useProposals(ENV.axeDaoAddress);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const { proposals, loading } = useProposals();
 
   return (
     <div className="flex flex-col w-full items-center">

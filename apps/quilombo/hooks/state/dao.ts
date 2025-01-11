@@ -1,8 +1,11 @@
+'use client';
+
 import { atom, useAtom } from 'jotai';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Address } from 'viem';
 import { usePublicClient } from 'wagmi';
 
+import ENV from '@/config/environment';
 import { baalAbi } from '@/generated';
 
 export interface Proposal {
@@ -16,32 +19,40 @@ export interface Proposal {
   status: 'active' | 'executed' | 'cancelled' | 'failed';
 }
 
-export const proposalsAtom = atom<Map<bigint, Proposal>>(new Map());
-export const loadingProposalsAtom = atom<boolean>(false);
+export interface ProposalsState {
+  proposals: Map<bigint, Proposal>;
+  loading: boolean;
+  initialized: boolean;
+}
 
-export function useProposals(daoAddress: Address) {
-  const [proposals, setProposals] = useAtom(proposalsAtom);
-  const [loading, setLoading] = useAtom(loadingProposalsAtom);
+export const proposalsAtom = atom<ProposalsState>({
+  proposals: new Map(),
+  loading: false,
+  initialized: false,
+});
+
+export function useProposals() {
+  const [state, setState] = useAtom(proposalsAtom);
   const publicClient = usePublicClient();
 
   console.log('Chain ID: ', publicClient?.chain.id);
 
-  const loadHistoricalProposals = useCallback(async () => {
+  const loadProposals = useCallback(async () => {
     if (!publicClient) return;
 
-    console.log('🔄 Loading historical proposals for DAO:', daoAddress);
-    setLoading(true);
+    console.log('🔄 Loading historical proposals for DAO:', ENV.axeDaoAddress);
+    setState((prev) => ({ ...prev, loading: true }));
 
     try {
       const [submitLogs, processLogs] = await Promise.all([
         publicClient.getContractEvents({
-          address: daoAddress,
+          address: ENV.axeDaoAddress,
           abi: baalAbi,
           eventName: 'SubmitProposal',
           fromBlock: 'earliest',
         }),
         publicClient.getContractEvents({
-          address: daoAddress,
+          address: ENV.axeDaoAddress,
           abi: baalAbi,
           eventName: 'ProcessProposal',
           fromBlock: 'earliest',
@@ -88,18 +99,20 @@ export function useProposals(daoAddress: Address) {
         });
       });
 
-      console.log('✅ Active proposals:', Array.from(newProposals.entries()));
-      setProposals(newProposals);
+      console.log('Active proposals:', Array.from(newProposals.entries()));
+      setState((prev) => ({ ...prev, proposals: newProposals, initialized: true }));
     } catch (error) {
-      console.error('❌ Error loading proposals:', error);
+      console.error('Error loading proposals:', error);
     } finally {
-      setLoading(false);
+      setState((prev) => ({ ...prev, loading: false }));
     }
-  }, [publicClient, daoAddress, setProposals, setLoading]);
+  }, [publicClient, setState]);
 
-  return {
-    proposals,
-    loading,
-    refresh: loadHistoricalProposals,
-  };
+  useEffect(() => {
+    if (!state.initialized && !state.loading) {
+      loadProposals();
+    }
+  }, [loadProposals, state]);
+
+  return { ...state, refresh: loadProposals };
 }
