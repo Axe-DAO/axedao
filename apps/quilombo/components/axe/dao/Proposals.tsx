@@ -3,7 +3,7 @@
 import { useProposals } from '@/hooks/state/dao';
 
 export default function Proposals() {
-  const { proposals, loading } = useProposals();
+  const { proposals, loading, error } = useProposals();
 
   return (
     <div className="flex flex-col w-full items-center">
@@ -11,8 +11,8 @@ export default function Proposals() {
       <div className="flex flex-col gap-2 sm:gap-4 w-full">
         {loading ? (
           <div>Loading proposals...</div>
-        ) : proposals.size > 0 ? (
-          Array.from(proposals.values()).map((proposal) => (
+        ) : proposals.length > 0 ? (
+          proposals.map((proposal) => (
             <div key={proposal.id.toString()} className="p-4 bg-gray-800 rounded-lg">
               <div className="text-lg font-semibold">Proposal #{proposal.id.toString()}</div>
               <div className="mt-2 text-sm text-gray-300">{proposal.details}</div>
@@ -26,6 +26,7 @@ export default function Proposals() {
           <div>No proposals found</div>
         )}
       </div>
+      {error && <div className="text-red-500">{error}</div>}
     </div>
   );
 }

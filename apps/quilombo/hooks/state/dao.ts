@@ -19,20 +19,22 @@ export interface Proposal {
 }
 
 export interface ProposalsState {
-  proposals: Map<bigint, Proposal>;
+  proposals: Proposal[];
   loading: boolean;
   initialized: boolean;
+  error: string | null;
 }
 
 export const proposalsAtom = atom<ProposalsState>({
-  proposals: new Map(),
+  proposals: [],
   loading: false,
   initialized: false,
+  error: null,
 });
 
-export const activeProposalsAtom = atom<Map<bigint, Proposal>>((get) => {
-  const proposals = get(proposalsAtom);
-  return new Map(Array.from(proposals.proposals.entries()).filter(([, proposal]) => proposal.status === 'active'));
+export const activeProposalsAtom = atom<Proposal[]>((get) => {
+  const { proposals } = get(proposalsAtom);
+  return proposals.filter((proposal) => proposal.status === 'active');
 });
 
 export function useProposals() {
@@ -122,10 +124,19 @@ export function useProposals() {
         proposalResults.set(id, result);
       });
 
-      console.log('All proposals:', Array.from(proposalResults.entries()));
-      setState((prev) => ({ ...prev, proposals: proposalResults, initialized: true }));
+      // Convert to sorted array before storing
+      const sortedProposals = Array.from(proposalResults.values()).sort((a, b) => Number(b.id - a.id)); // Sort by descending ID
+
+      console.log('All proposals:', sortedProposals);
+
+      setState((prev) => ({
+        ...prev,
+        proposals: sortedProposals,
+        initialized: true,
+      }));
     } catch (error) {
       console.error('Error loading proposals:', error);
+      setState((prev) => ({ ...prev, error: 'Error loading proposals' }));
     } finally {
       setState((prev) => ({ ...prev, loading: false }));
     }
