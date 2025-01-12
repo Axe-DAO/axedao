@@ -2,18 +2,17 @@
 
 import { atom, useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
-import { usePublicClient } from 'wagmi';
+import { useAccount, usePublicClient } from 'wagmi';
 
 import ENV from '@/config/environment';
-import { baalAbi } from '@/generated';
+import { baalAbi, useReadErc20BalanceOf } from '@/generated';
+import { Address } from 'viem';
 
 export interface Proposal {
-  id: bigint;
+  id: number;
   proposalDataHash: `0x${string}`;
   votingPeriod: number;
   expiration: number;
-  baalGas: bigint;
-  timestamp: number;
   details: string;
   status: 'active' | 'executed' | 'cancelled' | 'failed';
 }
@@ -76,18 +75,18 @@ export function useProposals() {
       console.log('Raw Cancel Events:', cancelLogs);
 
       // Track proposal statuses
-      const proposalStatuses = new Map<bigint, 'executed' | 'failed' | 'cancelled'>([
+      const proposalStatuses = new Map<number, 'executed' | 'failed' | 'cancelled'>([
         ...processLogs.map((log) => {
           const args = log.args as { proposal: bigint; passed: boolean };
-          return [args.proposal, args.passed ? 'executed' : 'failed'] as const;
+          return [Number(args.proposal), args.passed ? 'executed' : 'failed'] as const;
         }),
         ...cancelLogs.map((log) => {
           const args = log.args as { proposal: bigint };
-          return [args.proposal, 'cancelled'] as const;
+          return [Number(args.proposal), 'cancelled'] as const;
         }),
       ]);
 
-      const proposalResults = new Map<bigint, Proposal>();
+      const proposalResults = new Map<number, Proposal>();
 
       // Parse submit logs
       submitLogs.forEach((log) => {
@@ -102,7 +101,7 @@ export function useProposals() {
           details: string;
         };
 
-        const id = args.proposal;
+        const id = Number(args.proposal);
         const timestamp = Number(args.timestamp);
         const expiration = timestamp + Number(args.votingPeriod);
         const isExpired = expiration < Date.now() / 1000;
@@ -114,8 +113,6 @@ export function useProposals() {
           proposalDataHash: args.proposalDataHash,
           votingPeriod: Number(args.votingPeriod),
           expiration,
-          baalGas: args.baalGas,
-          timestamp,
           details: args.details,
           status,
         };
@@ -149,4 +146,15 @@ export function useProposals() {
   }, [loadProposals, state]);
 
   return { ...state, refresh: loadProposals };
+}
+
+export function useHasVotingShares() {
+  const account = useAccount();
+
+  const { data: shares } = useReadErc20BalanceOf({
+    address: ENV.axeDaoSharesAddress,
+    args: [account.address as Address],
+  });
+
+  return shares ? shares > 0n : false;
 }
