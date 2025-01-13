@@ -20,7 +20,7 @@ interface IMembershipCouncil is IERC721 {
   event CandidateEnlisted(address indexed _candidate);
   event CandidateResigned(address indexed _candidate);
   event VoteDelegated(address indexed _delegator, address indexed _candidate);
-  event VoteUndelegated(address indexed _delegator);
+  event VoteUndelegated(address indexed _delegator, address indexed _candidate);
 
   function donate() external;
 

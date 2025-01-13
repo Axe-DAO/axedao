@@ -144,6 +144,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     if (currentDelegate == _candidate) return;
     if (currentDelegate != address(0)) {
       moveCandidate(currentDelegate, false);
+      emit VoteUndelegated(sender, currentDelegate);
     }
     moveCandidate(_candidate, true);
     delegations[sender] = _candidate;
@@ -156,7 +157,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     require(candidate != address(0), "No delegation");
     moveCandidate(candidate, false);
     delegations[sender] = address(0);
-    emit VoteUndelegated(sender);
+    emit VoteUndelegated(sender, candidate);
   }
 
   /**

@@ -56,8 +56,6 @@ export function useProposals() {
   const [state, setState] = useAtom(proposalsAtom);
   const publicClient = usePublicClient();
 
-  console.log('Chain ID: ', publicClient?.chain.id);
-
   const loadHistoricalProposalLogs = useCallback(async () => {
     if (!publicClient) return;
 
@@ -164,7 +162,6 @@ export function useCandidates() {
   const [state, setState] = useAtom(candidatesAtom);
   const publicClient = usePublicClient();
 
-  // Get the query function directly from react-query
   const {
     data: candidateUsers,
     isLoading: isLoadingUsers,
@@ -173,14 +170,12 @@ export function useCandidates() {
     addresses: state.addresses,
   });
 
-  // Get candidate addresses from contract events and then fetch user data
   const loadHistoricalCandidateLogs = useCallback(async () => {
     if (!publicClient) return;
 
     setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
-      // First get addresses from events
       const [enlistLogs, resignLogs] = await Promise.all([
         publicClient.getContractEvents({
           address: ENV.membershipCouncilAddress,
@@ -201,12 +196,10 @@ export function useCandidates() {
         return blockDiff === 0 ? Number(a.transactionIndex - b.transactionIndex) : blockDiff;
       });
 
-      console.log('All events:', allEvents);
-
       const candidateStatus = new Map<Address, boolean>();
       allEvents.forEach((log) => {
-        const args = log.args as { candidate: Address };
-        candidateStatus.set(args.candidate, log.eventName === 'CandidateEnlisted');
+        const args = log.args as { _candidate: Address };
+        candidateStatus.set(args._candidate, log.eventName === 'CandidateEnlisted');
       });
 
       const addresses = Array.from(candidateStatus.entries())
@@ -215,7 +208,6 @@ export function useCandidates() {
 
       console.log('Candidate addresses:', addresses);
 
-      // Update addresses in state
       setState((prev) => ({
         ...prev,
         addresses,
@@ -240,6 +232,7 @@ export function useCandidates() {
     candidates: candidateUsers,
     isLoading: state.loading || isLoadingUsers,
     error: state.error ?? loadingUsersError,
+    refresh: loadHistoricalCandidateLogs,
   };
 }
 

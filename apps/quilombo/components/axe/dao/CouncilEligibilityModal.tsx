@@ -1,24 +1,75 @@
 'use client';
 
-import { Modal, ModalBody, ModalContent, ModalHeader } from '@nextui-org/modal';
+import { Button } from '@nextui-org/button';
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalProps } from '@nextui-org/modal';
+import { enqueueSnackbar } from 'notistack';
+import { useEffect } from 'react';
+import { useWaitForTransactionReceipt } from 'wagmi';
 
-interface Props {
-  isOpen: boolean;
-  onOpenChange: () => void;
+import ENV from '@/config/environment';
+import { useWriteMembershipCouncilEnlistAsCandidate } from '@/generated';
+
+type Props = Omit<ModalProps, 'children'> & {
   hasVotingShares: boolean;
-}
+};
 
-const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, hasVotingShares }) => {
+const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, onClose, hasVotingShares }: Props) => {
+  const {
+    data: enlistHash,
+    isPending: enlistPending,
+    writeContract: enlist,
+  } = useWriteMembershipCouncilEnlistAsCandidate();
+
+  const {
+    isSuccess: enlistSuccess,
+    error: enlistError,
+    isLoading: enlistLoading,
+  } = useWaitForTransactionReceipt({ hash: enlistHash });
+
+  // Handle transaction states
+  useEffect(() => {
+    if (enlistLoading) {
+      enqueueSnackbar('Enlisting as candidate. Please wait for confirmation...', {
+        autoHideDuration: 3000,
+      });
+    } else if (enlistSuccess) {
+      enqueueSnackbar('Successfully enlisted as candidate!');
+      onClose?.(); // Close modal on success
+    } else if (enlistError) {
+      enqueueSnackbar(`Failed to enlist: ${enlistError.message}`, { variant: 'error' });
+      onClose?.();
+    }
+  }, [enlistLoading, enlistSuccess, enlistError, onClose]);
+
+  const handleEnlist = () => {
+    enlist({ address: ENV.membershipCouncilAddress });
+  };
+
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
       <ModalContent>
         {() => (
           <>
             <ModalHeader>{hasVotingShares ? 'Enlist as Council Candidate' : 'Become Eligible'}</ModalHeader>
-            <ModalBody>
-              {/* Content will be implemented later */}
-              <p>Modal content coming soon...</p>
+            <ModalBody className="gap-3">
+              <p>
+                Council candidates can receive delegated votes from DAO members. The top candidates form the council.
+              </p>
+              <p>
+                Note: if eligible for a seat on the council, you will need to have 1 loot token to be converted to a
+                voting share. Get Loot here: (TODO)
+              </p>
             </ModalBody>
+            <ModalFooter>
+              <Button
+                color="primary"
+                onPress={handleEnlist}
+                isLoading={enlistPending || enlistLoading}
+                isDisabled={hasVotingShares}
+              >
+                Enlist as Candidate
+              </Button>
+            </ModalFooter>
           </>
         )}
       </ModalContent>
