@@ -13,7 +13,12 @@ export * as user from './user';
  * in order to be able to invalidate all queries for a specific entity category, if needed.
  */
 export const QUERY_KEYS = {
-  user: { getUser: 'user.getUser', getUserProfile: 'user.getUserProfile', searchUsers: 'users.search' },
+  user: {
+    getUser: 'user.getUser',
+    getUserProfile: 'user.getUserProfile',
+    searchUsers: 'users.search',
+    searchByAddresses: 'users.searchByAddress',
+  },
   group: {
     getGroup: 'group.getGroup',
     getGroupMembers: 'group.getGroupMembers',
@@ -29,8 +34,13 @@ export const QUERY_KEYS = {
   },
 } as const;
 
+export type SearchParams = {
+  pageSize?: number;
+  offset?: number;
+};
 export type GroupAndUserParams = { groupId: string; userId: string };
-
+export type SearchByAddressParams = { addresses: string[] };
 export type FileUploadParams = { ownerId: string; file?: File };
+
 export type FileUploadMutationFn = (params: FileUploadParams) => void;
 export type UseFileUploadMutation = () => UseMutationResult<User | Group | unknown, Error, FileUploadParams, unknown>;

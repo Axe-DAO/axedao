@@ -89,10 +89,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     address sender = _msgSender();
     IERC20(donationToken).safeTransferFrom(sender, donationReceiver, donationAmount);
     _mint(sender, memberCount);
-  }
-
-  function isMember(address _user) public view override returns (bool) {
-    return members[_user] != 0;
+    emit ERC20DonationReceived(sender, donationAmount);
   }
 
   receive() external payable registerNewMember nonReentrant {
@@ -100,18 +97,8 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     _mint(_msgSender(), memberCount);
   }
 
-  function _handleNativeDonation() internal {
-    if (msg.value < nativeDonationAmount) {
-      revert InsufficientDonationError(msg.value, nativeDonationAmount);
-    }
-    uint256 refundAmount = msg.value - nativeDonationAmount;
-    (bool success, ) = donationReceiver.call{ value: nativeDonationAmount }("");
-    require(success, "Failed to forward donation");
-    if (refundAmount > 0) {
-      address sender = _msgSender();
-      (bool refundSuccess, ) = sender.call{ value: refundAmount }("");
-      require(refundSuccess, "Failed to refund excess amount");
-    }
+  function isMember(address _user) public view override returns (bool) {
+    return members[_user] != 0;
   }
 
   /**
@@ -134,6 +121,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     if (delegationGroups[groupIndex].length == 1) {
       insertSortedGroup(groupIndex);
     }
+    emit CandidateEnlisted(sender);
   }
 
   function resignAsCandidate() external {
@@ -145,6 +133,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     if (delegationGroups[groupIndex].length == 0) {
       removeSortedGroup(groupIndex);
     }
+    emit CandidateResigned(sender);
   }
 
   function delegate(address _candidate) external memberOnly {
@@ -158,6 +147,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     }
     moveCandidate(_candidate, true);
     delegations[sender] = _candidate;
+    emit VoteDelegated(sender, _candidate);
   }
 
   function undelegate() external memberOnly {
@@ -166,6 +156,7 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
     require(candidate != address(0), "No delegation");
     moveCandidate(candidate, false);
     delegations[sender] = address(0);
+    emit VoteUndelegated(sender);
   }
 
   /**
@@ -260,6 +251,21 @@ contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGua
 
   function getSortedGroupDelegationCount(uint256 _sortedIndex) external view returns (uint256) {
     return sortedGroups[_sortedIndex];
+  }
+
+  function _handleNativeDonation() internal {
+    address sender = _msgSender();
+    if (msg.value < nativeDonationAmount) {
+      revert InsufficientDonationError(msg.value, nativeDonationAmount);
+    }
+    uint256 refundAmount = msg.value - nativeDonationAmount;
+    (bool success, ) = donationReceiver.call{ value: nativeDonationAmount }("");
+    require(success, "Failed to forward donation");
+    if (refundAmount > 0) {
+      (bool refundSuccess, ) = sender.call{ value: refundAmount }("");
+      require(refundSuccess, "Failed to refund excess amount");
+    }
+    emit NativeDonationReceived(sender, nativeDonationAmount);
   }
 
   /**

@@ -1,5 +1,5 @@
 import { Country } from 'country-state-city';
-import { and, count, eq, ilike, ne, notExists, or, SQLWrapper } from 'drizzle-orm';
+import { and, count, eq, ilike, inArray, ne, notExists, or, SQLWrapper } from 'drizzle-orm';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 
@@ -184,4 +184,11 @@ export async function removeGroupAdmin(groupId: string, adminId: string) {
   await db
     .delete(schema.groupAdmins)
     .where(and(eq(schema.groupAdmins.groupId, groupId), eq(schema.groupAdmins.userId, adminId)));
+}
+
+export async function searchUsersByAddresses(addresses: string[]) {
+  return await db.query.users.findMany({
+    where: (users) => inArray(users.walletAddress, addresses),
+    orderBy: (users, { asc }) => [asc(users.id)],
+  });
 }

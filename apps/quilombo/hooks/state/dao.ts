@@ -5,7 +5,8 @@ import { useCallback, useEffect } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 
 import ENV from '@/config/environment';
-import { baalAbi, useReadErc20BalanceOf } from '@/generated';
+import { baalAbi, membershipCouncilAbi, useReadErc20BalanceOf } from '@/generated';
+import { useSearchUsersByAddresses } from '@/query/user';
 import { Address } from 'viem';
 
 export interface Proposal {
@@ -24,6 +25,13 @@ export interface ProposalsState {
   error: string | null;
 }
 
+export interface CandidatesState {
+  addresses: Address[];
+  loading: boolean;
+  initialized: boolean;
+  error: string | null;
+}
+
 export const proposalsAtom = atom<ProposalsState>({
   proposals: [],
   loading: false,
@@ -31,9 +39,17 @@ export const proposalsAtom = atom<ProposalsState>({
   error: null,
 });
 
+// Derived atom for easier access to only active proposals
 export const activeProposalsAtom = atom<Proposal[]>((get) => {
   const { proposals } = get(proposalsAtom);
   return proposals.filter((proposal) => proposal.status === 'active');
+});
+
+export const candidatesAtom = atom<CandidatesState>({
+  addresses: [],
+  loading: false,
+  initialized: false,
+  error: null,
 });
 
 export function useProposals() {
@@ -42,7 +58,7 @@ export function useProposals() {
 
   console.log('Chain ID: ', publicClient?.chain.id);
 
-  const loadProposals = useCallback(async () => {
+  const loadHistoricalProposalLogs = useCallback(async () => {
     if (!publicClient) return;
 
     console.log('Loading historical proposals for DAO:', ENV.axeDaoAddress);
@@ -69,10 +85,6 @@ export function useProposals() {
           fromBlock: 'earliest',
         }),
       ]);
-
-      console.log('Raw Submit Events:', submitLogs);
-      console.log('Raw Process Events:', processLogs);
-      console.log('Raw Cancel Events:', cancelLogs);
 
       // Track proposal statuses
       const proposalStatuses = new Map<number, 'executed' | 'failed' | 'cancelled'>([
@@ -141,11 +153,94 @@ export function useProposals() {
 
   useEffect(() => {
     if (!state.initialized && !state.loading) {
-      loadProposals();
+      loadHistoricalProposalLogs();
     }
-  }, [loadProposals, state]);
+  }, [loadHistoricalProposalLogs, state]);
 
-  return { ...state, refresh: loadProposals };
+  return { ...state, refresh: loadHistoricalProposalLogs };
+}
+
+export function useCandidates() {
+  const [state, setState] = useAtom(candidatesAtom);
+  const publicClient = usePublicClient();
+
+  // Get the query function directly from react-query
+  const {
+    data: candidateUsers,
+    isLoading: isLoadingUsers,
+    error: loadingUsersError,
+  } = useSearchUsersByAddresses({
+    addresses: state.addresses,
+  });
+
+  // Get candidate addresses from contract events and then fetch user data
+  const loadHistoricalCandidateLogs = useCallback(async () => {
+    if (!publicClient) return;
+
+    setState((prev) => ({ ...prev, loading: true, error: null }));
+
+    try {
+      // First get addresses from events
+      const [enlistLogs, resignLogs] = await Promise.all([
+        publicClient.getContractEvents({
+          address: ENV.membershipCouncilAddress,
+          abi: membershipCouncilAbi,
+          eventName: 'CandidateEnlisted',
+          fromBlock: 'earliest',
+        }),
+        publicClient.getContractEvents({
+          address: ENV.membershipCouncilAddress,
+          abi: membershipCouncilAbi,
+          eventName: 'CandidateResigned',
+          fromBlock: 'earliest',
+        }),
+      ]);
+
+      const allEvents = [...enlistLogs, ...resignLogs].sort((a, b) => {
+        const blockDiff = Number(a.blockNumber - b.blockNumber);
+        return blockDiff === 0 ? Number(a.transactionIndex - b.transactionIndex) : blockDiff;
+      });
+
+      console.log('All events:', allEvents);
+
+      const candidateStatus = new Map<Address, boolean>();
+      allEvents.forEach((log) => {
+        const args = log.args as { candidate: Address };
+        candidateStatus.set(args.candidate, log.eventName === 'CandidateEnlisted');
+      });
+
+      const addresses = Array.from(candidateStatus.entries())
+        .filter(([, isEnlisted]) => isEnlisted)
+        .map(([address]) => address);
+
+      console.log('Candidate addresses:', addresses);
+
+      // Update addresses in state
+      setState((prev) => ({
+        ...prev,
+        addresses,
+        initialized: true,
+      }));
+    } catch (error) {
+      console.error('Error retrieving candidate event logs:', error);
+      setState((prev) => ({ ...prev, error: 'Error retrieving candidate event logs' }));
+    } finally {
+      setState((prev) => ({ ...prev, loading: false }));
+    }
+  }, [publicClient, setState]);
+
+  useEffect(() => {
+    if (!state.initialized && !state.loading) {
+      loadHistoricalCandidateLogs();
+    }
+  }, [loadHistoricalCandidateLogs, state.initialized, state.loading]);
+
+  return {
+    ...state,
+    candidates: candidateUsers,
+    isLoading: state.loading || isLoadingUsers,
+    error: state.error ?? loadingUsersError,
+  };
 }
 
 export function useHasVotingShares() {
@@ -153,6 +248,17 @@ export function useHasVotingShares() {
 
   const { data: shares } = useReadErc20BalanceOf({
     address: ENV.axeDaoSharesAddress,
+    args: [account.address as Address],
+  });
+
+  return shares ? shares > 0n : false;
+}
+
+export function useHasLoot() {
+  const account = useAccount();
+
+  const { data: shares } = useReadErc20BalanceOf({
+    address: ENV.axeDaoLootAddress,
     args: [account.address as Address],
   });
 

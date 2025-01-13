@@ -4,7 +4,7 @@ import axios from 'axios';
 import { QueryConfig } from '@/config/constants';
 import { SearchParams } from '@/config/validation-schema';
 import { User, UserSearchResult } from '@/types/model';
-import { QUERY_KEYS } from '.';
+import { QUERY_KEYS, SearchByAddressParams } from '.';
 
 const fetchUser = async (id: string): Promise<User> => axios.get(`/api/users/${id}`).then((response) => response.data);
 export const fetchUserOptions = (id: string | undefined) => {
@@ -41,4 +41,21 @@ export const useFetchUser = (id: string) => {
 
 export const useSearchUsers = (params: SearchParams) => {
   return useInfiniteQuery(infiniteQueryOptions(searchUsersOptions(params)));
+};
+
+export const searchUsersByAddresses = async ({ addresses }: SearchByAddressParams): Promise<User[]> => {
+  return axios.post('/api/users/search', { addresses }).then((response) => response.data.data);
+};
+
+export const searchUsersByAddressesOptions = (params: SearchByAddressParams) => {
+  return {
+    queryKey: [QUERY_KEYS.user.searchByAddresses, params.addresses],
+    queryFn: () => searchUsersByAddresses(params),
+    staleTime: QueryConfig.staleTimeDefault,
+    enabled: !!params.addresses,
+  } as const;
+};
+
+export const useSearchUsersByAddresses = (params: SearchByAddressParams) => {
+  return useQuery(queryOptions(searchUsersByAddressesOptions(params)));
 };

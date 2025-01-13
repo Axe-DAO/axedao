@@ -3,6 +3,7 @@
 import { Tab, Tabs } from '@nextui-org/tabs';
 
 import { DaoMembership, Proposals, Treasury, TreasuryShares } from '@/components/axe/dao';
+import CouncilMembership from '@/components/axe/dao/CouncilMembership';
 
 const DaoPage = () => {
   return (
@@ -19,6 +20,7 @@ const DaoPage = () => {
           <div className="flex w-full flex-col gap-2 sm:gap-4 items-center">
             <h2 className="text-3xl font-bold text-center mb-1">Council</h2>
             <p className="text-center">The Council is the decision-making body of the Axé DAO.</p>
+            <CouncilMembership />
             <Proposals />
           </div>
         </Tab>
