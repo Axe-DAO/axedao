@@ -10,10 +10,10 @@ import ENV from '@/config/environment';
 import { useWriteMembershipCouncilEnlistAsCandidate } from '@/generated';
 
 type Props = Omit<ModalProps, 'children'> & {
-  hasVotingShares: boolean;
+  hasLootShares: boolean;
 };
 
-const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, onClose, hasVotingShares }: Props) => {
+const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, onClose, hasLootShares }: Props) => {
   const {
     data: enlistHash,
     isPending: enlistPending,
@@ -50,23 +50,20 @@ const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, onClos
       <ModalContent>
         {() => (
           <>
-            <ModalHeader>{hasVotingShares ? 'Enlist as Council Candidate' : 'Become Eligible'}</ModalHeader>
+            <ModalHeader>Enlist as Council Candidate</ModalHeader>
             <ModalBody className="gap-3">
               <p>
                 Council candidates can receive delegated votes from DAO members. The top candidates form the council.
               </p>
-              <p>
-                Note: if eligible for a seat on the council, you will need to have 1 loot token to be converted to a
-                voting share. Get Loot here: (TODO)
-              </p>
+              {!hasLootShares && (
+                <p>
+                  Note: if eligible for a seat on the council, you will need to have 1 loot token to be converted to a
+                  voting share. Get Loot here: (TODO)
+                </p>
+              )}
             </ModalBody>
             <ModalFooter>
-              <Button
-                color="primary"
-                onPress={handleEnlist}
-                isLoading={enlistPending || enlistLoading}
-                isDisabled={hasVotingShares}
-              >
+              <Button color="primary" onPress={handleEnlist} isLoading={enlistPending || enlistLoading}>
                 Enlist as Candidate
               </Button>
             </ModalFooter>

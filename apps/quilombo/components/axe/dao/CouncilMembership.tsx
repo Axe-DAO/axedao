@@ -1,19 +1,23 @@
 'use client';
 
+import { useWriteMembershipCouncilResignAsCandidate } from '@/generated';
+import { useCandidates, useHasLootShares } from '@/hooks/state/dao';
 import { Button } from '@nextui-org/button';
 import { useDisclosure } from '@nextui-org/use-disclosure';
+import { useSnackbar } from 'notistack';
+import { useEffect } from 'react';
 import { Address } from 'viem';
-import { useAccount } from 'wagmi';
-
-import ENV from '@/config/environment';
-import { useReadMembershipCouncilIsMember } from '@/generated';
-import { useCandidates, useHasVotingShares } from '@/hooks/state/dao';
+import { useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { CouncilBadge } from './Badges';
 import CouncilEligibilityModal from './CouncilEligibilityModal';
 
+import ENV from '@/config/environment';
+import { useReadMembershipCouncilIsMember } from '@/generated';
+
 const CouncilMembership: React.FC = () => {
   const account = useAccount();
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { enqueueSnackbar } = useSnackbar();
 
   // Check if user is DAO member
   const { data: isMember = false } = useReadMembershipCouncilIsMember({
@@ -22,18 +26,56 @@ const CouncilMembership: React.FC = () => {
   });
 
   // Check if user is council member or candidate
-  const hasVotingShares = useHasVotingShares();
-  const { addresses: candidateAddresses } = useCandidates();
+  const hasLootShares = useHasLootShares();
+  const { addresses: candidateAddresses, refresh } = useCandidates();
   const isCandidate = !!account.address && candidateAddresses.includes(account.address);
 
+  const {
+    data: resignHash,
+    isPending: resignPending,
+    writeContract: resign,
+  } = useWriteMembershipCouncilResignAsCandidate();
+
+  const {
+    isSuccess: resignSuccess,
+    error: resignError,
+    isLoading: resignLoading,
+  } = useWaitForTransactionReceipt({ hash: resignHash });
+
+  // Handle resign transaction states
+  useEffect(() => {
+    if (resignLoading) {
+      enqueueSnackbar('Resigning as candidate. Please wait for confirmation...', {
+        autoHideDuration: 3000,
+      });
+    } else if (resignSuccess) {
+      enqueueSnackbar('Successfully resigned as candidate!');
+      refresh();
+    } else if (resignError) {
+      enqueueSnackbar(`Failed to resign: ${resignError.message}`, { variant: 'error' });
+    }
+  }, [resignLoading, resignSuccess, resignError, refresh, enqueueSnackbar]);
+
   // Don't show button if already candidate or council member
-  if (hasVotingShares || isCandidate) {
+  if (hasLootShares || isCandidate) {
     return (
       <div className="flex flex-col gap-2 sm:gap-4 w-full">
         <div className="flex gap-2 sm:gap-4">
-          <CouncilBadge isCouncil={hasVotingShares} />
-          <span>{hasVotingShares ? 'Council Member' : 'Council Candidate'}</span>
+          <CouncilBadge isCouncil={hasLootShares} />
+          <span>{hasLootShares ? 'Council Member' : 'Council Candidate'}</span>
         </div>
+        {isCandidate && (
+          <Button
+            color="danger"
+            variant="flat"
+            onPress={() => {
+              resign({ address: ENV.membershipCouncilAddress });
+            }}
+            isLoading={resignPending || resignLoading}
+          >
+            Resign as Candidate
+          </Button>
+        )}
       </div>
     );
   }
@@ -45,7 +87,15 @@ const CouncilMembership: React.FC = () => {
         <Button onPress={onOpen} color="primary" className="w-full" isDisabled={!isMember}>
           {isMember ? 'Enlist as Candidate' : 'Become Eligible'}
         </Button>
-        <CouncilEligibilityModal isOpen={isOpen} onOpenChange={onOpenChange} hasVotingShares={hasVotingShares} />
+        <CouncilEligibilityModal
+          isOpen={isOpen}
+          onOpenChange={onOpenChange}
+          hasLootShares={hasLootShares}
+          onClose={() => {
+            refresh();
+            onClose();
+          }}
+        />
       </div>
     </div>
   );

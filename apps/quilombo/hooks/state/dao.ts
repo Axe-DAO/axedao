@@ -247,7 +247,7 @@ export function useHasVotingShares() {
   return shares ? shares > 0n : false;
 }
 
-export function useHasLoot() {
+export function useHasLootShares() {
   const account = useAccount();
 
   const { data: shares } = useReadErc20BalanceOf({
