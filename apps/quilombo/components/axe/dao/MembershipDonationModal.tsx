@@ -39,10 +39,10 @@ export default function MembershipDonationModal({ onClose, onSuccess, ...props }
 
   // Get donation amounts from contract
   const { data: nativeDonationAmount } = useReadMembershipCouncilGetNativeDonationAmount({
-    address: ENV.membershipCouncilAddress as Address,
+    address: ENV.axeMembershipAddress as Address,
   });
   const { data: erc20DonationAmount } = useReadMembershipCouncilGetTokenDonationAmount({
-    address: ENV.membershipCouncilAddress as Address,
+    address: ENV.axeMembershipAddress as Address,
   });
 
   // For ERC20 Approve
@@ -71,7 +71,7 @@ export default function MembershipDonationModal({ onClose, onSuccess, ...props }
 
   const { data: allowanceAmount, refetch: updateAllowance } = useReadErc20Allowance({
     address: ENV.axeSwapTokenAddress,
-    args: [account.address as Address, ENV.membershipCouncilAddress],
+    args: [account.address as Address, ENV.axeMembershipAddress],
   });
 
   // Update hasApproval state
@@ -134,7 +134,7 @@ export default function MembershipDonationModal({ onClose, onSuccess, ...props }
       return;
     }
     sendNative({
-      to: ENV.membershipCouncilAddress,
+      to: ENV.axeMembershipAddress,
       value: nativeDonationAmount,
     });
   };
@@ -146,13 +146,13 @@ export default function MembershipDonationModal({ onClose, onSuccess, ...props }
     }
     approve({
       address: ENV.axeSwapTokenAddress,
-      args: [ENV.membershipCouncilAddress, erc20DonationAmount],
+      args: [ENV.axeMembershipAddress, erc20DonationAmount],
     });
   };
 
   const handleERC20Donation = async () => {
     donate({
-      address: ENV.membershipCouncilAddress,
+      address: ENV.axeMembershipAddress,
     });
   };
 

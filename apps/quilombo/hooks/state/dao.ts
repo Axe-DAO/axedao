@@ -174,13 +174,13 @@ export function useCandidates() {
     try {
       const [enlistLogs, resignLogs] = await Promise.all([
         publicClient.getContractEvents({
-          address: ENV.membershipCouncilAddress,
+          address: ENV.axeMembershipAddress,
           abi: membershipCouncilAbi,
           eventName: 'CandidateEnlisted',
           fromBlock: 'earliest',
         }),
         publicClient.getContractEvents({
-          address: ENV.membershipCouncilAddress,
+          address: ENV.axeMembershipAddress,
           abi: membershipCouncilAbi,
           eventName: 'CandidateResigned',
           fromBlock: 'earliest',

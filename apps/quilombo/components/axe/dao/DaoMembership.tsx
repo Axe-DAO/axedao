@@ -15,7 +15,7 @@ const DaoMembership: React.FC = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const { data: isMember = false, refetch: updateIsMember } = useReadMembershipCouncilIsMember({
-    address: ENV.membershipCouncilAddress,
+    address: ENV.axeMembershipAddress,
     args: [account.address as Address],
   });
 

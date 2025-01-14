@@ -22,7 +22,7 @@ const CouncilMembership: React.FC = () => {
 
   // Check if user is DAO member
   const { data: isMember = false } = useReadMembershipCouncilIsMember({
-    address: ENV.membershipCouncilAddress,
+    address: ENV.axeMembershipAddress,
     args: [account.address as Address],
   });
 
@@ -69,7 +69,7 @@ const CouncilMembership: React.FC = () => {
           <Button
             color="danger"
             variant="flat"
-            onPress={() => resign({ address: ENV.membershipCouncilAddress })}
+            onPress={() => resign({ address: ENV.axeMembershipAddress })}
             isLoading={resignPending || resignLoading}
           >
             Resign as Candidate

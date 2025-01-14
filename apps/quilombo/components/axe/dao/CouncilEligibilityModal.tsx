@@ -42,7 +42,7 @@ const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, hasLoo
   }, [enlistLoading, enlistSuccess, enlistError, onOpenChange]);
 
   const handleEnlist = () => {
-    enlist({ address: ENV.membershipCouncilAddress });
+    enlist({ address: ENV.axeMembershipAddress });
   };
 
   return (

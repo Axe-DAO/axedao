@@ -27,7 +27,7 @@ const VoteDelegation: React.FC = () => {
 
   // Read current delegation
   const { data: currentDelegationAddress, refetch: refetchCurrentDelegation } = useReadMembershipCouncilDelegations({
-    address: ENV.membershipCouncilAddress,
+    address: ENV.axeMembershipAddress,
     args: [account.address as Address],
   });
 
@@ -92,13 +92,13 @@ const VoteDelegation: React.FC = () => {
 
   const handleSubmit = async (values: MembershipDelegateForm) => {
     await delegate({
-      address: ENV.membershipCouncilAddress,
+      address: ENV.axeMembershipAddress,
       args: [values.candidate as Address],
     });
   };
 
   const handleUndelegate = () => {
-    undelegate({ address: ENV.membershipCouncilAddress });
+    undelegate({ address: ENV.axeMembershipAddress });
   };
 
   const hasActiveDelegation =
