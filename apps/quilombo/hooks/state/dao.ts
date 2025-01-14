@@ -59,7 +59,6 @@ export function useProposals() {
   const loadHistoricalProposalLogs = useCallback(async () => {
     if (!publicClient) return;
 
-    console.log('Loading historical proposals for DAO:', ENV.axeDaoAddress);
     setState((prev) => ({ ...prev, loading: true }));
 
     try {
@@ -127,14 +126,11 @@ export function useProposals() {
           status,
         };
 
-        console.log('Proposal:', result);
         proposalResults.set(id, result);
       });
 
       // Convert to sorted array before storing
       const sortedProposals = Array.from(proposalResults.values()).sort((a, b) => Number(b.id - a.id)); // Sort by descending ID
-
-      console.log('All proposals:', sortedProposals);
 
       setState((prev) => ({
         ...prev,
@@ -205,8 +201,6 @@ export function useCandidates() {
       const addresses = Array.from(candidateStatus.entries())
         .filter(([, isEnlisted]) => isEnlisted)
         .map(([address]) => address);
-
-      console.log('Candidate addresses:', addresses);
 
       setState((prev) => ({
         ...prev,

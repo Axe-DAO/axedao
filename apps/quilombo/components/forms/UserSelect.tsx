@@ -13,6 +13,8 @@ type Props = FieldProps['field'] & {
   disableCurrentUser?: boolean;
   keyMode?: keyMode;
   onSelect?: (user: User | null) => void;
+  users?: User[];
+  label?: string;
 };
 
 /**
@@ -24,32 +26,37 @@ type Props = FieldProps['field'] & {
  * @param props
  * @returns
  */
-const UserSelect = ({ disableCurrentUser = true, keyMode = 'id', onSelect, ...props }: Props) => {
+const UserSelect = ({ disableCurrentUser = true, keyMode = 'id', onSelect, users, label, ...props }: Props) => {
   const [field, , form] = useField(props);
   const { data: session } = useSession();
-  const { users, isLoading, setSearchTerm } = useUserSearch();
+  const { users: searchUsers, isLoading, setSearchTerm } = useUserSearch();
+
+  const availableUsers = users || searchUsers;
 
   return (
     <Autocomplete
       {...field}
-      items={users}
+      items={availableUsers}
       className="mb-3"
       isLoading={isLoading}
       inputProps={{ classNames: { inputWrapper: '!min-h-12' } }}
       listboxProps={{ emptyContent: 'No users found' }}
+      label={label || 'Select User'}
+      aria-label={label || 'Select User'}
       startContent={<SearchIcon className="h-4 w-4" strokeWidth={1.4} />}
       selectedKey={field.value}
       disabledKeys={disableCurrentUser && session?.user.id ? [session.user.id] : undefined}
       onInputChange={(value) => {
-        if (!field.value) setSearchTerm(value);
+        if (!field.value && !users) setSearchTerm(value);
       }}
       onSelectionChange={(key) => {
         form.setValue(key?.toString() || '');
-        setSearchTerm(undefined);
+        if (!users) setSearchTerm(undefined);
         onSelect?.(
           !key
             ? null
-            : users.find((u) => (keyMode === 'walletAddress' ? u.walletAddress === key : u.id === key)) || null,
+            : availableUsers.find((u) => (keyMode === 'walletAddress' ? u.walletAddress === key : u.id === key)) ||
+                null,
         );
       }}
       {...props}

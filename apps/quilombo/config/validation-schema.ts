@@ -120,10 +120,7 @@ export const axeTransferForm = object({
     }),
   to: string()
     .required('Recipient is required')
-    .test('is-address', 'Invalid address', (value) => {
-      // basic address validation, not checksummed
-      return /^(0x)?[0-9a-f]{40}$/i.test(value || '');
-    }),
+    .test('is-address', 'Invalid address', (value) => testForAddress(value)),
 });
 
 export type AxeTransferForm = InferType<typeof axeTransferForm>;
@@ -158,3 +155,16 @@ export const groupSearchSchema = searchParamsSchema.concat(
 );
 
 export type GroupSearchParams = InferType<typeof groupSearchSchema>;
+
+export const membershipDelegateSchema = object({
+  candidate: string()
+    .required('Please select a candidate')
+    .test('is-address', 'Invalid address', (value) => testForAddress(value)),
+});
+
+export type MembershipDelegateForm = InferType<typeof membershipDelegateSchema>;
+
+export const testForAddress = (value: string) => {
+  // basic address validation, not checksummed
+  return /^(0x)?[0-9a-f]{40}$/i.test(value || '');
+};

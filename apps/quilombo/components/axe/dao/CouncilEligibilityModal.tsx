@@ -13,7 +13,7 @@ type Props = Omit<ModalProps, 'children'> & {
   hasLootShares: boolean;
 };
 
-const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, onClose, hasLootShares }: Props) => {
+const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, hasLootShares }: Props) => {
   const {
     data: enlistHash,
     isPending: enlistPending,
@@ -34,12 +34,12 @@ const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, onClos
       });
     } else if (enlistSuccess) {
       enqueueSnackbar('Successfully enlisted as candidate!');
-      onClose?.(); // Close modal on success
+      onOpenChange?.(false);
     } else if (enlistError) {
       enqueueSnackbar(`Failed to enlist: ${enlistError.message}`, { variant: 'error' });
-      onClose?.();
+      onOpenChange?.(false);
     }
-  }, [enlistLoading, enlistSuccess, enlistError, onClose]);
+  }, [enlistLoading, enlistSuccess, enlistError, onOpenChange]);
 
   const handleEnlist = () => {
     enlist({ address: ENV.membershipCouncilAddress });

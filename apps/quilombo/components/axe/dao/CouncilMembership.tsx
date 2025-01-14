@@ -10,6 +10,7 @@ import { Address } from 'viem';
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { CouncilBadge } from './Badges';
 import CouncilEligibilityModal from './CouncilEligibilityModal';
+import VoteDelegation from './VoteDelegation';
 
 import ENV from '@/config/environment';
 import { useReadMembershipCouncilIsMember } from '@/generated';
@@ -68,14 +69,13 @@ const CouncilMembership: React.FC = () => {
           <Button
             color="danger"
             variant="flat"
-            onPress={() => {
-              resign({ address: ENV.membershipCouncilAddress });
-            }}
+            onPress={() => resign({ address: ENV.membershipCouncilAddress })}
             isLoading={resignPending || resignLoading}
           >
             Resign as Candidate
           </Button>
         )}
+        {isMember && <VoteDelegation />}
       </div>
     );
   }
@@ -91,10 +91,7 @@ const CouncilMembership: React.FC = () => {
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           hasLootShares={hasLootShares}
-          onClose={() => {
-            refresh();
-            onClose();
-          }}
+          onClose={onClose}
         />
       </div>
     </div>
