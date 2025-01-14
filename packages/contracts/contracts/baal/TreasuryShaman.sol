@@ -36,21 +36,17 @@ contract TreasuryShaman is ITreasuryShaman, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @notice Allows users to deposit tokens and receive loot in return
+   * @notice Allows users to deposit ERC20 tokens and receive loot in return.
    * @param _amount The amount of tokens to deposit
    */
   function deposit(uint256 _amount) external nonReentrant {
     if (_amount == 0) revert InsufficientDeposit();
-
     address sender = _msgSender();
 
     // Calculate loot to mint (considering both token decimals)
     uint256 depositDecimals = IERC20Metadata(address(depositToken)).decimals();
     uint256 lootDecimals = IERC20Metadata(baal.lootToken()).decimals();
     uint256 lootAmount = (_amount * conversionRate * (10 ** lootDecimals)) / (10 ** (depositDecimals + 18));
-
-    // Transfer tokens to deposit receiver
-    depositToken.safeTransferFrom(sender, depositReceiver, _amount);
 
     // Mint loot tokens
     address[] memory recipients = new address[](1);
@@ -59,6 +55,8 @@ contract TreasuryShaman is ITreasuryShaman, Ownable, ReentrancyGuard {
     amounts[0] = lootAmount;
     baal.mintLoot(recipients, amounts);
 
+    // Transfer tokens to deposit receiver
+    depositToken.safeTransferFrom(sender, depositReceiver, _amount);
     emit TreasuryDepositReceived(sender, _amount, lootAmount);
   }
 

@@ -5,8 +5,8 @@ import "forge-std/Test.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-import "../contracts/test/MockERC20.sol";
 import { AxeMembership, IAxeMembership } from "../contracts/tokens/AxeMembership.sol";
+import { MockERC20 } from "./MockERC20.sol";
 
 contract AxeMembershipBase is Test {
   AxeMembership membership;
@@ -34,7 +34,7 @@ contract AxeMembershipBase is Test {
     string[] memory groups = split(expectedState, ",");
     assertEq(
       groups.length,
-      membership.getNumberOfSortedGroups(),
+      membership.getNumberOfRankedGroups(),
       string(abi.encodePacked(_label, " Number of total groups mismatch"))
     );
     for (uint256 i = 0; i < groups.length; i++) {
@@ -44,13 +44,13 @@ contract AxeMembershipBase is Test {
 
       // Verify the delegation count
       assertEq(
-        membership.getSortedGroupDelegationCount(i),
+        membership.getDelegationCountForGroupAtIndex(i),
         expectedDelegationCount,
         string(abi.encodePacked(_label, " Delegation count mismatch group index ", Strings.toString(i)))
       );
 
       // Verify the candidates in the group
-      address[] memory actualCandidates = membership.getSortedGroupAtIndex(i);
+      address[] memory actualCandidates = membership.getRankedGroupAtIndex(i);
       assertEq(
         actualCandidates.length,
         candidates.length,

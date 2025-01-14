@@ -167,7 +167,7 @@ cast balance -e --rpc-url http://localhost:8545 0x7e95A312E398431a26AC266B9215A7
 Deploy MockERC20 and mint into treasury:
 
 ```shell
-forge create --rpc-url $HTTPS_PROVIDER_URL_SEPOLIA --account axe-deployer --constructor-args "AxeUSD" "AXEUSD" --etherscan-api-key $ETHERSCAN_API_KEY contracts/test/MockERC20.sol:MockERC20
+forge create --rpc-url $HTTPS_PROVIDER_URL_SEPOLIA --account axe-deployer --constructor-args "AxeUSD" "AXEUSD" --etherscan-api-key $ETHERSCAN_API_KEY test/MockERC20.sol:MockERC20
 
 cast send 0xD44Eb94380bff68a827604fDb2dA7b0A3Ec6Ad0B "mint(address,uint256)" 0xEE2ac838C83e5d6bf6Eb1C8A425C007345ACe39E 10000000000000000000000 --rpc-url $HTTPS_PROVIDER_URL_SEPOLIA --account axe-deployer
 ```

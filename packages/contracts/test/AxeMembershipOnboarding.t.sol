@@ -8,7 +8,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
 import { AxeMembership, IAxeMembership } from "../contracts/tokens/AxeMembership.sol";
-import { MockERC20 } from "../contracts/test/MockERC20.sol";
+import { MockERC20 } from "./MockERC20.sol";
 
 contract AxeMembershipOnboardingTest is Test {
   IAxeMembership public token;

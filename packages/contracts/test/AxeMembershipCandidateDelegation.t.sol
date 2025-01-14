@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-import { MockERC20 } from "../contracts/test/MockERC20.sol";
-import { AxeMembershipBase } from "./AxeMembershipBase.sol";
 import { AxeMembership, IAxeMembership } from "../contracts/tokens/AxeMembership.sol";
 import { AxeMembershipCouncil, IAxeMembershipCouncil } from "../contracts/baal/AxeMembershipCouncil.sol";
+import { MockERC20 } from "./MockERC20.sol";
+import { AxeMembershipBase } from "./AxeMembershipBase.sol";
 
 contract AxeMembershipCandidateDelegationTest is AxeMembershipBase {
   function setUp() public {
@@ -40,7 +40,7 @@ contract AxeMembershipCandidateDelegationTest is AxeMembershipBase {
     assertEq(structCandidate.delegationCount, 1, "Candidate should have 1 delegation");
 
     assertEq(
-      membership.getNumberOfSortedGroups(),
+      membership.getNumberOfRankedGroups(),
       1,
       "There should be 1 delegation group. Candidate auto self-delegated on enlistment."
     );
@@ -49,7 +49,7 @@ contract AxeMembershipCandidateDelegationTest is AxeMembershipBase {
     membership.delegate(candidate);
 
     assertEq(
-      membership.getNumberOfSortedGroups(),
+      membership.getNumberOfRankedGroups(),
       1,
       "There should still be 1 delegation group after other user delegates to single candidate."
     );
@@ -58,7 +58,7 @@ contract AxeMembershipCandidateDelegationTest is AxeMembershipBase {
     membership.enlistAsCandidate();
 
     assertEq(
-      membership.getNumberOfSortedGroups(),
+      membership.getNumberOfRankedGroups(),
       2,
       "There should be 2 sorted groups after second candidate enlisted."
     );
@@ -69,7 +69,7 @@ contract AxeMembershipCandidateDelegationTest is AxeMembershipBase {
     assertFalse(structCandidate.available);
 
     assertEq(
-      membership.getNumberOfSortedGroups(),
+      membership.getNumberOfRankedGroups(),
       1,
       "There should be 1 sorted group. One of the candidates resigned."
     );

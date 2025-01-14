@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "forge-std/console.sol";
 import { Script } from "forge-std/Script.sol";
-import { MockNFT } from "../contracts/test/MockNFT.sol";
+import { MockNFT } from "../test/MockNFT.sol";
 
 contract Deploy is Script {
   address internal constant owner = 0x6EF543d0Cce1171F696f82cB6f698133037d5b32;

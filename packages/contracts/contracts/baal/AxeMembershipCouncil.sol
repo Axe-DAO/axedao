@@ -164,9 +164,9 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     uint256 lootThreshold = 1 * 10 ** IERC20Metadata(address(lootToken)).decimals();
 
     // Determine new council from sorted delegation ranking in MembershipCouncil
-    length = membershipCouncil.getNumberOfSortedGroups();
+    length = membershipCouncil.getNumberOfRankedGroups();
     for (i = 0; i < length && councilIndex < size; ) {
-      address[] memory group = membershipCouncil.getSortedGroupAtIndex(i);
+      address[] memory group = membershipCouncil.getRankedGroupAtIndex(i);
 
       for (j = 0; j < group.length && councilIndex < size; ) {
         address member = group[j];

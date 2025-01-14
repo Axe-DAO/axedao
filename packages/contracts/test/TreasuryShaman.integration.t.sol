@@ -8,9 +8,8 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 import { IERC20Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
-import { TreasuryShaman } from "../contracts/baal/TreasuryShaman.sol";
-import { ITreasuryShaman } from "../contracts/baal/ITreasuryShaman.sol";
-import { MockERC20 } from "../contracts/test/MockERC20.sol";
+import { TreasuryShaman, ITreasuryShaman } from "../contracts/baal/TreasuryShaman.sol";
+import { MockERC20 } from "./MockERC20.sol";
 
 /**
  * @title TreasuryShamanIntegrationTest

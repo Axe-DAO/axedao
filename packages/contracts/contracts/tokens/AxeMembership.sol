@@ -12,18 +12,15 @@ import { IAxeMembership } from "./IAxeMembership.sol";
 
 /**
  * @title MembershipToken
- * @notice A ERC721 membership token that allows users to donate to join the DAO and participate in the council elections
- * both as candidates and by delegating their votes to candidates.
+ * @notice A soul-bound ERC721 membership token representing life-time DAO membership. The NFT can be minted by userds donating
+ * either a fixed amount of ERC20 tokens or native tokens. The amounts are controlled by the DAO and donations are forwarded
+ * to a designated receiver, e.g. a DAO treasury.
  *
- * Users become members by donating either a fixed amount of ERC20 tokens or native tokens. The amounts are controlled by the DAO and
- * donations are forwarded to a designated receiver, e.g. a DAO treasury.
- *
- * Members can enlist/resign as candidates for the Membership Council. Any member, including enlisted candidates, can delegate their
- * membership to a candidate of their choice. The contract keeps track of delegations and candidate availability and maintains a sorted
- * list of delegation counts to allow for efficient querying of the top candidates.
+ * After becoming a member, members can enlist/resign as candidates for a seat on Axé Membership Council. Any member, including enlisted
+ * candidates, can delegate their membership to another candidate of their choice including themselves. The contract keeps track of
+ * delegations and candidate availability and maintains a sorted list of delegation counts to allow for efficient querying of the top candidates.
  */
 contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
-  // The donation token could be a custom implementation, so we'll stay on the safe side with SafeERC20
   using SafeERC20 for IERC20;
 
   address internal donationReceiver;
@@ -40,7 +37,7 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
   mapping(address => address) public delegations;
   /// @notice A mapping from delegation count to a list of candidates with that many delegations.
   mapping(uint256 => address[]) private delegationGroups;
-  /// @notice The sorted list of delegation counts higher than 0. Highest count first.
+  /// @notice The sorted list of delegation counts higher than 0. Highest count at index 0.
   uint256[] private sortedGroups;
 
   /**
@@ -52,7 +49,7 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @notice Modifier for non-members to automatically register as a member.
+   * @notice Modifier for functions that need to verify and register a new member before proceeding.
    */
   modifier registerNewMember() {
     address sender = _msgSender();
@@ -62,8 +59,8 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @notice Constructor for the MembershipToken.
-   * @param _owner The owner of the contract who can control adjustable attributes like donation amounts.
+   * @notice Constructor for the AxéMembership Token.
+   * @param _owner The owner of the contract who can control attributes like donation amounts.
    * @param _donationReceiver The address receiving the donations.
    * @param _donationToken The address of the ERC20 token used for donations.
    * @param _donationAmount The amount of ERC20 tokens required to receive a membership NFT.
@@ -85,26 +82,41 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
     baseTokenURI = _baseTokenURI;
   }
 
+  /**
+   * @notice Donate ERC20 tokens to receive a membership NFT. Remember to approve the required donation amount before calling this function.
+   */
   function donate() external override registerNewMember nonReentrant {
     address sender = _msgSender();
-    IERC20(donationToken).safeTransferFrom(sender, donationReceiver, donationAmount);
     _mint(sender, memberCount);
+    IERC20(donationToken).safeTransferFrom(sender, donationReceiver, donationAmount);
     emit ERC20DonationReceived(sender, donationAmount);
   }
 
+  /**
+   * @notice Donate native tokens to receive a membership NFT by sending the donation amount to the contract.
+   */
   receive() external payable registerNewMember nonReentrant {
+    address sender = _msgSender();
+    _mint(sender, memberCount);
     _handleNativeDonation();
-    _mint(_msgSender(), memberCount);
+    emit NativeDonationReceived(sender, nativeDonationAmount);
   }
 
+  /**
+   * @notice Check if the given account is a member.
+   * @param _user The address to check.
+   * @return True if the account is a member, false otherwise.
+   */
   function isMember(address _user) public view override returns (bool) {
     return members[_user] != 0;
   }
 
   /**
-   * @notice Enlist the msg.sender as a candidate. The candidate must be a member of the DAO and not already a candidate.
-   * Enlisting candidates automatically delegate to themselves, if no prior delegation exists. Otherwise, the candidate
-   * should undelegate first or can undelegate and then delegate to themselves afterwards.
+   * @notice Enlists the msg.sender as a candidate for the Axé Membership Council.
+   * The candidate must be a member of the DAO and not already a candidate.
+   * Enlisting candidates automatically delegate to themselves, unless a prior delegation exists. In that case, the
+   * existing delegation is left untouched. The member should undelegate before enlisting or can undelegate afterwards and then
+   * delegate to themselves.
    */
   function enlistAsCandidate() external memberOnly {
     address sender = _msgSender();
@@ -124,9 +136,17 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
     emit CandidateEnlisted(sender);
   }
 
+  /**
+   * @notice Removes the msg.sender as available candidate for the Axé Membership Council.
+   * The sender must be an enlisted candidate.
+   * Even though the candidate resigns, the record of current delegations is left untouched, so that candidates
+   * who enlist again later would maintain their delegation count, in none of their delegators have changed
+   * their delegations in the meantime.
+   */
   function resignAsCandidate() external {
     address sender = _msgSender();
     require(candidates[sender].available == true, "Not a candidate");
+
     candidates[sender].available = false;
     uint256 groupIndex = candidates[sender].delegationCount;
     removeCandidateFromGroup(sender, groupIndex);
@@ -136,10 +156,17 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
     emit CandidateResigned(sender);
   }
 
+  /**
+   * @notice Delegates the msg.sender's membership vote to the given candidate.
+   * The candidate must be enlisted and available as a candidate.
+   * Delegating to oneself as a candidate is allowed.
+   * @param _candidate The address of the candidate to delegate to.
+   */
   function delegate(address _candidate) external memberOnly {
     address sender = _msgSender();
     require(_candidate != address(0), "Cannot delegate to the zero address. Use undelegate.");
     require(candidates[_candidate].available, "Candidate not available");
+
     address currentDelegate = delegations[sender];
     if (currentDelegate == _candidate) return;
     if (currentDelegate != address(0)) {
@@ -151,10 +178,15 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
     emit VoteDelegated(sender, _candidate);
   }
 
+  /**
+   * @notice Undelegates the msg.sender's membership vote from their current delegate.
+   * The sender must be a member and have a delegate.
+   */
   function undelegate() external memberOnly {
     address sender = _msgSender();
     address candidate = delegations[sender];
     require(candidate != address(0), "No delegation");
+
     moveCandidate(candidate, false);
     delegations[sender] = address(0);
     emit VoteUndelegated(sender, candidate);
@@ -234,26 +266,51 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
     nativeDonationAmount = _nativeDonationAmount;
   }
 
+  /**
+   * @notice Set the address receiving the donations.
+   * @param _donationReceiver The new donation receiver.
+   */
   function setDonationReceiver(address _donationReceiver) external onlyOwner {
     donationReceiver = _donationReceiver;
   }
 
+  /**
+   * @notice Set the address of the ERC20 token used for donations.
+   * @param _donationToken The new donation token.
+   */
   function setDonationToken(address _donationToken) external onlyOwner {
     donationToken = _donationToken;
   }
 
-  function getNumberOfSortedGroups() external view returns (uint256) {
+  /**
+   * @notice Get the number of groups that are ranked by delegation count.
+   * @return The number of currently tracked groups in the ranking.
+   */
+  function getNumberOfRankedGroups() external view returns (uint256) {
     return sortedGroups.length;
   }
 
-  function getSortedGroupAtIndex(uint256 _sortedIndex) external view returns (address[] memory) {
-    return delegationGroups[sortedGroups[_sortedIndex]];
+  /**
+   * @notice Get the candidates from the group ranked at the given index.
+   * @param _index The index of the group in the ranking.
+   * @return The candidate addresses in the specified group.
+   */
+  function getRankedGroupAtIndex(uint256 _index) external view returns (address[] memory) {
+    return delegationGroups[sortedGroups[_index]];
   }
 
-  function getSortedGroupDelegationCount(uint256 _sortedIndex) external view returns (uint256) {
-    return sortedGroups[_sortedIndex];
+  /**
+   * @notice Get the delegation count from the group ranked at the given index.
+   * @param _index The index of the group in the ranking.
+   * @return The delegation count of the group.
+   */
+  function getDelegationCountForGroupAtIndex(uint256 _index) external view returns (uint256) {
+    return sortedGroups[_index];
   }
 
+  /**
+   * @dev Handle the native donation. If more native tokens were sent than required, the excess is refunded.
+   */
   function _handleNativeDonation() internal {
     address sender = _msgSender();
     if (msg.value < nativeDonationAmount) {
@@ -270,9 +327,9 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @notice Up- or down-votes a candidate depending on the boolean parameter. True for up, false for down.
-   * The candidate's delegation count is incremented or decremented by 1 and the candidate is moved between groups accordingly.
-   * This function handles the adjustment of the sortedGroups array, if necessary after the move.
+   * @dev Up- or down-votes a candidate depending on the boolean parameter. True for up, false for down.
+   * The candidate's delegation count is incremented or decremented and the candidate is moved between groups accordingly.
+   * This function handles the adjustment of the sortedGroups array, if necessary as a result of the move.
    * @param _candidate The candidate to move.
    * @param _up Whether to move the candidate up or down.
    */
@@ -304,7 +361,6 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
    * @param _groupIndex The index of the group to remove the candidate from.
    * @return The new length of the group.
    */
-
   function removeCandidateFromGroup(address _candidate, uint256 _groupIndex) internal returns (uint256) {
     uint256 index = candidates[_candidate].index;
     address[] storage group = delegationGroups[_groupIndex];
@@ -317,7 +373,7 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @notice Add a candidate to a delegation group.
+   * @notice Add a candidate to a delegation group according to the delegation count.
    * @param _candidate The candidate to add.
    * @param _groupIndex The index of the group to add the candidate to.
    * @return The new length of the group.
@@ -329,6 +385,14 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
     return group.length;
   }
 
+  /**
+   * @dev Rename a delegation count group. This function is used for efficiency reasons to cover the use case
+   * where there is only a single candidate in a group and there is no directly adjacent delegation count in the ranking.
+   * In that case, if the candidate is up- or down-voted, the group can be re-labeled with the new count without having
+   * to update the sortedGroups array as the position of the group in the ranking is unchanged.
+   * @param _oldCount The old delegation count.
+   * @param _newCount The new delegation count.
+   */
   function renameSortedGroup(uint256 _oldCount, uint256 _newCount) internal {
     uint256 oldIndex = findSortedGroupsIndex(_oldCount);
     uint256 newIndex = findSortedGroupsIndex(_newCount);
@@ -338,6 +402,10 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
     sortedGroups[oldIndex] = _newCount;
   }
 
+  /**
+   * @dev Insert a new delegation count into the ranking that does not yet exist.
+   * @param _count The delegation count to insert.
+   */
   function insertSortedGroup(uint256 _count) internal {
     uint256 insertionIndex = findSortedGroupsIndex(_count);
     // Insert the count and shift the array
@@ -352,7 +420,7 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @notice Remove the delegation count from the sortedGroups array.
+   * @dev Remove the delegation count from the ranking.
    * @param _count The delegation count to remove.
    */
   function removeSortedGroup(uint256 _count) internal {
@@ -370,11 +438,11 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
   }
 
   /**
-   * @notice Determins the current or future index of the delegation count in the sortedGroups array using binary search.
-   * The calling function needs to determine the context of the returned index, whether to use it for inserting a new delegation count
-   * or accessing an existing one.
+   * @dev Determins the current or future index of the delegation count in the ranking using binary search.
+   * The calling function needs to determine the context of the returned value, i.e. whether to use it for inserting
+   * a new delegation count or accessing an existing one.
    * @param _count The delegation count to find.
-   * @return The index of the delegation count, if found, or the insertion index in the sorted order, if not found.
+   * @return The index of the delegation count, if it already exists, or the correct insertion index in the ranking, if not found.
    */
   function findSortedGroupsIndex(uint256 _count) internal view returns (uint256) {
     uint256 left = 0;

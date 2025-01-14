@@ -5,7 +5,7 @@ import { IXERC20 } from "./IXERC20.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
-import { Governable } from "../utils/Governable.sol";
+import { Governable } from "../../utils/Governable.sol";
 
 abstract contract AXERC20 is ERC20, Governable, IXERC20, ERC20Permit {
   /**

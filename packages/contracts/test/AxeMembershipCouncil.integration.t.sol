@@ -5,10 +5,10 @@ import { IBaal } from "@daohaus/baal-contracts/contracts/interfaces/IBaal.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-import { AxeMembershipBase } from "./AxeMembershipBase.sol";
 import { AxeMembershipCouncil, IAxeMembershipCouncil } from "../contracts/baal/AxeMembershipCouncil.sol";
 import { AxeMembership } from "../contracts/tokens/AxeMembership.sol";
-import { MockERC20 } from "../contracts/test/MockERC20.sol";
+import { MockERC20 } from "./MockERC20.sol";
+import { AxeMembershipBase } from "./AxeMembershipBase.sol";
 import { MultiSendProposal } from "./MultiSendProposal.sol";
 
 /**
