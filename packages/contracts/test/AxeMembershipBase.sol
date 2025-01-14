@@ -6,10 +6,10 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 import "../contracts/test/MockERC20.sol";
-import { MembershipCouncil } from "../contracts/tokens/MembershipCouncil.sol";
+import { AxeMembership, IAxeMembership } from "../contracts/tokens/AxeMembership.sol";
 
-contract MembershipCouncilBase is Test {
-  MembershipCouncil membershipCouncil;
+contract AxeMembershipBase is Test {
+  AxeMembership membership;
   MockERC20 paymentToken;
   address[] testUsers;
   uint256 tokenDonationAmount;
@@ -23,8 +23,8 @@ contract MembershipCouncilBase is Test {
       vm.prank(_owner);
       MockERC20(address(paymentToken)).mint(user, 1000 ** 10 * 18); // Mint payment tokens to each user
       vm.startPrank(user);
-      paymentToken.approve(address(membershipCouncil), tokenDonationAmount);
-      membershipCouncil.donate();
+      paymentToken.approve(address(membership), tokenDonationAmount);
+      membership.donate();
       vm.stopPrank();
     }
   }
@@ -34,7 +34,7 @@ contract MembershipCouncilBase is Test {
     string[] memory groups = split(expectedState, ",");
     assertEq(
       groups.length,
-      membershipCouncil.getNumberOfSortedGroups(),
+      membership.getNumberOfSortedGroups(),
       string(abi.encodePacked(_label, " Number of total groups mismatch"))
     );
     for (uint256 i = 0; i < groups.length; i++) {
@@ -44,13 +44,13 @@ contract MembershipCouncilBase is Test {
 
       // Verify the delegation count
       assertEq(
-        membershipCouncil.getSortedGroupDelegationCount(i),
+        membership.getSortedGroupDelegationCount(i),
         expectedDelegationCount,
         string(abi.encodePacked(_label, " Delegation count mismatch group index ", Strings.toString(i)))
       );
 
       // Verify the candidates in the group
-      address[] memory actualCandidates = membershipCouncil.getSortedGroupAtIndex(i);
+      address[] memory actualCandidates = membership.getSortedGroupAtIndex(i);
       assertEq(
         actualCandidates.length,
         candidates.length,
@@ -59,9 +59,7 @@ contract MembershipCouncilBase is Test {
 
       for (uint256 j = 0; j < candidates.length; j++) {
         uint256 expectedCandidateIndex = parseUint(candidates[j]);
-        MembershipCouncil.Candidate memory candidate = membershipCouncil.getCandidate(
-          testUsers[expectedCandidateIndex]
-        );
+        IAxeMembership.Candidate memory candidate = membership.getCandidate(testUsers[expectedCandidateIndex]);
         assertEq(
           candidate.delegationCount,
           expectedDelegationCount,
@@ -139,21 +137,21 @@ contract MembershipCouncilBase is Test {
     for (uint256 i = 0; i < numCandidates; i++) {
       address user = testUsers[i];
       vm.prank(user);
-      membershipCouncil.enlistAsCandidate();
+      membership.enlistAsCandidate();
     }
   }
 
   function _delegateUsers(address candidate, uint256 fromUser, uint256 toUser) internal {
     for (uint256 i = fromUser; i < toUser; i++) {
       vm.prank(testUsers[i]);
-      membershipCouncil.delegate(candidate);
+      membership.delegate(candidate);
     }
   }
 
   function _undelegateUsers(uint256 fromUser, uint256 toUser) internal {
     for (uint256 i = fromUser; i < toUser; i++) {
       vm.prank(testUsers[i]);
-      membershipCouncil.undelegate();
+      membership.undelegate();
     }
   }
 }

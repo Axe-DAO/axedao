@@ -9,8 +9,8 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
-import { IMembershipCouncilShaman } from "./IMembershipCouncilShaman.sol";
+import { IAxeMembership } from "../tokens/IAxeMembership.sol";
+import { IAxeMembershipCouncil } from "./IAxeMembershipCouncil.sol";
 
 // - the idea is to make it the decision of the eligible candidate to actively join the council which decreases the chance of a negative impact on ongoing
 //   proposals.
@@ -23,14 +23,14 @@ import { IMembershipCouncilShaman } from "./IMembershipCouncilShaman.sol";
  * The idea is to make it the decision of the eligible candidate to actively join the council which decreases the chance of a negative impact on ongoing
  * proposal voting.
  */
-contract MembershipCouncilShaman is IMembershipCouncilShaman, Ownable, ReentrancyGuard {
+contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard {
   // the loot and shares tokens could be custom implementations, so we'll stay on the safe side with SafeERC20
   using SafeERC20 for IERC20;
 
   uint256 public constant MIN_COUNCIL_SIZE = 21;
   uint256 public constant FORMATION_COOLDOWN = 24 hours;
   uint256 public lastFormationRequest;
-  IMembershipCouncil public immutable membershipCouncil;
+  IAxeMembership public immutable membershipCouncil;
   IBaal public immutable baal;
   uint256 public councilSize = MIN_COUNCIL_SIZE;
 
@@ -45,7 +45,7 @@ contract MembershipCouncilShaman is IMembershipCouncilShaman, Ownable, Reentranc
     require(_membershipCouncil != address(0), "MembershipCouncilShaman: MembershipCouncil cannot be the zero address");
     require(_baal != address(0), "MembershipCouncilShaman: Baal cannot be the zero address");
 
-    membershipCouncil = IMembershipCouncil(_membershipCouncil);
+    membershipCouncil = IAxeMembership(_membershipCouncil);
     baal = IBaal(_baal);
   }
 

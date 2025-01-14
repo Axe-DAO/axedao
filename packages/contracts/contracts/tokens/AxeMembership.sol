@@ -8,7 +8,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
-import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
+import { IAxeMembership } from "./IAxeMembership.sol";
 
 /**
  * @title MembershipToken
@@ -22,7 +22,7 @@ import { IMembershipCouncil } from "../interfaces/IMembershipCouncil.sol";
  * membership to a candidate of their choice. The contract keeps track of delegations and candidate availability and maintains a sorted
  * list of delegation counts to allow for efficient querying of the top candidates.
  */
-contract MembershipCouncil is IMembershipCouncil, ERC721, Ownable, ReentrancyGuard {
+contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
   // The donation token could be a custom implementation, so we'll stay on the safe side with SafeERC20
   using SafeERC20 for IERC20;
 

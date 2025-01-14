@@ -1,17 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import { MockERC20 } from "../contracts/test/MockERC20.sol";
-import "./MembershipCouncilBase.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-contract MembershipCouncilTest is MembershipCouncilBase {
+import { MockERC20 } from "../contracts/test/MockERC20.sol";
+import { AxeMembershipBase } from "./AxeMembershipBase.sol";
+import { AxeMembership, IAxeMembership } from "../contracts/tokens/AxeMembership.sol";
+import { AxeMembershipCouncil, IAxeMembershipCouncil } from "../contracts/baal/AxeMembershipCouncil.sol";
+
+contract AxeMembershipCandidateDelegationTest is AxeMembershipBase {
   function setUp() public {
     // Deploy the MockERC20 token
     paymentToken = new MockERC20("Payment Token", "PTK");
     tokenDonationAmount = 10 ** 10 * IERC20Metadata(address(paymentToken)).decimals();
 
     // Deploy the MembershipToken NFT
-    membershipCouncil = new MembershipCouncil(
+    membership = new AxeMembership(
       address(this),
       address(this),
       address(paymentToken),
@@ -27,45 +31,45 @@ contract MembershipCouncilTest is MembershipCouncilBase {
   function test_EnlistAndResign() public {
     address candidate = testUsers[0];
     vm.prank(candidate);
-    membershipCouncil.enlistAsCandidate();
+    membership.enlistAsCandidate();
 
     // Assert the candidate is enlisted
-    MembershipCouncil.Candidate memory structCandidate = membershipCouncil.getCandidate(candidate);
+    IAxeMembership.Candidate memory structCandidate = membership.getCandidate(candidate);
     assertTrue(structCandidate.available, "Candidate should be enlisted");
     assertEq(structCandidate.index, 0, "Candidate should be at index 0");
     assertEq(structCandidate.delegationCount, 1, "Candidate should have 1 delegation");
 
     assertEq(
-      membershipCouncil.getNumberOfSortedGroups(),
+      membership.getNumberOfSortedGroups(),
       1,
       "There should be 1 delegation group. Candidate auto self-delegated on enlistment."
     );
 
     vm.prank(testUsers[1]);
-    membershipCouncil.delegate(candidate);
+    membership.delegate(candidate);
 
     assertEq(
-      membershipCouncil.getNumberOfSortedGroups(),
+      membership.getNumberOfSortedGroups(),
       1,
       "There should still be 1 delegation group after other user delegates to single candidate."
     );
 
     vm.prank(testUsers[2]);
-    membershipCouncil.enlistAsCandidate();
+    membership.enlistAsCandidate();
 
     assertEq(
-      membershipCouncil.getNumberOfSortedGroups(),
+      membership.getNumberOfSortedGroups(),
       2,
       "There should be 2 sorted groups after second candidate enlisted."
     );
 
     vm.prank(candidate);
-    membershipCouncil.resignAsCandidate();
-    structCandidate = membershipCouncil.getCandidate(candidate);
+    membership.resignAsCandidate();
+    structCandidate = membership.getCandidate(candidate);
     assertFalse(structCandidate.available);
 
     assertEq(
-      membershipCouncil.getNumberOfSortedGroups(),
+      membership.getNumberOfSortedGroups(),
       1,
       "There should be 1 sorted group. One of the candidates resigned."
     );
@@ -75,14 +79,14 @@ contract MembershipCouncilTest is MembershipCouncilBase {
     address delegator = testUsers[0];
     address delegatee = testUsers[1];
     vm.prank(delegatee);
-    membershipCouncil.enlistAsCandidate();
+    membership.enlistAsCandidate();
 
     vm.startPrank(delegator);
-    membershipCouncil.delegate(delegatee);
-    assertEq(membershipCouncil.delegations(delegator), delegatee);
+    membership.delegate(delegatee);
+    assertEq(membership.delegations(delegator), delegatee);
 
-    membershipCouncil.undelegate();
-    assertEq(membershipCouncil.delegations(delegator), address(0));
+    membership.undelegate();
+    assertEq(membership.delegations(delegator), address(0));
   }
 
   /**
@@ -114,7 +118,7 @@ contract MembershipCouncilTest is MembershipCouncilBase {
 
     // Candidate 2 resigns
     vm.prank(testUsers[2]);
-    membershipCouncil.resignAsCandidate();
+    membership.resignAsCandidate();
 
     // Candidate 2's delegators undelegate, except 2
     // The delegatee later re-enlists where the 2 remaining delegations are counted again.
@@ -125,7 +129,7 @@ contract MembershipCouncilTest is MembershipCouncilBase {
 
     // New candidate enlists (user 5) and gets more delegations than current top
     vm.prank(testUsers[5]);
-    membershipCouncil.enlistAsCandidate();
+    membership.enlistAsCandidate();
 
     _delegateUsers(testUsers[5], 32, 50); // 18 delegations
 
@@ -138,11 +142,11 @@ contract MembershipCouncilTest is MembershipCouncilBase {
 
     // Wave Four: Multiple candidates (including candidate 2 again) enlist and get same number of delegations
     vm.prank(testUsers[2]);
-    membershipCouncil.enlistAsCandidate();
+    membership.enlistAsCandidate();
     vm.prank(testUsers[6]);
-    membershipCouncil.enlistAsCandidate();
+    membership.enlistAsCandidate();
     vm.prank(testUsers[7]);
-    membershipCouncil.enlistAsCandidate();
+    membership.enlistAsCandidate();
 
     // Give new candidates a total of 4 delegations each
     _delegateUsers(testUsers[6], 53, 56);
@@ -152,7 +156,7 @@ contract MembershipCouncilTest is MembershipCouncilBase {
     // Add 5 more candidates
     for (uint256 i = 8; i < 13; i++) {
       vm.prank(testUsers[i]);
-      membershipCouncil.enlistAsCandidate();
+      membership.enlistAsCandidate();
     }
 
     _verifyState("Wave4", "19:5,6:0-1,4:2-6-7,1:3-4-8-9-10-11-12");
@@ -177,25 +181,21 @@ contract MembershipCouncilTest is MembershipCouncilBase {
     // Sixth wave: More complex delegation and various actions
     // Candidate 8 resigns
     vm.startPrank(testUsers[8]);
-    membershipCouncil.resignAsCandidate();
-    membershipCouncil.undelegate();
+    membership.resignAsCandidate();
+    membership.undelegate();
     vm.stopPrank();
     _undelegateUsers(32, 33); // Remove 1 delegations from candidate 8
     _delegateUsers(testUsers[3], 33, 35); // 2 delegations from candidate 8 to candidate 3, candidate 8 has 2 other delegations left
-    assertEq(
-      membershipCouncil.getCandidate(testUsers[8]).delegationCount,
-      2,
-      "Candidate 8 should have 2 delegations left"
-    );
+    assertEq(membership.getCandidate(testUsers[8]).delegationCount, 2, "Candidate 8 should have 2 delegations left");
     // New delegations to multiple candidates
     _delegateUsers(testUsers[0], 70, 75); // 5 delegations to user 0
     _delegateUsers(testUsers[12], 75, 80); // 5 delegations to user 12
     _delegateUsers(testUsers[4], 80, 88); // 8 delegations to user 4
     _delegateUsers(testUsers[7], 88, 90); // 2 delegations to user 7
     vm.prank(testUsers[11]);
-    membershipCouncil.delegate(testUsers[6]); // candidate 11 delegates their own membership to candidate 6
+    membership.delegate(testUsers[6]); // candidate 11 delegates their own membership to candidate 6
     vm.prank(testUsers[8]);
-    membershipCouncil.enlistAsCandidate(); // candidate 8 rejoins, gets 1 auto-self-delegation and had 2 delegations left
+    membership.enlistAsCandidate(); // candidate 8 rejoins, gets 1 auto-self-delegation and had 2 delegations left
 
     // Verify state after Wave Six
     _verifyState("Wave6", "14:5,11:0,9:4,7:9,6:1-12,5:10,4:2-7,3:3-6-8,2:11");

@@ -2,21 +2,23 @@
 pragma solidity ^0.8.0;
 
 import { IBaal } from "@daohaus/baal-contracts/contracts/interfaces/IBaal.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-import "./MembershipCouncilBase.sol";
-import { MembershipCouncilShaman } from "../contracts/baal/MembershipCouncilShaman.sol";
-import { IMembershipCouncilShaman } from "../contracts/baal/IMembershipCouncilShaman.sol";
+import { AxeMembershipBase } from "./AxeMembershipBase.sol";
+import { AxeMembershipCouncil, IAxeMembershipCouncil } from "../contracts/baal/AxeMembershipCouncil.sol";
+import { AxeMembership } from "../contracts/tokens/AxeMembership.sol";
 import { MockERC20 } from "../contracts/test/MockERC20.sol";
 import { MultiSendProposal } from "./MultiSendProposal.sol";
 
 /**
- * @title MembershipCouncilShamanIntegrationTest
+ * @title AxeMembershipCouncilIntegrationTest
  * @notice This test is an integratino test that requires additional setup! The tests assume to be executed
  * against a fork of Sepolia where the Axé DAO and Axé token have been deployed.
  * Start a local anvil node with `anvil --fork-url $SEPOLIA_PROVIDER` before running the tests.
  * Set the `TEST_MODE` environment variable to `integration` before running the tests.
  */
-contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiSendProposal {
+contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProposal {
   // The following addresses are for the Sepolia network
   IBaal baal = IBaal(0x1c3ac998b698206CD2fb22bb422Bf14367470866);
   address owner = 0xEE2ac838C83e5d6bf6Eb1C8A425C007345ACe39E;
@@ -26,7 +28,7 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
   uint256 forkBlockNumber = 7224997; // Using a fixed block number speeds things up
   uint256 shareThreshold;
 
-  MembershipCouncilShaman shaman;
+  AxeMembershipCouncil shaman;
 
   function setUp() public {
     string memory testMode = vm.envOr("TEST_MODE", string("normal"));
@@ -39,7 +41,7 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
     shareThreshold = 1 * 10 ** IERC20Metadata(address(baal.sharesToken())).decimals();
 
     // Deploy the MembershipToken NFT with shaman configuration
-    membershipCouncil = new MembershipCouncil(
+    membership = new AxeMembership(
       owner,
       recipient,
       address(paymentToken),
@@ -49,7 +51,7 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
     );
 
     // set up the Shaman
-    shaman = new MembershipCouncilShaman(address(membershipCouncil), owner, address(baal));
+    shaman = new AxeMembershipCouncil(address(membership), owner, address(baal));
     address[] memory shamans = new address[](1);
     uint256[] memory permissions = new uint256[](1);
     permissions[0] = 2; // Manager
@@ -108,7 +110,7 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
 
     for (uint256 i = 0; i < numCandidates; i++) {
       vm.prank(testUsers[i]);
-      membershipCouncil.enlistAsCandidate();
+      membership.enlistAsCandidate();
       loot[i] = shareThreshold;
       topIndex = lastIndex + candidatesDelegations[i];
       _delegateUsers(testUsers[i], lastIndex, topIndex);
@@ -205,7 +207,7 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
     vm.startPrank(testUsers[0]);
     shaman.claimSeat(address(0));
     // seat already claimed
-    vm.expectRevert(abi.encodeWithSelector(IMembershipCouncilShaman.InvalidSeatClaim.selector, address(testUsers[0])));
+    vm.expectRevert(abi.encodeWithSelector(IAxeMembershipCouncil.InvalidSeatClaim.selector, address(testUsers[0])));
     shaman.claimSeat(address(0));
     vm.stopPrank();
 
@@ -215,7 +217,7 @@ contract MembershipCouncilShamanIntegrationTest is MembershipCouncilBase, MultiS
     vm.startPrank(testUsers[3]);
     address last = testUsers[testUsers.length - 1];
     vm.expectRevert(
-      abi.encodeWithSelector(IMembershipCouncilShaman.InvalidSeatReplacement.selector, address(testUsers[3]), last)
+      abi.encodeWithSelector(IAxeMembershipCouncil.InvalidSeatReplacement.selector, address(testUsers[3]), last)
     );
     shaman.claimSeat(last);
     shaman.claimSeat(address(0));

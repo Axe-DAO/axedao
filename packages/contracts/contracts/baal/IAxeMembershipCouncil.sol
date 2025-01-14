@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-interface IMembershipCouncilShaman {
+interface IAxeMembershipCouncil {
   struct CouncilMember {
     uint256 index;
     bool active;

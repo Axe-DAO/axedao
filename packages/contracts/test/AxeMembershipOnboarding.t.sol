@@ -7,11 +7,11 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Errors } from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
-import { MembershipCouncil, IMembershipCouncil } from "../contracts/tokens/MembershipCouncil.sol";
+import { AxeMembership, IAxeMembership } from "../contracts/tokens/AxeMembership.sol";
 import { MockERC20 } from "../contracts/test/MockERC20.sol";
 
-contract MembershipDonationsTest is Test {
-  IMembershipCouncil public token;
+contract AxeMembershipOnboardingTest is Test {
+  IAxeMembership public token;
 
   address dao = 0x1c3ac998b698206CD2fb22bb422Bf14367470866;
   address donationReceiver = 0x114D5F3904dB2b4635528C08b1687ECB5468EE17;
@@ -32,7 +32,7 @@ contract MembershipDonationsTest is Test {
     vm.deal(userA, 1 ether);
     vm.deal(userB, 1 ether);
     vm.deal(userC, 1 ether);
-    token = new MembershipCouncil(
+    token = new AxeMembership(
       dao,
       donationReceiver,
       address(swapToken),
@@ -63,7 +63,7 @@ contract MembershipDonationsTest is Test {
       "Receiver should have received the donation amount"
     );
     // Testing the newMemberOnlymodifier here
-    vm.expectRevert(abi.encodeWithSelector(IMembershipCouncil.AlreadyMemberError.selector, userA));
+    vm.expectRevert(abi.encodeWithSelector(IAxeMembership.AlreadyMemberError.selector, userA));
     token.donate();
     vm.stopPrank();
   }
@@ -94,7 +94,7 @@ contract MembershipDonationsTest is Test {
     vm.startPrank(userC);
     vm.expectRevert(
       abi.encodeWithSelector(
-        IMembershipCouncil.InsufficientDonationError.selector,
+        IAxeMembership.InsufficientDonationError.selector,
         nativeDonationAmount - 0.000005 ether,
         nativeDonationAmount
       )

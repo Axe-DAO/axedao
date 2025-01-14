@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-interface IMembershipCouncil is IERC721 {
+interface IAxeMembership is IERC721 {
   struct Candidate {
     bool available;
     uint256 index;

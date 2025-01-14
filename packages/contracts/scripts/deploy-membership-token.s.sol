@@ -4,7 +4,7 @@ pragma solidity ^0.8.23;
 import "forge-std/console.sol";
 import { Script } from "forge-std/Script.sol";
 
-import { MembershipCouncil } from "../contracts/tokens/MembershipCouncil.sol";
+import { AxeMembership } from "../contracts/tokens/AxeMembership.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 contract Deploy is Script {
@@ -26,7 +26,7 @@ contract Deploy is Script {
     console.log("AXE Deployer: %s", msg.sender);
     require(msg.sender == axeDeployer, "Wrong AXE deployer account!");
 
-    MembershipCouncil instance = new MembershipCouncil(
+    AxeMembership instance = new AxeMembership(
       owner,
       receiver,
       donationToken,
