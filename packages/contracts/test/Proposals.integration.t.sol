@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import { IBaal } from "@daohaus/baal-contracts/contracts/interfaces/IBaal.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { IAXE } from "../contracts/interfaces/IAXE.sol";
+import { IAXE } from "../contracts/tokens/IAXE.sol";
 import { MultiSendProposal } from "./MultiSendProposal.sol";
 
 /**

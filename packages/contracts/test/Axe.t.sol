@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "@openzeppelin/contracts/finance/VestingWallet.sol";
 
-import "../contracts/interfaces/IAXE.sol";
-import "../contracts/AXESource.sol";
+import "../contracts/tokens/IAXE.sol";
+import "../contracts/tokens/AXESource.sol";
 import "../contracts/utils/Governable.sol";
 
 /**

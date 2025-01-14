@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 
 import { VestingWallet } from "@openzeppelin/contracts/finance/VestingWallet.sol";
 
-import { IAXESource } from "./interfaces/IAXESource.sol";
+import { IAXESource } from "./IAXESource.sol";
 import { AXE } from "./AXE.sol";
 
 /**

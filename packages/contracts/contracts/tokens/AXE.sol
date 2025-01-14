@@ -8,9 +8,9 @@ import { IUniswapV2Factory } from "@uniswap/v2-core/contracts/interfaces/IUniswa
 import { IUniswapV2Pair } from "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import { IUniswapV2Router02 } from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
-import { Governable } from "./utils/Governable.sol";
-import { IAXE } from "./interfaces/IAXE.sol";
-import { AXERC20 } from "./XERC20/AXERC20.sol";
+import { Governable } from "../utils/Governable.sol";
+import { AXERC20 } from "../XERC20/AXERC20.sol";
+import { IAXE } from "./IAXE.sol";
 
 /**
  * @title Axé Token

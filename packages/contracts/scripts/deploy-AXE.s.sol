@@ -5,8 +5,8 @@ import "forge-std/console.sol";
 import { Script } from "forge-std/Script.sol";
 import { ICREATE3Factory } from "create3-factory/ICREATE3Factory.sol";
 
-import { AXESource } from "../contracts/AXESource.sol";
-import { AXE } from "../contracts/AXE.sol";
+import { AXESource } from "../contracts/tokens/AXESource.sol";
+import { AXE } from "../contracts/tokens/AXE.sol";
 
 contract Deploy is Script {
   address internal constant create3Factory = 0x93FEC2C00BfE902F733B57c5a6CeeD7CD1384AE1;
