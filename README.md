@@ -38,7 +38,11 @@ FORK=true npx hardhat node
 
 ### Unit Tests
 
-Unit tests and Uniswap integration tests are implemented as Hardhat Chai tests and executed via `pnpm test` which uses `hardhat compile`.
+Unit tests are executed on every build via `pnpm test`. Note that test contracts named "\*IntegrationTest" are not included.
+
+### Integration Tests
+
+To run the integration tests, start a local anvil node and run `export TEST_MODE=integration && forge test --match-contract IntegrationTest`.
 
 ## Deployment
 
