@@ -1,4 +1,4 @@
-import { Config, createConfig, http } from 'wagmi';
+import { Config, createConfig, http, webSocket } from 'wagmi';
 import { Chain, gnosis, localhost, optimism, sepolia } from 'wagmi/chains';
 
 import ENV from '@/config/environment';
@@ -30,18 +30,25 @@ export const getDefaultChain = (): Chain => {
 };
 
 export const getTransport = (chain: Chain | undefined) => {
+  let url = '';
   switch (chain?.id) {
     case gnosis.id:
-      return http(ENV.gnosisProviderUrl);
+      url = ENV.gnosisProviderUrl;
+      break;
     case optimism.id:
-      return http(ENV.optimismProviderUrl);
+      url = ENV.optimismProviderUrl;
+      break;
     case sepolia.id:
-      return http(ENV.sepoliaProviderUrl);
+      url = ENV.sepoliaProviderUrl;
+      break;
     case localhost.id:
-      return http('http://127.0.0.1:8545');
+      url = 'http://127.0.0.1:8545';
+      break;
     default:
-      return http();
+      url = '';
   }
+  if (url.startsWith('wss')) return webSocket(url);
+  return http(url);
 };
 
 /**
