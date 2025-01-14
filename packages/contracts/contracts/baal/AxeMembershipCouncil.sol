@@ -30,7 +30,7 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
   uint256 public constant MIN_COUNCIL_SIZE = 21;
   uint256 public constant FORMATION_COOLDOWN = 24 hours;
   uint256 public lastFormationRequest;
-  IAxeMembership public immutable membershipCouncil;
+  IAxeMembership public immutable membership;
   IBaal public immutable baal;
   uint256 public councilSize = MIN_COUNCIL_SIZE;
 
@@ -41,11 +41,11 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
   address[] internal outgoingCouncilList;
   address[] internal incomingCouncilList;
 
-  constructor(address _membershipCouncil, address _owner, address _baal) Ownable(_owner) {
-    require(_membershipCouncil != address(0), "MembershipCouncilShaman: MembershipCouncil cannot be the zero address");
+  constructor(address _membership, address _owner, address _baal) Ownable(_owner) {
+    require(_membership != address(0), "MembershipCouncilShaman: MembershipCouncil cannot be the zero address");
     require(_baal != address(0), "MembershipCouncilShaman: Baal cannot be the zero address");
 
-    membershipCouncil = IAxeMembership(_membershipCouncil);
+    membership = IAxeMembership(_membership);
     baal = IBaal(_baal);
   }
 
@@ -164,9 +164,9 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     uint256 lootThreshold = 1 * 10 ** IERC20Metadata(address(lootToken)).decimals();
 
     // Determine new council from sorted delegation ranking in MembershipCouncil
-    length = membershipCouncil.getNumberOfRankedGroups();
+    length = membership.getNumberOfRankedGroups();
     for (i = 0; i < length && councilIndex < size; ) {
-      address[] memory group = membershipCouncil.getRankedGroupAtIndex(i);
+      address[] memory group = membership.getRankedGroupAtIndex(i);
 
       for (j = 0; j < group.length && councilIndex < size; ) {
         address member = group[j];

@@ -13,23 +13,23 @@ const TreasuryShares: React.FC = () => {
   const account = useAccount();
   // SHARES
   const { data: userDaoShares } = useReadErc20BalanceOf({
-    address: ENV.axeDaoSharesAddress,
+    address: ENV.daoSharesAddress,
     args: [account.address as Address],
   });
   const { data: totalShares } = useReadErc20TotalSupply({
-    address: ENV.axeDaoSharesAddress,
+    address: ENV.daoSharesAddress,
   });
   // LOOT
   const { data: userDaoLoot } = useReadErc20BalanceOf({
-    address: ENV.axeDaoLootAddress,
+    address: ENV.daoLootAddress,
     args: [account.address as Address],
   });
   const { data: totalLoot } = useReadErc20TotalSupply({
-    address: ENV.axeDaoLootAddress,
+    address: ENV.daoLootAddress,
   });
   const { data: usdDao } = useReadErc20BalanceOf({
     address: ENV.axeSwapTokenAddress,
-    args: [ENV.axeDaoTreasuryAddress],
+    args: [ENV.daoTreasuryAddress],
   });
 
   const isMember = !!userDaoLoot && userDaoLoot > 0;

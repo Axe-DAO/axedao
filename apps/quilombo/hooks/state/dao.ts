@@ -64,19 +64,19 @@ export function useProposals() {
     try {
       const [submitLogs, processLogs, cancelLogs] = await Promise.all([
         publicClient.getContractEvents({
-          address: ENV.axeDaoAddress,
+          address: ENV.daoAddress,
           abi: baalAbi,
           eventName: 'SubmitProposal',
           fromBlock: 'earliest',
         }),
         publicClient.getContractEvents({
-          address: ENV.axeDaoAddress,
+          address: ENV.daoAddress,
           abi: baalAbi,
           eventName: 'ProcessProposal',
           fromBlock: 'earliest',
         }),
         publicClient.getContractEvents({
-          address: ENV.axeDaoAddress,
+          address: ENV.daoAddress,
           abi: baalAbi,
           eventName: 'CancelProposal',
           fromBlock: 'earliest',
@@ -234,7 +234,7 @@ export function useHasVotingShares() {
   const account = useAccount();
 
   const { data: shares } = useReadErc20BalanceOf({
-    address: ENV.axeDaoSharesAddress,
+    address: ENV.daoSharesAddress,
     args: [account.address as Address],
   });
 
@@ -245,7 +245,7 @@ export function useHasLootShares() {
   const account = useAccount();
 
   const { data: shares } = useReadErc20BalanceOf({
-    address: ENV.axeDaoLootAddress,
+    address: ENV.daoLootAddress,
     args: [account.address as Address],
   });
 

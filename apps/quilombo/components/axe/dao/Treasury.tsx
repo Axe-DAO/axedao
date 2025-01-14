@@ -20,7 +20,7 @@ const Treasury: React.FC = () => {
 
   const { data: usdDao } = useReadErc20BalanceOf({
     address: ENV.axeSwapTokenAddress,
-    args: [ENV.axeDaoTreasuryAddress],
+    args: [ENV.daoTreasuryAddress],
   });
 
   return (
