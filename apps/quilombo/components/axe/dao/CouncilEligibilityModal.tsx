@@ -4,19 +4,21 @@ import { Accordion, AccordionItem } from '@nextui-org/accordion';
 import { Button } from '@nextui-org/button';
 import { Modal, ModalBody, ModalContent, ModalHeader, ModalProps } from '@nextui-org/modal';
 import { enqueueSnackbar } from 'notistack';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useWaitForTransactionReceipt } from 'wagmi';
 
 import ENV from '@/config/environment';
 import { useWriteAxeMembershipEnlistAsCandidate } from '@/generated';
+import { useLootShares } from '@/hooks/state/dao';
 import LootAcquisition from './LootAcquisition';
 
-type Props = Omit<ModalProps, 'children'> & {
-  hasLootShares: boolean;
-};
+type Props = Omit<ModalProps, 'children'>;
 
-const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, hasLootShares }: Props) => {
+const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onClose, onOpenChange }: Props) => {
   const [isLootAcquisitionExpanded, setIsLootAcquisitionExpanded] = useState<boolean>(false);
+  const { balance: lootShares, refetch: refetchLootShares } = useLootShares();
+  const hasLootShares = useMemo(() => !!lootShares && lootShares > 0n, [lootShares]);
+
   const {
     data: enlistHash,
     isPending: enlistPending,
@@ -37,19 +39,18 @@ const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, hasLoo
       });
     } else if (enlistSuccess) {
       enqueueSnackbar('Successfully enlisted as candidate!');
-      onOpenChange?.(false);
+      onClose?.();
     } else if (enlistError) {
       enqueueSnackbar(`Failed to enlist: ${enlistError.message}`, { variant: 'error' });
-      onOpenChange?.(false);
     }
-  }, [enlistLoading, enlistSuccess, enlistError, onOpenChange]);
+  }, [enlistLoading, enlistSuccess, enlistError, onClose]);
 
   const handleEnlist = () => {
     enlist({ address: ENV.axeMembershipAddress });
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Modal isOpen={isOpen} onClose={onClose} onOpenChange={onOpenChange}>
       <ModalContent>
         {() => (
           <>
@@ -84,13 +85,7 @@ const CouncilEligibilityModal: React.FC<Props> = ({ isOpen, onOpenChange, hasLoo
                       title="Get Loot Shares (Optional)"
                     >
                       <div className="py-2">
-                        <LootAcquisition
-                          variant="compact"
-                          onSuccess={() => {
-                            // This will refresh the hasLootShares state
-                            onOpenChange?.(false);
-                          }}
-                        />
+                        <LootAcquisition variant="compact" onSuccess={refetchLootShares} />
                       </div>
                     </AccordionItem>
                   </Accordion>

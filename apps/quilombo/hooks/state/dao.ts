@@ -194,12 +194,12 @@ export function useCandidates() {
 
       const candidateStatus = new Map<Address, boolean>();
       allEvents.forEach((log) => {
-        const args = log.args as { _candidate: Address };
-        candidateStatus.set(args._candidate, log.eventName === 'CandidateEnlisted');
+        const args = log.args as { candidate: Address };
+        candidateStatus.set(args.candidate, log.eventName === 'CandidateEnlisted');
       });
 
       const addresses = Array.from(candidateStatus.entries())
-        .filter(([, isEnlisted]) => isEnlisted)
+        .filter(([address, isEnlisted]) => isEnlisted && address)
         .map(([address]) => address);
 
       setState((prev) => ({
@@ -230,24 +230,34 @@ export function useCandidates() {
   };
 }
 
-export function useHasVotingShares() {
+export function useVotingShares() {
   const account = useAccount();
 
-  const { data: shares } = useReadErc20BalanceOf({
+  const {
+    data: balance,
+    isLoading,
+    error,
+    refetch,
+  } = useReadErc20BalanceOf({
     address: ENV.daoSharesAddress,
     args: [account.address as Address],
   });
 
-  return shares ? shares > 0n : false;
+  return { balance, isLoading, error, refetch };
 }
 
-export function useHasLootShares() {
+export function useLootShares() {
   const account = useAccount();
 
-  const { data: shares } = useReadErc20BalanceOf({
+  const {
+    data: balance,
+    isLoading,
+    error,
+    refetch,
+  } = useReadErc20BalanceOf({
     address: ENV.daoLootAddress,
     args: [account.address as Address],
   });
 
-  return shares ? shares > 0n : false;
+  return { balance, isLoading, error, refetch };
 }

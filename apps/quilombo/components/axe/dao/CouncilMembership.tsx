@@ -1,11 +1,11 @@
 'use client';
 
 import { useWriteAxeMembershipResignAsCandidate } from '@/generated';
-import { useCandidates, useHasLootShares } from '@/hooks/state/dao';
+import { useCandidates, useLootShares } from '@/hooks/state/dao';
 import { Button } from '@nextui-org/button';
 import { useDisclosure } from '@nextui-org/use-disclosure';
 import { useSnackbar } from 'notistack';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Address } from 'viem';
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi';
 import { CouncilBadge } from './Badges';
@@ -27,9 +27,13 @@ const CouncilMembership: React.FC = () => {
   });
 
   // Check if user is council member or candidate
-  const hasLootShares = useHasLootShares();
+  const { balance: lootShares } = useLootShares();
   const { addresses: candidateAddresses, refresh } = useCandidates();
-  const isCandidate = !!account.address && candidateAddresses.includes(account.address);
+  const hasLootShares = useMemo(() => !!lootShares && lootShares > 0n, [lootShares]);
+  const isCandidate = useMemo(
+    () => Boolean(account.address && candidateAddresses?.includes(account.address)),
+    [account.address, candidateAddresses],
+  );
 
   const {
     data: resignHash,
@@ -87,12 +91,7 @@ const CouncilMembership: React.FC = () => {
         <Button onPress={onOpen} color="primary" className="w-full" isDisabled={!isMember}>
           {isMember ? 'Enlist as Candidate' : 'Become Eligible'}
         </Button>
-        <CouncilEligibilityModal
-          isOpen={isOpen}
-          onOpenChange={onOpenChange}
-          hasLootShares={hasLootShares}
-          onClose={onClose}
-        />
+        <CouncilEligibilityModal isOpen={isOpen} onOpenChange={onOpenChange} onClose={onClose} />
       </div>
     </div>
   );

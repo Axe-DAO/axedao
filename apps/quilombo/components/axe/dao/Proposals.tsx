@@ -1,13 +1,14 @@
 'use client';
 
 import { useWriteBaalSubmitVote } from '@/generated';
-import { useHasVotingShares, useProposals } from '@/hooks/state/dao';
+import { useVotingShares, useProposals } from '@/hooks/state/dao';
 import { Accordion, AccordionItem, Button } from '@nextui-org/react';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export default function Proposals() {
   const { proposals, loading, error } = useProposals();
-  const isCouncilMember = useHasVotingShares();
+  const { balance: votingShares } = useVotingShares();
+  const isVotingEligible = useMemo(() => !!votingShares && votingShares > 0n, [votingShares]);
   const { writeContractAsync: submitVote, isPending: isVoting } = useWriteBaalSubmitVote();
 
   const handleVote = useCallback(
@@ -53,7 +54,7 @@ export default function Proposals() {
                       <p className="text-sm text-gray-300">{details.description}</p>
                     </div>
 
-                    {isActive && isCouncilMember && (
+                    {isActive && isVotingEligible && (
                       <div className="flex gap-4 mt-4">
                         <Button
                           color="success"
