@@ -10,12 +10,12 @@ import { useAccount, useBalance, useSendTransaction, useWaitForTransactionReceip
 
 import ENV from '@/config/environment';
 import {
+  useReadAxeMembershipGetNativeDonationAmount,
+  useReadAxeMembershipGetTokenDonationAmount,
   useReadErc20Allowance,
   useReadErc20BalanceOf,
-  useReadMembershipCouncilGetNativeDonationAmount,
-  useReadMembershipCouncilGetTokenDonationAmount,
+  useWriteAxeMembershipDonate,
   useWriteErc20Approve,
-  useWriteIMembershipCouncilDonate,
 } from '@/generated';
 
 type Props = Omit<ModalProps, 'children'> & { onSuccess?: () => void };
@@ -38,10 +38,10 @@ export default function MembershipDonationModal({ onClose, onSuccess, ...props }
   });
 
   // Get donation amounts from contract
-  const { data: nativeDonationAmount } = useReadMembershipCouncilGetNativeDonationAmount({
+  const { data: nativeDonationAmount } = useReadAxeMembershipGetNativeDonationAmount({
     address: ENV.axeMembershipAddress as Address,
   });
-  const { data: erc20DonationAmount } = useReadMembershipCouncilGetTokenDonationAmount({
+  const { data: erc20DonationAmount } = useReadAxeMembershipGetTokenDonationAmount({
     address: ENV.axeMembershipAddress as Address,
   });
 
@@ -54,7 +54,7 @@ export default function MembershipDonationModal({ onClose, onSuccess, ...props }
   } = useWaitForTransactionReceipt({ hash: approveHash });
 
   // For IMembershipCouncil donate
-  const { data: donateHash, isPending: donatePending, writeContract: donate } = useWriteIMembershipCouncilDonate();
+  const { data: donateHash, isPending: donatePending, writeContract: donate } = useWriteAxeMembershipDonate();
   const {
     isSuccess: donateSuccess,
     error: donateError,

@@ -6,7 +6,7 @@ import { Address } from 'viem';
 import { useAccount } from 'wagmi';
 
 import ENV from '@/config/environment';
-import { useReadMembershipCouncilIsMember } from '@/generated';
+import { useReadAxeMembershipIsMember } from '@/generated';
 import { MemberBadge } from './Badges';
 import MembershipDonationModal from './MembershipDonationModal';
 
@@ -14,7 +14,7 @@ const DaoMembership: React.FC = () => {
   const account = useAccount();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const { data: isMember = false, refetch: updateIsMember } = useReadMembershipCouncilIsMember({
+  const { data: isMember = false, refetch: updateIsMember } = useReadAxeMembershipIsMember({
     address: ENV.axeMembershipAddress,
     args: [account.address as Address],
   });

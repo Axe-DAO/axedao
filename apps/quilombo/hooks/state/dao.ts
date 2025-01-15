@@ -5,7 +5,7 @@ import { useCallback, useEffect } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 
 import ENV from '@/config/environment';
-import { baalAbi, membershipCouncilAbi, useReadErc20BalanceOf } from '@/generated';
+import { axeMembershipAbi, baalAbi, useReadErc20BalanceOf } from '@/generated';
 import { useSearchUsersByAddresses } from '@/query/user';
 import { Address } from 'viem';
 
@@ -175,13 +175,13 @@ export function useCandidates() {
       const [enlistLogs, resignLogs] = await Promise.all([
         publicClient.getContractEvents({
           address: ENV.axeMembershipAddress,
-          abi: membershipCouncilAbi,
+          abi: axeMembershipAbi,
           eventName: 'CandidateEnlisted',
           fromBlock: 'earliest',
         }),
         publicClient.getContractEvents({
           address: ENV.axeMembershipAddress,
-          abi: membershipCouncilAbi,
+          abi: axeMembershipAbi,
           eventName: 'CandidateResigned',
           fromBlock: 'earliest',
         }),

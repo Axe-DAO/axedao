@@ -1,6 +1,6 @@
 'use client';
 
-import { useWriteMembershipCouncilResignAsCandidate } from '@/generated';
+import { useWriteAxeMembershipResignAsCandidate } from '@/generated';
 import { useCandidates, useHasLootShares } from '@/hooks/state/dao';
 import { Button } from '@nextui-org/button';
 import { useDisclosure } from '@nextui-org/use-disclosure';
@@ -13,7 +13,7 @@ import CouncilEligibilityModal from './CouncilEligibilityModal';
 import VoteDelegation from './VoteDelegation';
 
 import ENV from '@/config/environment';
-import { useReadMembershipCouncilIsMember } from '@/generated';
+import { useReadAxeMembershipIsMember } from '@/generated';
 
 const CouncilMembership: React.FC = () => {
   const account = useAccount();
@@ -21,7 +21,7 @@ const CouncilMembership: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   // Check if user is DAO member
-  const { data: isMember = false } = useReadMembershipCouncilIsMember({
+  const { data: isMember = false } = useReadAxeMembershipIsMember({
     address: ENV.axeMembershipAddress,
     args: [account.address as Address],
   });
@@ -35,7 +35,7 @@ const CouncilMembership: React.FC = () => {
     data: resignHash,
     isPending: resignPending,
     writeContract: resign,
-  } = useWriteMembershipCouncilResignAsCandidate();
+  } = useWriteAxeMembershipResignAsCandidate();
 
   const {
     isSuccess: resignSuccess,

@@ -11,9 +11,9 @@ import UserCard from '@/components/UserCard';
 import ENV from '@/config/environment';
 import { MembershipDelegateForm } from '@/config/validation-schema';
 import {
-  useReadMembershipCouncilDelegations,
-  useWriteMembershipCouncilDelegate,
-  useWriteMembershipCouncilUndelegate,
+  useReadAxeMembershipDelegations,
+  useWriteAxeMembershipDelegate,
+  useWriteAxeMembershipUndelegate,
 } from '@/generated';
 import { useCandidates } from '@/hooks/state/dao';
 import { User } from '@/types/model';
@@ -26,23 +26,19 @@ const VoteDelegation: React.FC = () => {
   const { candidates } = useCandidates();
 
   // Read current delegation
-  const { data: currentDelegationAddress, refetch: refetchCurrentDelegation } = useReadMembershipCouncilDelegations({
+  const { data: currentDelegationAddress, refetch: refetchCurrentDelegation } = useReadAxeMembershipDelegations({
     address: ENV.axeMembershipAddress,
     args: [account.address as Address],
   });
 
   // Contract interaction hooks
-  const {
-    data: delegateHash,
-    isPending: delegatePending,
-    writeContract: delegate,
-  } = useWriteMembershipCouncilDelegate();
+  const { data: delegateHash, isPending: delegatePending, writeContract: delegate } = useWriteAxeMembershipDelegate();
 
   const {
     data: undelegateHash,
     isPending: undelegatePending,
     writeContract: undelegate,
-  } = useWriteMembershipCouncilUndelegate();
+  } = useWriteAxeMembershipUndelegate();
 
   // Transaction receipt hooks
   const {
