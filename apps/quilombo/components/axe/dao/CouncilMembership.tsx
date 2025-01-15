@@ -31,7 +31,7 @@ const CouncilMembership: React.FC = () => {
   const { addresses: candidateAddresses, refresh } = useCandidates();
   const hasLootShares = useMemo(() => !!lootShares && lootShares > 0n, [lootShares]);
   const isCandidate = useMemo(
-    () => Boolean(account.address && candidateAddresses?.includes(account.address)),
+    () => !!account.address && candidateAddresses.includes(account.address),
     [account.address, candidateAddresses],
   );
 

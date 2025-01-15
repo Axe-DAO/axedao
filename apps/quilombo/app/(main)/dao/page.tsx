@@ -21,6 +21,12 @@ const DaoPage = () => {
             <h2 className="text-3xl font-bold text-center mb-1">Council</h2>
             <p className="text-center">The Council is the decision-making body of the Axé DAO.</p>
             <CouncilMembership />
+          </div>
+        </Tab>
+        <Tab key="proposals" title="Proposals" className="w-full">
+          <div className="flex w-full flex-col gap-2 sm:gap-4 items-center">
+            <h2 className="text-3xl font-bold text-center mb-1">Proposals</h2>
+            <p className="text-center">The following proposals are currently active.</p>
             <Proposals />
           </div>
         </Tab>
