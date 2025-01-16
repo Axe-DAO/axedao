@@ -22,6 +22,8 @@ interface IAxeMembershipCouncil {
 
   function getCouncilMemberAtIndex(uint256 _index) external view returns (address);
 
+  function getCurrentMembers() external view returns (address[] memory);
+
   function getJoiningMembers() external view returns (address[] memory);
 
   function getLeavingMembers() external view returns (address[] memory);
@@ -29,4 +31,6 @@ interface IAxeMembershipCouncil {
   function requestCouncilUpdate() external;
 
   function claimSeat(address _existingSeat) external;
+
+  function canRequestCouncilUpdate() external view returns (bool);
 }

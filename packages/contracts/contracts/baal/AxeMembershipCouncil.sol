@@ -213,12 +213,20 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     return currentCouncilList[_index];
   }
 
+  function getCurrentMembers() external view override returns (address[] memory) {
+    return currentCouncilList;
+  }
+
   function getJoiningMembers() external view override returns (address[] memory) {
     return incomingCouncilList;
   }
 
   function getLeavingMembers() external view override returns (address[] memory) {
     return outgoingCouncilList;
+  }
+
+  function canRequestCouncilUpdate() external view override returns (bool) {
+    return block.timestamp - lastFormationRequest > FORMATION_COOLDOWN;
   }
 
   function setCouncilSize(uint256 _councilSize) external onlyOwner {

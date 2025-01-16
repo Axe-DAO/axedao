@@ -8,7 +8,28 @@ import { useWaitForTransactionReceipt } from 'wagmi';
 
 import ENV from '@/config/environment';
 import { useWriteIBaalSubmitVote } from '@/generated';
-import { useProposals, useVotingShares } from '@/hooks/state/dao';
+import { isProposalActive, isProposalFinal, Proposal, useProposals, useVotingShares } from '@/hooks/state/dao';
+
+function ProposalStatusIcon({ status }: { status: Proposal['status'] }) {
+  switch (status) {
+    case 'submitted':
+      return <Clock className="text-primary/60" size={20} />;
+    case 'voting':
+      return <Clock className="text-primary/80" size={20} />;
+    case 'grace':
+      return <Clock className="text-primary" size={20} />;
+    case 'ready':
+      return <Clock className="text-primary/90" size={20} />;
+    case 'processed':
+      return <CheckCircle2 className="text-success" size={20} />;
+    case 'defeated':
+      return <XCircle className="text-danger/80" size={20} />;
+    case 'cancelled':
+      return <XCircle className="text-danger" size={20} />;
+    default:
+      return null;
+  }
+}
 
 export default function Proposals() {
   const [showOldProposals, setShowOldProposals] = useState(false);
@@ -19,7 +40,7 @@ export default function Proposals() {
 
   // Filter proposals based on showOldProposals state
   const visibleProposals = useMemo(() => {
-    return showOldProposals ? proposals : proposals.filter((p) => p.status === 'active');
+    return showOldProposals ? proposals : proposals.filter((p) => isProposalActive(p.status));
   }, [proposals, showOldProposals]);
 
   // Contract interaction hooks
@@ -64,6 +85,28 @@ export default function Proposals() {
     });
   };
 
+  // Add status color mapping
+  const getStatusColor = (status: Proposal['status']) => {
+    switch (status) {
+      case 'submitted':
+        return 'text-primary/60';
+      case 'voting':
+        return 'text-primary/80';
+      case 'grace':
+        return 'text-primary';
+      case 'ready':
+        return 'text-primary/90';
+      case 'processed':
+        return 'text-success';
+      case 'defeated':
+        return 'text-danger/80';
+      case 'cancelled':
+        return 'text-danger';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="flex justify-end mb-4">
@@ -78,19 +121,16 @@ export default function Proposals() {
         <Accordion variant="splitted">
           {visibleProposals.map((proposal) => {
             const details = JSON.parse(proposal.details);
-            const isActive = proposal.status === 'active';
-
+            const statusActive = isProposalActive(proposal.status);
+            const statusFinal = isProposalFinal(proposal.status);
             return (
               <AccordionItem
                 key={proposal.id.toString()}
                 aria-label={`Proposal ${proposal.id.toString()}`}
                 title={
                   <div className="flex items-center gap-2">
-                    {proposal.status === 'active' && <Clock className="text-primary" size={20} />}
-                    {proposal.status === 'cancelled' && <XCircle className="text-danger" size={20} />}
-                    {proposal.status === 'executed' && <CheckCircle2 className="text-success" size={20} />}
-                    {proposal.status === 'failed' && <CheckCircle2 className="text-danger" size={20} />}
-                    <span className={isActive ? 'text-primary' : ''}>
+                    <ProposalStatusIcon status={proposal.status} />
+                    <span className={getStatusColor(proposal.status)}>
                       {`#${proposal.id.toString()} - ${details.title}`}
                     </span>
                   </div>
@@ -102,9 +142,9 @@ export default function Proposals() {
                       <span className="font-semibold">Status:</span>{' '}
                       <span
                         className={`capitalize font-medium px-2 py-0.5 rounded-full text-xs ${
-                          proposal.status === 'active'
+                          statusActive
                             ? 'bg-primary/20 text-primary'
-                            : proposal.status === 'executed'
+                            : statusFinal
                               ? 'bg-success/20 text-success'
                               : 'bg-danger/20 text-danger'
                         }`}
@@ -112,7 +152,7 @@ export default function Proposals() {
                         {proposal.status}
                       </span>
                     </div>
-                    {isActive && (
+                    {statusActive && (
                       <div className="text-sm text-default-500">
                         Expires: {new Date(proposal.expiration * 1000).toLocaleString()}
                       </div>
@@ -124,7 +164,7 @@ export default function Proposals() {
                     <p className="text-sm text-default-500">{details.description}</p>
                   </div>
 
-                  {isActive && (
+                  {statusActive && (
                     <div className="flex flex-col gap-2 mt-4">
                       {votingSharesLoading ? (
                         <div className="text-sm text-default-500">Checking voting eligibility...</div>

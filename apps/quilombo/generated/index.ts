@@ -2997,6 +2997,13 @@ export const axeMembershipCouncilAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'canRequestCouncilUpdate',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [
       { name: '_existingSeat', internalType: 'address', type: 'address' },
     ],
@@ -3023,6 +3030,13 @@ export const axeMembershipCouncilAbi = [
     inputs: [],
     name: 'getCouncilSize',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getCurrentMembers',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
     stateMutability: 'view',
   },
   {
@@ -6185,6 +6199,13 @@ export const iAxeMembershipAbi = [
 export const iAxeMembershipCouncilAbi = [
   {
     type: 'function',
+    inputs: [],
+    name: 'canRequestCouncilUpdate',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [
       { name: '_existingSeat', internalType: 'address', type: 'address' },
     ],
@@ -6204,6 +6225,13 @@ export const iAxeMembershipCouncilAbi = [
     inputs: [],
     name: 'getCouncilSize',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getCurrentMembers',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
     stateMutability: 'view',
   },
   {
@@ -13214,6 +13242,15 @@ export const useReadAxeMembershipCouncilBaal =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link axeMembershipCouncilAbi}__ and `functionName` set to `"canRequestCouncilUpdate"`
+ */
+export const useReadAxeMembershipCouncilCanRequestCouncilUpdate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: axeMembershipCouncilAbi,
+    functionName: 'canRequestCouncilUpdate',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link axeMembershipCouncilAbi}__ and `functionName` set to `"councilSize"`
  */
 export const useReadAxeMembershipCouncilCouncilSize =
@@ -13238,6 +13275,15 @@ export const useReadAxeMembershipCouncilGetCouncilSize =
   /*#__PURE__*/ createUseReadContract({
     abi: axeMembershipCouncilAbi,
     functionName: 'getCouncilSize',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link axeMembershipCouncilAbi}__ and `functionName` set to `"getCurrentMembers"`
+ */
+export const useReadAxeMembershipCouncilGetCurrentMembers =
+  /*#__PURE__*/ createUseReadContract({
+    abi: axeMembershipCouncilAbi,
+    functionName: 'getCurrentMembers',
   })
 
 /**
@@ -16547,6 +16593,15 @@ export const useReadIAxeMembershipCouncil = /*#__PURE__*/ createUseReadContract(
 )
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iAxeMembershipCouncilAbi}__ and `functionName` set to `"canRequestCouncilUpdate"`
+ */
+export const useReadIAxeMembershipCouncilCanRequestCouncilUpdate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iAxeMembershipCouncilAbi,
+    functionName: 'canRequestCouncilUpdate',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link iAxeMembershipCouncilAbi}__ and `functionName` set to `"getCouncilMemberAtIndex"`
  */
 export const useReadIAxeMembershipCouncilGetCouncilMemberAtIndex =
@@ -16562,6 +16617,15 @@ export const useReadIAxeMembershipCouncilGetCouncilSize =
   /*#__PURE__*/ createUseReadContract({
     abi: iAxeMembershipCouncilAbi,
     functionName: 'getCouncilSize',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iAxeMembershipCouncilAbi}__ and `functionName` set to `"getCurrentMembers"`
+ */
+export const useReadIAxeMembershipCouncilGetCurrentMembers =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iAxeMembershipCouncilAbi,
+    functionName: 'getCurrentMembers',
   })
 
 /**
