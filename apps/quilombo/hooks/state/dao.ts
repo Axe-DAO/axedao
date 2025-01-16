@@ -131,12 +131,6 @@ export function useProposals() {
 
   const loadHistoricalProposalLogs = useCallback(async () => {
     if (!publicClient || !gracePeriod || !quorumPercent || !totalShares) {
-      console.log('Missing required values:', {
-        hasPublicClient: !!publicClient,
-        hasGracePeriod: !!gracePeriod,
-        hasQuorumPercent: !!quorumPercent,
-        hasTotalShares: !!totalShares,
-      });
       return;
     }
 

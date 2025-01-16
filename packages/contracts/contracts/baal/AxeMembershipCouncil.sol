@@ -47,6 +47,8 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
 
     membership = IAxeMembership(_membership);
     baal = IBaal(_baal);
+    // treat the create date as the last formation request
+    lastFormationRequest = block.timestamp;
   }
 
   /**
