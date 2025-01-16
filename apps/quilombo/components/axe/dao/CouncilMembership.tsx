@@ -14,6 +14,40 @@ import VoteDelegation from './VoteDelegation';
 
 import ENV from '@/config/environment';
 import { useReadAxeMembershipIsMember } from '@/generated';
+import { useCouncil } from '@/hooks/state/dao';
+
+const CandidateActions: React.FC<{
+  hasLootShares: boolean;
+  isCandidate: boolean;
+  isMember: boolean;
+  resignPending: boolean;
+  resignLoading: boolean;
+  onResign: () => void;
+  onEnlist: () => void;
+}> = ({ hasLootShares, isCandidate, isMember, resignPending, resignLoading, onResign, onEnlist }) => {
+  if (hasLootShares || isCandidate) {
+    return (
+      <>
+        <div className="flex gap-2 sm:gap-4">
+          <CouncilBadge isCouncil={hasLootShares} />
+          <span>{hasLootShares ? 'Council Member' : 'Council Candidate'}</span>
+        </div>
+        {isCandidate && (
+          <Button color="danger" variant="flat" onPress={onResign} isLoading={resignPending || resignLoading}>
+            Resign as Candidate
+          </Button>
+        )}
+        {isMember && <VoteDelegation />}
+      </>
+    );
+  }
+
+  return (
+    <Button onPress={onEnlist} color="primary" className="w-full" isDisabled={!isMember}>
+      {isMember ? 'Enlist as Candidate' : 'Become Eligible'}
+    </Button>
+  );
+};
 
 const CouncilMembership: React.FC = () => {
   const account = useAccount();
@@ -61,35 +95,27 @@ const CouncilMembership: React.FC = () => {
     }
   }, [resignLoading, resignSuccess, resignError, refresh, enqueueSnackbar]);
 
-  // Don't show button if already candidate or council member
-  if (hasLootShares || isCandidate) {
-    return (
-      <div className="flex flex-col gap-2 sm:gap-4 w-full">
-        <div className="flex gap-2 sm:gap-4">
-          <CouncilBadge isCouncil={hasLootShares} />
-          <span>{hasLootShares ? 'Council Member' : 'Council Candidate'}</span>
-        </div>
-        {isCandidate && (
-          <Button
-            color="danger"
-            variant="flat"
-            onPress={() => resign({ address: ENV.axeMembershipAddress })}
-            isLoading={resignPending || resignLoading}
-          >
-            Resign as Candidate
-          </Button>
-        )}
-        {isMember && <VoteDelegation />}
-      </div>
-    );
-  }
+  // Add button that uses the council hook
+  const { canUpdate, requestUpdate, isUpdating: isUpdatePending } = useCouncil();
 
   return (
     <div className="flex flex-col w-full items-center">
       <div className="text-2xl mb-1 sm:mb-2">Council Membership</div>
       <div className="flex flex-col gap-2 sm:gap-4 w-full">
-        <Button onPress={onOpen} color="primary" className="w-full" isDisabled={!isMember}>
-          {isMember ? 'Enlist as Candidate' : 'Become Eligible'}
+        <CandidateActions
+          hasLootShares={hasLootShares}
+          isCandidate={isCandidate}
+          isMember={isMember}
+          resignPending={resignPending}
+          resignLoading={resignLoading}
+          onResign={() => resign({ address: ENV.axeMembershipAddress })}
+          onEnlist={onOpen}
+        />
+        <p className="text-sm text-gray-500">
+          Every 24 hours, anyone can request for the council to be updated based on membership delegation.
+        </p>
+        <Button onClick={() => requestUpdate()} disabled={!canUpdate || isUpdatePending}>
+          {isUpdatePending ? 'Updating...' : 'Update Council'}
         </Button>
         <CouncilEligibilityModal isOpen={isOpen} onOpenChange={onOpenChange} onClose={onClose} />
       </div>

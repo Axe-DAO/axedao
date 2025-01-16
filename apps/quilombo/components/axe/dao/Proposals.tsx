@@ -8,23 +8,28 @@ import { useWaitForTransactionReceipt } from 'wagmi';
 
 import ENV from '@/config/environment';
 import { useWriteIBaalSubmitVote } from '@/generated';
-import { isProposalActive, isProposalFinal, Proposal, useProposals, useVotingShares } from '@/hooks/state/dao';
+import {
+  isProposalActive,
+  isProposalFinal,
+  PROPOSAL_STATUS,
+  ProposalStatus,
+  useProposals,
+  useVotingShares,
+} from '@/hooks/state/dao';
 
-function ProposalStatusIcon({ status }: { status: Proposal['status'] }) {
+function ProposalStatusIcon({ status }: { status: ProposalStatus }) {
   switch (status) {
-    case 'submitted':
-      return <Clock className="text-primary/60" size={20} />;
-    case 'voting':
+    case PROPOSAL_STATUS.VOTING:
       return <Clock className="text-primary/80" size={20} />;
-    case 'grace':
+    case PROPOSAL_STATUS.GRACE:
       return <Clock className="text-primary" size={20} />;
-    case 'ready':
+    case PROPOSAL_STATUS.READY:
       return <Clock className="text-primary/90" size={20} />;
-    case 'processed':
+    case PROPOSAL_STATUS.PROCESSED:
       return <CheckCircle2 className="text-success" size={20} />;
-    case 'defeated':
+    case PROPOSAL_STATUS.DEFEATED:
       return <XCircle className="text-danger/80" size={20} />;
-    case 'cancelled':
+    case PROPOSAL_STATUS.CANCELLED:
       return <XCircle className="text-danger" size={20} />;
     default:
       return null;
@@ -86,21 +91,19 @@ export default function Proposals() {
   };
 
   // Add status color mapping
-  const getStatusColor = (status: Proposal['status']) => {
+  const getStatusColor = (status: ProposalStatus) => {
     switch (status) {
-      case 'submitted':
-        return 'text-primary/60';
-      case 'voting':
+      case PROPOSAL_STATUS.VOTING:
         return 'text-primary/80';
-      case 'grace':
+      case PROPOSAL_STATUS.GRACE:
         return 'text-primary';
-      case 'ready':
+      case PROPOSAL_STATUS.READY:
         return 'text-primary/90';
-      case 'processed':
+      case PROPOSAL_STATUS.PROCESSED:
         return 'text-success';
-      case 'defeated':
+      case PROPOSAL_STATUS.DEFEATED:
         return 'text-danger/80';
-      case 'cancelled':
+      case PROPOSAL_STATUS.CANCELLED:
         return 'text-danger';
       default:
         return '';

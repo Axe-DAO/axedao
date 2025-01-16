@@ -11,7 +11,7 @@ import { useCouncil } from '@/hooks/state/dao';
 
 export default function Council() {
   const { enqueueSnackbar } = useSnackbar();
-  const { members, isLoading, error, canUpdate, requestUpdate, isUpdatePending, updateHash } = useCouncil();
+  const { members, isLoading, error, canUpdate, requestUpdate, isUpdating: isUpdatePending, updateHash } = useCouncil();
 
   const {
     isSuccess: updateSuccess,

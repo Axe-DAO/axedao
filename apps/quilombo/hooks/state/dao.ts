@@ -232,15 +232,6 @@ export function useProposals() {
         } else if (nowSeconds <= gracePeriodEndTime) {
           status = PROPOSAL_STATUS.GRACE;
         } else if (voteResult) {
-          // Log raw vote result first
-          console.log('Raw vote result:', {
-            proposalId: proposal.id,
-            result: voteResult,
-            yes: voteResult[7]?.toString(),
-            no: voteResult[8]?.toString(),
-          });
-
-          // Keep votes in their original unit (already has 18 decimals)
           const yesVotes = from([voteResult[7], 18]);
           const noVotes = from([voteResult[8], 18]);
           const totalVotes = add(yesVotes, noVotes);
@@ -480,9 +471,9 @@ export function useCouncil() {
     isLoading: state.loading || membersLoading || canUpdateLoading || councilUsersLoading,
     error: state.error,
     canUpdate,
-    requestUpdate: () => requestUpdate({ address: ENV.axeMembershipCouncilAddress }),
-    isUpdatePending: updatePending,
+    isUpdating: updatePending,
     updateHash,
+    requestUpdate: () => requestUpdate({ address: ENV.axeMembershipCouncilAddress }),
     refresh: loadCouncilMembers,
   };
 }
