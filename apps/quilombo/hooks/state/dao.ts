@@ -1,6 +1,6 @@
 'use client';
 
-import { divide, format, from, greaterThan, multiply } from 'dnum';
+import { add, divide, from, greaterThan, multiply } from 'dnum';
 import { atom, useAtom } from 'jotai';
 import { useCallback, useEffect } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
@@ -21,16 +21,7 @@ import { useSearchUsersByAddresses } from '@/query/user';
 import { User } from '@/types/model';
 import { Address } from 'viem';
 
-export interface Proposal {
-  id: number;
-  proposalDataHash: `0x${string}`;
-  votingPeriod: number;
-  expiration: number;
-  details: string;
-  status: 'submitted' | 'voting' | 'cancelled' | 'grace' | 'ready' | 'processed' | 'defeated' | 'failed';
-  timestamp: number;
-}
-
+// copied from baal-sdk
 export const PROPOSAL_STATUS = {
   VOTING: 'voting',
   GRACE: 'grace',
@@ -41,14 +32,29 @@ export const PROPOSAL_STATUS = {
   CANCELLED: 'cancelled',
 } as const;
 
+export interface Proposal {
+  id: number;
+  proposalDataHash: `0x${string}`;
+  votingPeriod: number;
+  expiration: number;
+  details: string;
+  status: ProposalStatus;
+  timestamp: number;
+}
+
 export type ProposalStatus = (typeof PROPOSAL_STATUS)[keyof typeof PROPOSAL_STATUS];
 
-export const isProposalActive = (status: Proposal['status']): boolean => {
-  return status === 'submitted' || status === 'voting' || status === 'grace' || status === 'ready';
+export const isProposalActive = (status: ProposalStatus): boolean => {
+  return status === PROPOSAL_STATUS.VOTING || status === PROPOSAL_STATUS.GRACE || status === PROPOSAL_STATUS.READY;
 };
 
-export const isProposalFinal = (status: Proposal['status']): boolean => {
-  return status === 'cancelled' || status === 'processed' || status === 'defeated';
+export const isProposalFinal = (status: ProposalStatus): boolean => {
+  return (
+    status === PROPOSAL_STATUS.CANCELLED ||
+    status === PROPOSAL_STATUS.PROCESSED ||
+    status === PROPOSAL_STATUS.DEFEATED ||
+    status === PROPOSAL_STATUS.FAILED
+  );
 };
 
 export interface ProposalsState {
@@ -107,65 +113,10 @@ export const councilAtom = atom<CouncilState>({
   error: null,
 });
 
-// Add interface for timing object
-interface ProposalTiming {
-  now: number;
-  votingEnds: number;
-  gracePeriodEnds: number;
-  inVoting: boolean;
-  inGrace: boolean;
-  pastGrace: boolean;
-}
-
-interface QuorumInfo {
-  quorum: string;
-  quorumPercent: string;
-  totalShares: string;
-  quorumNeeded: string;
-  quorumMet: boolean;
-}
-
-// Update logging helper signature
-const logProposalState = (
-  id: number,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  voteResult: any,
-  timing: ProposalTiming,
-  status: string,
-  quorum: QuorumInfo,
-) => {
-  console.log(`Proposal #${id} state:`, {
-    timing: {
-      now: Math.floor(timing.now),
-      votingEnds: Math.floor(timing.votingEnds),
-      gracePeriodEnds: Math.floor(timing.gracePeriodEnds),
-      inVoting: timing.inVoting,
-      inGrace: timing.inGrace,
-      pastGrace: timing.pastGrace,
-    },
-    votes: voteResult
-      ? {
-          yes: voteResult[5]?.toString() ?? '0',
-          no: voteResult[6]?.toString() ?? '0',
-          totalVotes: (BigInt(voteResult[5] ?? 0) + BigInt(voteResult[6] ?? 0)).toString(),
-        }
-      : 'no vote result',
-    finalStatus: status,
-    quorum: {
-      requirement: quorum.quorum,
-      percentRequired: quorum.quorumPercent,
-      totalShares: quorum.totalShares,
-      needed: quorum.quorumNeeded,
-      met: quorum.quorumMet,
-    },
-  });
-};
-
 export function useProposals() {
   const [state, setState] = useAtom(proposalsAtom);
   const publicClient = usePublicClient();
 
-  // Add hook to get grace period from contract
   const { data: gracePeriod } = useReadIBaalGracePeriod({
     address: ENV.daoAddress,
   });
@@ -230,10 +181,6 @@ export function useProposals() {
         const id = Number(args.proposal);
         const timestamp = Number(args.timestamp);
         const expiration = timestamp + Number(args.votingPeriod);
-        const now = Date.now() / 1000;
-
-        // Initial state is 'submitted', then transitions to 'voting'
-        const status: Proposal['status'] = now < timestamp ? 'submitted' : 'voting';
 
         proposalResults.set(id, {
           id,
@@ -241,12 +188,14 @@ export function useProposals() {
           votingPeriod: Number(args.votingPeriod),
           expiration,
           details: args.details,
-          status,
+          status: PROPOSAL_STATUS.VOTING, // Initial state is always voting when we see the event
           timestamp,
         });
       });
 
       // First, get voting results for all proposals
+      // TODO: in the future, the number of historical proposals will be too large to fetch all at once,
+      // so we need to paginate
       const votingResults = await Promise.all(
         Array.from(proposalResults.keys()).map(async (id) => {
           try {
@@ -264,37 +213,11 @@ export function useProposals() {
         }),
       );
 
-      // Debug raw values first
-      console.log('Raw quorum values:', {
-        quorumPercent: quorumPercent.toString(),
-        totalShares: totalShares.toString(),
-      });
-
       // Calculate quorum requirement step by step
       const totalSharesDnum = from([totalShares, 18]); // 81 shares with 18 decimals
       const quorumPercentDnum = from([quorumPercent, 0]); // 51 = 51%
       const quorumDecimal = divide(quorumPercentDnum, from([100n, 0]), 2); // Convert 51 to 0.51 for 51%
       const quorumRequirement = multiply(totalSharesDnum, quorumDecimal);
-
-      // Debug each step of calculation
-      console.log('Quorum calculation steps:', {
-        totalShares: {
-          raw: totalShares?.toString(),
-          formatted: format(totalSharesDnum),
-          human: Number(format(totalSharesDnum)),
-        },
-        quorumPercent: {
-          raw: quorumPercent?.toString(),
-          basisPoints: Number(quorumPercent),
-          asPercent: `${Number(quorumPercent)}%`,
-          asDecimal: format(quorumDecimal),
-        },
-        requirement: {
-          raw: format(quorumRequirement),
-          human: Number(format(quorumRequirement)),
-          scaled: format(multiply(quorumRequirement, from([BigInt(1e18), 0]))),
-        },
-      });
 
       // Update status based on events and voting results
       proposalResults.forEach((proposal) => {
@@ -303,30 +226,10 @@ export function useProposals() {
         const votingEndTime = proposal.timestamp + proposal.votingPeriod;
         const gracePeriodEndTime = votingEndTime + Number(gracePeriod || 0);
 
-        // Debug raw timing values
-        console.log('Raw timing values:', {
-          now: nowSeconds,
-          votingEnds: votingEndTime,
-          gracePeriodEnds: gracePeriodEndTime,
-        });
-
-        const now = from([BigInt(nowSeconds), 0]);
-        const votingEnds = from([BigInt(votingEndTime), 0]);
-        const gracePeriodEnds = from([BigInt(gracePeriodEndTime), 0]);
-
-        const timing = {
-          now: nowSeconds,
-          votingEnds: votingEndTime,
-          gracePeriodEnds: gracePeriodEndTime,
-          inVoting: !greaterThan(now, votingEnds),
-          inGrace: greaterThan(now, votingEnds) && !greaterThan(now, gracePeriodEnds),
-          pastGrace: greaterThan(now, gracePeriodEnds),
-        };
-
-        let status = proposal.status;
-        if (!greaterThan(now, votingEnds)) {
+        let status: ProposalStatus;
+        if (nowSeconds <= votingEndTime) {
           status = PROPOSAL_STATUS.VOTING;
-        } else if (!greaterThan(now, gracePeriodEnds)) {
+        } else if (nowSeconds <= gracePeriodEndTime) {
           status = PROPOSAL_STATUS.GRACE;
         } else if (voteResult) {
           // Log raw vote result first
@@ -337,51 +240,19 @@ export function useProposals() {
             no: voteResult[8]?.toString(),
           });
 
-          // Keep votes in their original unit (no decimals)
-          const yesVotes = from([BigInt(voteResult[7]), 0]);
-          const noVotes = from([BigInt(voteResult[8]), 0]);
-          const totalVotes = from([BigInt(voteResult[7]) + BigInt(voteResult[8]), 0]);
+          // Keep votes in their original unit (already has 18 decimals)
+          const yesVotes = from([voteResult[7], 18]);
+          const noVotes = from([voteResult[8], 18]);
+          const totalVotes = add(yesVotes, noVotes);
 
-          // Scale votes up to match shares (18 decimals)
-          const scaledYesVotes = multiply(yesVotes, from([BigInt(1e18), 0]));
-          const scaledNoVotes = multiply(noVotes, from([BigInt(1e18), 0]));
-          const scaledTotalVotes = multiply(totalVotes, from([BigInt(1e18), 0]));
-
-          // Debug vote scaling
-          console.log('Vote scaling:', {
-            raw: {
-              yes: format(yesVotes),
-              no: format(noVotes),
-              total: format(totalVotes),
-            },
-            scaled: {
-              yes: format(scaledYesVotes),
-              no: format(scaledNoVotes),
-              total: format(scaledTotalVotes),
-            },
-            quorum: format(quorumRequirement),
-            quorumMet: greaterThan(scaledTotalVotes, quorumRequirement),
-          });
-
-          // Check quorum first using scaled votes
-          if (!greaterThan(scaledTotalVotes, quorumRequirement)) {
+          // Check quorum using votes (already at 18 decimals)
+          if (!greaterThan(totalVotes, quorumRequirement)) {
             status = PROPOSAL_STATUS.FAILED;
           } else {
-            // Quorum met, check vote outcome (using unscaled votes)
             status = greaterThan(noVotes, yesVotes) ? PROPOSAL_STATUS.DEFEATED : PROPOSAL_STATUS.READY;
           }
-
-          // Update logging
-          logProposalState(proposal.id, voteResult, timing, status, {
-            quorum: format(quorumRequirement),
-            quorumPercent: `${format(quorumPercentDnum)}%`,
-            totalShares: format(totalSharesDnum),
-            quorumNeeded: format(quorumRequirement),
-            quorumMet: greaterThan(totalVotes, quorumRequirement),
-          });
+          proposal.status = status;
         }
-
-        proposal.status = status;
       });
 
       // Apply final states from events last (these override any other status)
@@ -403,38 +274,6 @@ export function useProposals() {
 
       // Convert to sorted array before storing
       const sortedProposals = Array.from(proposalResults.values()).sort((a, b) => Number(b.id - a.id)); // Sort by descending ID
-
-      // Debug logs for events
-      console.log(
-        'Submit logs:',
-        submitLogs.map((log) => ({
-          id: Number(log.args.proposal),
-          timestamp: Number(log.args.timestamp),
-          votingPeriod: Number(log.args.votingPeriod),
-          blockNumber: Number(log.blockNumber),
-        })),
-      );
-
-      // Log voting results
-      console.log(
-        'Voting results:',
-        votingResults.map((v) => ({
-          id: v.id,
-          result: v.result,
-        })),
-      );
-
-      // Log final proposal states
-      console.log(
-        'Final proposal states:',
-        Array.from(proposalResults.values()).map((p) => ({
-          id: p.id,
-          status: p.status,
-          expiration: p.expiration,
-          now: Date.now() / 1000,
-          gracePeriodEnd: p.expiration + Number(gracePeriod),
-        })),
-      );
 
       setState((prev) => ({
         ...prev,
