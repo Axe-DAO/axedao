@@ -111,7 +111,7 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
       currentCouncilList[currentCouncil[_existingSeat].index] = sender;
 
       // Handle burn/mint for the leaving member
-      shareRecipients[0] = sender;
+      shareRecipients[0] = _existingSeat;
       baal.burnShares(shareRecipients, shareAmounts);
       baal.mintLoot(shareRecipients, shareAmounts);
     }

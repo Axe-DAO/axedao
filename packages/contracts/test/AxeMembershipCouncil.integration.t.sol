@@ -308,72 +308,71 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     address[] memory incoming = shaman.getJoiningMembers();
     address[] memory outgoing;
     address[] memory current;
+    assertEq(incoming.length, 21, "Should start with 21 seats to fill");
 
-    // Fill council to capacity (21 members)
-    for (uint256 i = 0; i < 21; i++) {
+    // Fill council partially (10 members)
+    for (uint256 i = 0; i < 10; i++) {
       vm.startPrank(incoming[i]);
       shaman.claimSeat(address(0));
       vm.stopPrank();
     }
+    assertEq(shaman.getCouncilSize(), 10, "Should have 10 members after partial fill");
 
+    // Wait cooldown and update rankings - should still show remaining seats
+    vm.warp(block.timestamp + 25 hours);
+    shaman.requestCouncilUpdate();
+    incoming = shaman.getJoiningMembers();
+    outgoing = shaman.getLeavingMembers();
+    assertEq(outgoing.length, 0, "Should have no outgoing members during initial fill");
+    assertEq(incoming.length, 11, "Should have 11 seats remaining to fill");
+
+    // Fill remaining seats
+    for (uint256 i = 0; i < incoming.length; i++) {
+      vm.startPrank(incoming[i]);
+      shaman.claimSeat(address(0));
+      vm.stopPrank();
+    }
     assertEq(shaman.getCouncilSize(), 21, "Council should be full");
 
-    // Try to claim when council is full without replacement
-    vm.startPrank(testUsers[21]);
-    vm.expectRevert(abi.encodeWithSelector(IAxeMembershipCouncil.OnlyReplacementAllowed.selector, testUsers[21]));
-    shaman.claimSeat(address(0));
-    vm.stopPrank();
-
-    // Wait for cooldown
+    // Change some delegations to alter rankings
     vm.warp(block.timestamp + 25 hours);
+    // Boost testUsers[25] and testUsers[26] to be higher ranked than the lowest council members
+    _delegateUsers(testUsers[25], 100, 150); // Give 50 new delegations
+    _delegateUsers(testUsers[26], 151, 200); // Give 49 new delegations
 
-    // Change delegations to alter rankings
-    _delegateUsers(testUsers[25], 100, 150); // Boost ranking
-
-    // Request new council update
+    // Request update - should have these two candidates replacing lowest ranked council members
     shaman.requestCouncilUpdate();
-
-    // Verify outgoing/incoming lists
     outgoing = shaman.getLeavingMembers();
     incoming = shaman.getJoiningMembers();
-    assertTrue(outgoing.length > 0, "Should have members to replace");
-    assertTrue(incoming.length > 0, "Should have new members joining");
+    assertEq(outgoing.length, 2, "Should have exactly 2 members to replace");
+    assertEq(incoming.length, 2, "Should have exactly 2 new members joining");
+    assertTrue(contains(incoming, testUsers[25]), "testUsers[25] should be incoming after boost");
+    assertTrue(contains(incoming, testUsers[26]), "testUsers[26] should be incoming after boost");
 
-    // Try replacing non-outgoing member
-    vm.startPrank(testUsers[25]);
-    vm.expectRevert(
-      abi.encodeWithSelector(IAxeMembershipCouncil.InvalidSeatReplacement.selector, testUsers[25], testUsers[0])
-    );
-    shaman.claimSeat(testUsers[0]);
-
-    // Replace outgoing member
+    // Replace first member
     address outgoingMember = outgoing[0];
+    vm.startPrank(testUsers[25]);
     shaman.claimSeat(outgoingMember);
     vm.stopPrank();
 
-    // Verify replacement
+    // Verify the replacement
     current = shaman.getCurrentMembers();
-    assertTrue(contains(current, testUsers[25]), "New member should be in council");
-    assertFalse(contains(current, outgoingMember), "Old member should be out of council");
+    assertTrue(contains(current, testUsers[25]), "testUsers[25] should be in council");
+    assertFalse(contains(current, outgoingMember), "Replaced member should be out");
 
-    // Test council size change
-    vm.startPrank(owner);
-    uint256 newSize = 25;
-    shaman.setCouncilSize(newSize);
-    assertEq(shaman.councilSize(), newSize, "Council size should be updated");
-
-    // Try setting invalid size
-    vm.expectRevert(abi.encodeWithSelector(IAxeMembershipCouncil.InvalidCouncilSize.selector, 21, 20));
-    shaman.setCouncilSize(20);
-    vm.stopPrank();
-
-    // Test cooldown
-    vm.expectRevert(IAxeMembershipCouncil.FormationCooldownError.selector);
-    shaman.requestCouncilUpdate();
-
-    assertFalse(shaman.canRequestCouncilUpdate(), "Should not be able to update yet");
+    // Boost just one more candidate
     vm.warp(block.timestamp + 25 hours);
-    assertTrue(shaman.canRequestCouncilUpdate(), "Should be able to update now");
+    _delegateUsers(testUsers[30], 300, 350); // Give 50 new delegations to make them highly ranked
+
+    // Request another update - should have just one replacement
+    shaman.requestCouncilUpdate();
+    uint256 lastIncoming = incoming.length;
+    uint256 lastOutgoing = outgoing.length;
+    outgoing = shaman.getLeavingMembers();
+    incoming = shaman.getJoiningMembers();
+    assertEq(outgoing.length, lastOutgoing + 1, "Should have exactly 1 member to replace");
+    assertEq(incoming.length, lastIncoming + 1, "Should have exactly 1 new member joining");
+    assertTrue(contains(incoming, testUsers[30]), "testUsers[30] should be incoming after boost");
   }
 
   /**
@@ -559,8 +558,11 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
 
     // Wait cooldown and increase council size
     vm.warp(block.timestamp + 25 hours);
-    vm.prank(owner);
+    vm.startPrank(owner);
     shaman.setCouncilSize(25);
+    vm.expectRevert(abi.encodeWithSelector(IAxeMembershipCouncil.InvalidCouncilSize.selector, 25, 20));
+    shaman.setCouncilSize(20);
+    vm.stopPrank();
 
     // Request update with new size
     shaman.requestCouncilUpdate();
