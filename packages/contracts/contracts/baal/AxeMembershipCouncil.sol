@@ -155,7 +155,8 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     // 1. First check for rage-quits
     for (uint256 i; i < currentCouncilLength; ) {
       member = currentCouncilList[i];
-      if (sharesToken.balanceOf(member) < shareAmount) {
+      // have to check for address(0) because the council can be empty or council size was increased
+      if (member != address(0) && sharesToken.balanceOf(member) < shareAmount) {
         currentCouncil[member].active = false;
         outgoingCouncil[member].active = true;
         outgoingCouncil[member].index = outgoingCouncilList.length;
@@ -199,7 +200,8 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     // 3. Any remaining active council members not in top candidates go to outgoing
     for (uint256 i; i < currentCouncilLength; ) {
       member = currentCouncilList[i];
-      if (currentCouncil[member].active) {
+      // have to check for address(0) because there could be empty seats
+      if (member != address(0)) {
         bool found = false;
         for (uint256 j; j < candidateCount; ) {
           if (topCandidates[j] == member) {
@@ -249,8 +251,18 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     return block.timestamp - lastFormationRequest > FORMATION_COOLDOWN;
   }
 
-  function setCouncilSize(uint256 _councilSize) external onlyOwner {
-    if (_councilSize < MIN_COUNCIL_SIZE) revert InvalidCouncilSize(MIN_COUNCIL_SIZE, _councilSize);
-    councilSize = _councilSize;
+  function setCouncilSize(uint256 _newSize) external onlyOwner {
+    uint256 currentSize = currentCouncilList.length;
+    if (_newSize < currentSize) {
+      revert InvalidCouncilSize(currentSize, _newSize);
+    }
+    councilSize = _newSize;
+    // Create new array with new size and copy over existing members
+    address[] memory newList = new address[](_newSize);
+    for (uint256 i = 0; i < currentSize; i++) {
+      newList[i] = currentCouncilList[i];
+    }
+    currentCouncilList = newList;
+    emit CouncilSizeChanged(_newSize);
   }
 }

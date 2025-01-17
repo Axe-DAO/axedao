@@ -21,6 +21,7 @@ interface IAxeMembershipCouncil {
   error InsufficientShares(address member);
 
   event CouncilUpdateRequested(uint256 currentSize, uint256 numJoining, uint256 numLeaving);
+  event CouncilSizeChanged(uint256 newSize);
   event SeatClaimed(address indexed candidate, address indexed replaced);
 
   function getCouncilSize() external view returns (uint256);
