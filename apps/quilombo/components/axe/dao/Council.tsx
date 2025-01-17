@@ -17,7 +17,7 @@ export default function Council() {
     isSuccess: updateSuccess,
     error: updateError,
     isLoading: updateLoading,
-  } = useWaitForTransactionReceipt({ hash: updateHash });
+  } = useWaitForTransactionReceipt({ hash: updateHash as `0x${string}` });
 
   // Handle update transaction states
   useEffect(() => {

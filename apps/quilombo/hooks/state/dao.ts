@@ -2,7 +2,7 @@
 
 import { add, divide, from, greaterThan, multiply } from 'dnum';
 import { atom, useAtom } from 'jotai';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 
 import ENV from '@/config/environment';
@@ -15,7 +15,6 @@ import {
   useReadErc20TotalSupply,
   useReadIBaalGracePeriod,
   useReadIBaalQuorumPercent,
-  useWriteAxeMembershipCouncilRequestCouncilUpdate,
 } from '@/generated';
 import { useSearchUsersByAddresses } from '@/query/user';
 import { User } from '@/types/model';
@@ -394,17 +393,14 @@ export function useCouncil() {
   const [state, setState] = useAtom(councilAtom);
   const publicClient = usePublicClient();
 
-  const { data: canUpdate, isLoading: canUpdateLoading } = useReadAxeMembershipCouncilCanRequestCouncilUpdate({
+  const renderCount = useRef(0);
+  renderCount.current++;
+
+  const { data: currentMembers, isLoading: membersLoading } = useReadAxeMembershipCouncilGetCurrentMembers({
     address: ENV.axeMembershipCouncilAddress,
   });
 
-  const {
-    writeContract: requestUpdate,
-    data: updateHash,
-    isPending: updatePending,
-  } = useWriteAxeMembershipCouncilRequestCouncilUpdate();
-
-  const { data: currentMembers, isLoading: membersLoading } = useReadAxeMembershipCouncilGetCurrentMembers({
+  const { data: canUpdate, isLoading: canUpdateLoading } = useReadAxeMembershipCouncilCanRequestCouncilUpdate({
     address: ENV.axeMembershipCouncilAddress,
   });
 
@@ -412,39 +408,70 @@ export function useCouncil() {
     addresses: currentMembers?.map((m) => m) ?? [],
   });
 
-  // Load council members
+  // Memoize loading state
+  const isLoading = useMemo(
+    () => state.loading || membersLoading || canUpdateLoading || councilUsersLoading,
+    [state.loading, membersLoading, canUpdateLoading, councilUsersLoading],
+  );
+
+  console.log('[useCouncil] Render #%d: %o', renderCount.current, {
+    initialized: state.initialized,
+    loading: isLoading,
+    membersLoading,
+    hasMembers: !!currentMembers,
+    memberCount: currentMembers?.length ?? 0,
+  });
+
   const loadCouncilMembers = useCallback(async () => {
-    if (!currentMembers || !councilUsers || !publicClient) return;
+    if (!currentMembers || !councilUsers || !publicClient || state.initialized) {
+      console.log('[useCouncil] Skipping load:', {
+        hasCurrentMembers: !!currentMembers,
+        hasCouncilUsers: !!councilUsers,
+        hasPublicClient: !!publicClient,
+        isInitialized: state.initialized,
+      });
+      return;
+    }
+
+    console.log('[useCouncil] Starting load of council members');
     setState((prev) => ({ ...prev, loading: true }));
+
     try {
-      const memberPromises = currentMembers.map(async (address) => {
-        const candidate = await publicClient.readContract({
-          address: ENV.axeMembershipAddress,
-          abi: axeMembershipAbi,
-          functionName: 'getCandidate',
-          args: [address],
-        });
+      console.time('useCouncil-multicall');
+      const multicallCandidates = currentMembers.map((address) => ({
+        address: ENV.axeMembershipAddress,
+        abi: axeMembershipAbi,
+        functionName: 'getCandidate',
+        args: [address],
+      }));
 
-        return {
-          walletAddress: address,
-          delegationCount: candidate.delegationCount,
-          available: candidate.available,
-        };
+      const candidateResults = await publicClient.multicall({
+        contracts: multicallCandidates,
       });
+      console.timeEnd('useCouncil-multicall');
 
-      const resolvedMembers = await Promise.all(memberPromises);
+      console.time('useCouncil-merge-data');
+      const mergedMembers = currentMembers
+        .map((address, index) => {
+          const result = candidateResults[index].result;
+          if (!result || typeof result !== 'object') {
+            console.warn(`Invalid candidate data for ${address}`);
+            return null;
+          }
 
-      // Merge candidate data with user data
-      const mergedMembers = resolvedMembers.map((member) => {
-        const user = councilUsers.find((user) => user.walletAddress === member.walletAddress);
-        if (!user) {
-          console.warn(`No user data found for council member ${member.walletAddress}`);
-        }
-        return {
-          ...member,
-          ...(user || {}), // Spread user properties if found, empty object if not
-        } as CandidateUser;
-      });
+          const delegationCount = result[0] as bigint;
+          const available = result[1] as boolean;
+          const user = councilUsers.find((user) => user.walletAddress === address);
+
+          return {
+            walletAddress: address,
+            delegationCount,
+            available,
+            ...(user || {}),
+          } as CandidateUser;
+        })
+        .filter((member): member is CandidateUser => member !== null);
+      console.timeEnd('useCouncil-merge-data');
 
       setState((prev) => ({
         ...prev,
@@ -453,21 +480,28 @@ export function useCouncil() {
         error: null,
       }));
     } catch (error) {
-      console.error('Error loading council:', error);
-      setState((prev) => ({ ...prev, error: 'Failed to load council members' }));
+      console.error('[useCouncil] Error:', error);
     } finally {
+      console.log('[useCouncil] Finished loading');
       setState((prev) => ({ ...prev, loading: false }));
     }
-  }, [currentMembers, councilUsers, publicClient, setState]);
+  }, [currentMembers, councilUsers, publicClient, state.initialized, setState]);
+
+  useEffect(() => {
+    if (!state.initialized && !isLoading) {
+      console.log('[useCouncil] Effect triggered load');
+      loadCouncilMembers();
+    }
+  }, [loadCouncilMembers, state.initialized, isLoading]);
 
   return {
     members: state.members,
-    isLoading: state.loading || membersLoading || canUpdateLoading || councilUsersLoading,
+    isLoading,
     error: state.error,
     canUpdate,
-    isUpdating: updatePending,
-    updateHash,
-    requestUpdate: () => requestUpdate({ address: ENV.axeMembershipCouncilAddress }),
+    isUpdating: false,
+    updateHash: '',
+    requestUpdate: () => Promise.resolve(),
     refresh: loadCouncilMembers,
   };
 }
