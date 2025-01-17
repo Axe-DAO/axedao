@@ -1,6 +1,6 @@
 import { nextui } from '@nextui-org/theme';
 import { withTV } from 'tailwind-variants/transformer';
-const defaultTheme = require('tailwindcss/defaultTheme');
+import { defaultTheme } from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 module.exports = withTV({

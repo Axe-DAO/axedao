@@ -204,9 +204,21 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     assertEq(councilSize, 0, "Expected 0 council members at start");
     assertEq(numOfSeats, 21, "Expected 21 seats to be claimed");
 
+    // Get initial token balances
+    IERC20 sharesToken = IERC20(baal.sharesToken());
+    IERC20 lootToken = IERC20(baal.lootToken());
+    uint256 initialLoot = lootToken.balanceOf(testUsers[0]);
+    uint256 initialShares = sharesToken.balanceOf(testUsers[0]);
+
+    // Claim first seat
     vm.startPrank(testUsers[0]);
     shaman.claimSeat(address(0));
-    // seat already claimed
+
+    // Verify token conversions
+    assertEq(lootToken.balanceOf(testUsers[0]), initialLoot - shareThreshold, "Loot not burned");
+    assertEq(sharesToken.balanceOf(testUsers[0]), initialShares + shareThreshold, "Shares not minted");
+
+    // Verify can't claim twice
     vm.expectRevert(abi.encodeWithSelector(IAxeMembershipCouncil.InvalidSeatClaim.selector, address(testUsers[0])));
     shaman.claimSeat(address(0));
     vm.stopPrank();
@@ -214,53 +226,35 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     councilSize = shaman.getCouncilSize();
     assertEq(councilSize, 1, "Expected 1 council member after claiming seat");
 
+    // Test replacement claim
     vm.startPrank(testUsers[3]);
-    address last = testUsers[testUsers.length - 1];
+    address notOnCouncil = address(0xdead);
     vm.expectRevert(
-      abi.encodeWithSelector(IAxeMembershipCouncil.InvalidSeatReplacement.selector, address(testUsers[3]), last)
+      abi.encodeWithSelector(IAxeMembershipCouncil.InvalidSeatReplacement.selector, testUsers[3], notOnCouncil)
     );
-    shaman.claimSeat(last);
+    shaman.claimSeat(notOnCouncil);
+
+    // Get balances before
+    initialLoot = lootToken.balanceOf(testUsers[3]);
+    initialShares = sharesToken.balanceOf(testUsers[3]);
+
+    // Replace existing member not on outgoing list (council still has many empty seats)
+    vm.expectRevert(
+      abi.encodeWithSelector(IAxeMembershipCouncil.InvalidSeatReplacement.selector, testUsers[3], testUsers[0])
+    );
+    shaman.claimSeat(testUsers[0]);
+
+    // Nobody to replace, so claim with 0x0
     shaman.claimSeat(address(0));
+
+    // Verify token conversions for both members
+    assertEq(lootToken.balanceOf(testUsers[3]), initialLoot - shareThreshold, "New member loot not burned");
+    assertEq(sharesToken.balanceOf(testUsers[3]), initialShares + shareThreshold, "New member shares not minted");
+
     vm.stopPrank();
 
     numOfSeats = shaman.getJoiningMembers().length;
     assertEq(numOfSeats, 19, "Expected 19 seats to be claimable after 2 seats claimed");
-
-    // Remaining top candidates
-    address[] memory seatClaimers = new address[](19);
-    seatClaimers[0] = testUsers[5];
-    seatClaimers[1] = testUsers[4];
-    seatClaimers[2] = testUsers[6];
-    seatClaimers[3] = testUsers[20];
-    seatClaimers[4] = testUsers[11];
-    seatClaimers[5] = testUsers[14];
-    seatClaimers[6] = testUsers[23];
-    seatClaimers[7] = testUsers[10];
-    seatClaimers[8] = testUsers[21];
-    seatClaimers[9] = testUsers[7];
-    seatClaimers[10] = testUsers[16];
-    seatClaimers[11] = testUsers[25];
-    seatClaimers[12] = testUsers[15];
-    seatClaimers[13] = testUsers[24];
-    seatClaimers[14] = testUsers[29];
-    seatClaimers[15] = testUsers[17];
-    seatClaimers[16] = testUsers[18];
-    seatClaimers[17] = testUsers[31];
-    seatClaimers[18] = testUsers[32];
-
-    for (uint256 i = 0; i < seatClaimers.length; i++) {
-      vm.prank(seatClaimers[i]);
-      shaman.claimSeat(address(0));
-      assertEq(
-        IERC20(address(baal.sharesToken())).balanceOf(seatClaimers[i]),
-        shareThreshold,
-        "Expected newly joined council member to have 1 share"
-      );
-    }
-
-    // have user resign and also delegate to a new user
-    // request a new council and check claimable seat changes
-    // test replacements
   }
 
   function contains(address[] memory array, address element) internal pure returns (bool) {

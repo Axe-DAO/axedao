@@ -37,12 +37,13 @@ abstract contract Governable is Context {
 
   /**
    * @dev Initializes the contract setting the address provided by the deployer as the initial governor.
+   * @param _initialGovernor The address of the initial governor
    */
-  constructor(address initialGovernor) {
-    if (initialGovernor == address(0)) {
+  constructor(address _initialGovernor) {
+    if (_initialGovernor == address(0)) {
       revert GovernableInvalidGovernor(address(0));
     }
-    _transferGovernorship(initialGovernor);
+    _transferGovernorship(_initialGovernor);
   }
 
   /**
@@ -72,21 +73,23 @@ abstract contract Governable is Context {
   /**
    * @dev Transfers governorship of the contract to a new account (`newGovernor`).
    * Can only be called by the current governor.
+   * @param _newGovernor The address of the new governor
    */
-  function transferGovernorship(address newGovernor) public virtual onlyGovernor {
-    if (newGovernor == address(0)) {
+  function transferGovernorship(address _newGovernor) public virtual onlyGovernor {
+    if (_newGovernor == address(0)) {
       revert GovernableInvalidGovernor(address(0));
     }
-    _transferGovernorship(newGovernor);
+    _transferGovernorship(_newGovernor);
   }
 
   /**
-   * @dev Transfers governorship of the contract to a new account (`newGovernor`).
+   * @dev Transfers governorship of the contract to the specified account.
    * Internal function without access restriction.
+   * @param _newGovernor The address of the new governor
    */
-  function _transferGovernorship(address newGovernor) internal virtual {
+  function _transferGovernorship(address _newGovernor) internal virtual {
     address oldGovernor = _governor;
-    _governor = newGovernor;
-    emit GovernorshipTransferred(oldGovernor, newGovernor);
+    _governor = _newGovernor;
+    emit GovernorshipTransferred(oldGovernor, _newGovernor);
   }
 }

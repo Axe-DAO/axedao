@@ -16,9 +16,9 @@ interface ITreasuryShaman {
   error InvalidDepositReceiver();
   error InvalidDepositToken();
 
-  function deposit(uint256 _amount) external;
+  function deposit(uint256 amount) external;
 
-  function setConversionRate(uint256 _newRate) external;
+  function setConversionRate(uint256 newRate) external;
 
-  function setDepositToken(address _newToken) external;
+  function setDepositToken(address newToken) external;
 }

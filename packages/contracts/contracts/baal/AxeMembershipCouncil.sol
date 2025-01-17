@@ -12,16 +12,15 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.s
 import { IAxeMembership } from "../tokens/IAxeMembership.sol";
 import { IAxeMembershipCouncil } from "./IAxeMembershipCouncil.sol";
 
-// - the idea is to make it the decision of the eligible candidate to actively join the council which decreases the chance of a negative impact on ongoing
-//   proposals.
-// - By letting the candidate claiming decide which current member to remove, we can allow communication between outgoing and incoming council members.
 /**
- * @title MembershipCouncilShaman
- * @notice Manages the council formation and seat claims.
- * The shaman upholds the "contract" between the membership community and the membership council to promote/demote members to/from the council.
- * As changes to the council are requested, seats are made available for eligible candidates to claim, if necessary replacing an existing council member.
- * The idea is to make it the decision of the eligible candidate to actively join the council which decreases the chance of a negative impact on ongoing
- * proposal voting.
+ * @title Axé Membership Council
+ * @notice The Axé Membership Council represents the membership community in the Axé DAO's governance process.
+ * This contract manages a council of configurable size based on Axé Membership delegations and enforces the community's ability to
+ * promote/demote members to/from the council.
+ * As changes to the council are requested, seats are made available for eligible candidates to claim and, if applicable, replace an existing council member.
+ * This allows the individual candidate who's being promoted to be on the council to decide when to actively join. A council member being
+ * demoted (replaced) will stay on the council and is able to vote until being replaced. This decreases the likelihood of a negative impact on ongoing
+ * proposal voting as the transfer of seats happens at the discretion of the candidates and not at a fixed time.
  */
 contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard {
   // the loot and shares tokens could be custom implementations, so we'll stay on the safe side with SafeERC20
@@ -47,14 +46,14 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
 
     membership = IAxeMembership(_membership);
     baal = IBaal(_baal);
-    // treat the create date as the last formation request
-    lastFormationRequest = block.timestamp;
   }
 
   /**
-   * @notice Claims an available seat in the council and optionally replaces an existing council member.
+   * @notice Claims an available seat for the caller in the council by replacing the specified outgoing council member.
+   * The caller must be on the list of incoming council members and must have one loot to be converted to a voting share.
+   * The council member being replaced will have 1 voting share converted back to loot, if they have any.
    * If the council is full, a seat can only be claimed by replacing an existing council member.
-   * @param _existingSeat The address of the current council member to replace, if any.
+   * @param _existingSeat The address of the current council member to replace (optional, required if the council is full)
    */
   function claimSeat(address _existingSeat) external nonReentrant {
     address sender = _msgSender();
@@ -72,15 +71,14 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     uint256 shareAmount = 1 * 10 ** IERC20Metadata(address(sharesToken)).decimals();
 
     if (lootToken.balanceOf(sender) < shareAmount) revert InsufficientLoot(sender);
+
+    // arrays for burning/minting shares
     uint256[] memory shareAmounts = new uint256[](1);
+    address[] memory shareRecipients = new address[](1);
+    // the share amount is the same for both the leaving and joining member, mint and burn
     shareAmounts[0] = shareAmount;
-    address[] memory councilMembers = new address[](1);
-    councilMembers[0] = sender;
 
-    baal.burnLoot(councilMembers, shareAmounts);
-    baal.mintShares(councilMembers, shareAmounts);
-
-    // Remove sender incoming council list
+    // Remove sender from incoming council list
     uint256 targetIndex = incomingCouncil[sender].index;
     uint256 lastIndex = incomingCouncilList.length - 1;
     if (targetIndex != lastIndex) {
@@ -111,100 +109,120 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
       // Swap index old member with new member in current council
       currentCouncil[sender].index = currentCouncil[_existingSeat].index;
       currentCouncilList[currentCouncil[_existingSeat].index] = sender;
+
+      // Handle burn/mint for the leaving member
+      shareRecipients[0] = sender;
+      baal.burnShares(shareRecipients, shareAmounts);
+      baal.mintLoot(shareRecipients, shareAmounts);
     }
+
+    // Handle burn/mint for the claiming candidate
+    shareRecipients[0] = sender;
+    baal.burnLoot(shareRecipients, shareAmounts);
+    baal.mintShares(shareRecipients, shareAmounts);
+
+    emit SeatClaimed(sender, _existingSeat);
   }
 
   /**
-   * @notice Compares the current council with the sorted delegation ranking in MembershipCouncil and
+   * @notice Compares the current council with the sorted delegation ranking in AxeMembershipCouncil and
    * makes the seats available for new members.
-   * Note that prospective candidates joining the council are required to have at least 1 loot
-   * to be converted to shares, otherwise they will not be eligible for the council and will be skipped.
+   * Note that prospective candidates in the top ranking are required to have at least 1 loot at the
+   * time of this request, otherwise they will not be eligible and will be skipped.
+   * The function also removes (makes their seats available) any council members that no longer have
+   * enough voting shares to be on the council, most likely due to a rage-quit.
    * This function can only be invoked once every 24 hours to avoid spam.
    */
   function requestCouncilUpdate() external {
     if (block.timestamp - lastFormationRequest < FORMATION_COOLDOWN) revert FormationCooldownError();
     lastFormationRequest = block.timestamp;
-    uint256 i;
-    uint256 j;
 
-    // clear outgoing and incoming lists
-    uint256 length = outgoingCouncilList.length;
-    for (i = 0; i < outgoingCouncilList.length; ) {
-      address member = outgoingCouncilList[i];
-      outgoingCouncil[member].active = false;
-      unchecked {
-        i++;
-      }
-    }
-    length = incomingCouncilList.length;
-    for (i = 0; i < length; ) {
-      address member = incomingCouncilList[i];
-      incomingCouncil[member].active = false;
-      unchecked {
-        i++;
-      }
-    }
+    IERC20 sharesToken = IERC20(baal.sharesToken());
+    IERC20 lootToken = IERC20(baal.lootToken());
+    uint256 shareAmount = 1 * 10 ** IERC20Metadata(address(sharesToken)).decimals();
+    uint256 lootThreshold = 1 * 10 ** IERC20Metadata(address(lootToken)).decimals();
+
     delete outgoingCouncilList;
     delete incomingCouncilList;
 
-    // Create arrays in memory with some initial capacity
-    address[] memory remainingMembers;
-    uint256 size = councilSize;
+    // Store top ranked candidates in memory
+    address[] memory topCandidates = new address[](councilSize);
+    uint256 candidateCount = 0;
+    uint256 groupIndex = 0;
+    address member;
+    uint256 currentCouncilLength = currentCouncilList.length;
 
-    // Use assembly to allocate dynamic memory arrays for remaining  members
-    assembly {
-      // Array length is stored at the first 32 bytes
-      // Store initial capacity after length
-      remainingMembers := mload(0x40) // get free memory pointer
-      mstore(remainingMembers, 0) // store length (initially 0)
-      mstore(add(remainingMembers, 0x20), size) // store capacity
-      mstore(0x40, add(remainingMembers, 0x40)) // update free memory pointer
+    // 1. First check for rage-quits
+    for (uint256 i; i < currentCouncilLength; ) {
+      member = currentCouncilList[i];
+      if (sharesToken.balanceOf(member) < shareAmount) {
+        currentCouncil[member].active = false;
+        outgoingCouncil[member].active = true;
+        outgoingCouncil[member].index = outgoingCouncilList.length;
+        outgoingCouncilList.push(member);
+      }
+      unchecked {
+        i++;
+      }
     }
 
-    uint256 councilIndex = 0;
-    IERC20 lootToken = IERC20(baal.lootToken());
-    uint256 lootThreshold = 1 * 10 ** IERC20Metadata(address(lootToken)).decimals();
+    // 2. Fill council slots from top ranked candidates
+    uint256 groupCount = membership.getNumberOfRankedGroups();
+    uint256 targetCouncilSize = councilSize;
+    while (candidateCount < targetCouncilSize && groupIndex < groupCount) {
+      address[] memory group = membership.getRankedGroupAtIndex(groupIndex);
 
-    // Determine new council from sorted delegation ranking in MembershipCouncil
-    length = membership.getNumberOfRankedGroups();
-    for (i = 0; i < length && councilIndex < size; ) {
-      address[] memory group = membership.getRankedGroupAtIndex(i);
+      for (uint256 j; j < group.length && candidateCount < targetCouncilSize; ) {
+        address candidate = group[j];
 
-      for (j = 0; j < group.length && councilIndex < size; ) {
-        address member = group[j];
-        if (currentCouncil[member].active) {
-          assembly {
-            let len := mload(remainingMembers)
-            mstore(add(add(remainingMembers, 0x20), mul(len, 0x20)), member)
-            mstore(remainingMembers, add(len, 1))
-          }
-          councilIndex++;
-        } else if (lootToken.balanceOf(member) >= lootThreshold) {
-          incomingCouncil[member].active = true;
-          incomingCouncil[member].index = incomingCouncilList.length;
-          incomingCouncilList.push(member);
-          councilIndex++;
+        if (currentCouncil[candidate].active) {
+          // Current member stays
+          topCandidates[candidateCount] = candidate;
+          candidateCount++;
+        } else if (lootToken.balanceOf(candidate) >= lootThreshold) {
+          // New member joins
+          topCandidates[candidateCount] = candidate;
+          incomingCouncil[candidate].active = true;
+          incomingCouncil[candidate].index = incomingCouncilList.length;
+          incomingCouncilList.push(candidate);
+          candidateCount++;
         }
         unchecked {
           j++;
         }
       }
       unchecked {
-        i++;
+        groupIndex++;
       }
     }
 
-    // mark outgoing members by comparing currentCouncilList with remainingMembers
-    address[] memory removed = _findRemovedCouncilMembers(remainingMembers);
-    for (i = 0; i < removed.length; ) {
-      address member = removed[i];
-      outgoingCouncil[member].active = true;
-      outgoingCouncil[member].index = outgoingCouncilList.length;
-      outgoingCouncilList.push(member);
+    // 3. Any remaining active council members not in top candidates go to outgoing
+    for (uint256 i; i < currentCouncilLength; ) {
+      member = currentCouncilList[i];
+      if (currentCouncil[member].active) {
+        bool found = false;
+        for (uint256 j; j < candidateCount; ) {
+          if (topCandidates[j] == member) {
+            found = true;
+            break;
+          }
+          unchecked {
+            j++;
+          }
+        }
+
+        if (!found) {
+          outgoingCouncil[member].active = true;
+          outgoingCouncil[member].index = outgoingCouncilList.length;
+          outgoingCouncilList.push(member);
+        }
+      }
       unchecked {
         i++;
       }
     }
+
+    emit CouncilUpdateRequested(currentCouncilList.length, incomingCouncilList.length, outgoingCouncilList.length);
   }
 
   function getCouncilSize() external view override returns (uint256) {
@@ -234,51 +252,5 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
   function setCouncilSize(uint256 _councilSize) external onlyOwner {
     if (_councilSize < MIN_COUNCIL_SIZE) revert InvalidCouncilSize(MIN_COUNCIL_SIZE, _councilSize);
     councilSize = _councilSize;
-  }
-
-  /**
-   * @notice Returns current council members that are not present in the provided list
-   * @param list The list to check against current council
-   * @return diff Array of council members not present in the provided list
-   */
-  function _findRemovedCouncilMembers(address[] memory list) internal view returns (address[] memory diff) {
-    // Create bitmap array for the provided list
-    uint256[] memory bitmap = new uint256[]((list.length + 255) / 256);
-    uint256 resultCount;
-
-    // Mark all addresses from the provided list in bitmap
-    unchecked {
-      for (uint256 i; i < list.length; ++i) {
-        uint256 addressInt = uint256(uint160(list[i]));
-        uint256 index = addressInt / 256;
-        uint256 bit = addressInt % 256;
-        bitmap[index] |= (1 << bit);
-      }
-
-      // Count current council members not in bitmap
-      address[] memory councilMembers = currentCouncilList;
-      uint256 councilLength = councilMembers.length;
-      for (uint256 i; i < councilLength; ++i) {
-        uint256 addressInt = uint256(uint160(councilMembers[i]));
-        uint256 index = addressInt / 256;
-        uint256 bit = addressInt % 256;
-        if ((bitmap[index] & (1 << bit)) == 0) {
-          ++resultCount;
-        }
-      }
-
-      // Create and populate result array with council members not in list
-      diff = new address[](resultCount);
-      uint256 diffIndex;
-
-      for (uint256 i; i < councilLength; ++i) {
-        uint256 addressInt = uint256(uint160(councilMembers[i]));
-        uint256 index = addressInt / 256;
-        uint256 bit = addressInt % 256;
-        if ((bitmap[index] & (1 << bit)) == 0) {
-          diff[diffIndex++] = councilMembers[i];
-        }
-      }
-    }
   }
 }

@@ -73,60 +73,60 @@ interface IAXE {
 
   /**
    * @notice Sets a new treasury address
-   * @param _treasury - the new treasury address
+   * @param treasury - the new treasury address
    */
-  function setTreasury(address _treasury) external;
+  function setTreasury(address treasury) external;
 
   /**
    * @notice Sets a new buy tax in basis points.
-   * @param _basisPoints - the new basis points value
+   * @param basisPoints - the new basis points value
    */
-  function setBuyTax(uint256 _basisPoints) external;
+  function setBuyTax(uint256 basisPoints) external;
 
   /**
    * @notice Sets a new sell tax in basis points.
-   * @param _basisPoints - the new basis points value
+   * @param basisPoints - the new basis points value
    */
-  function setSellTax(uint256 _basisPoints) external;
+  function setSellTax(uint256 basisPoints) external;
 
   /**
    * @notice Adds the given pair to the list of taxable pairs
-   * @param _pair - the UniswapV2Pair to be taxed
+   * @param pair - the UniswapV2Pair to be taxed
    */
-  function addTaxablePair(address _pair) external;
+  function addTaxablePair(address pair) external;
 
   /**
    * @notice Removes the given pair from the list of taxable pairs
-   * @param _pair - the UniswapV2Pair to not be taxed
+   * @param pair - the UniswapV2Pair to not be taxed
    */
-  function removeTaxablePair(address _pair) external;
+  function removeTaxablePair(address pair) external;
 
   /**
    * @notice Sets the liquidation settings to use the specified router and liquidity token.
-   * @param _router the UniswapV2Router
-   * @param _swapToken an IERC20 token used to liquidate Axé
+   * @param router the UniswapV2Router
+   * @param swapToken an IERC20 token used to liquidate Axé
    */
-  function setLiquidationRouterAndToken(address _router, address _swapToken) external returns (address);
+  function setLiquidationRouterAndToken(address router, address swapToken) external returns (address);
 
   /**
    * @notice Attempts to swap the given amount of Axé for the highest possible amount of
    * the liquidity token.
-   * @param _amount how much Axé to liquidate
-   * @param _slippage how much slippage to allow for the swap
+   * @param amount how much Axé to liquidate
+   * @param slippage how much slippage to allow for the swap
    */
-  function liquidate(uint256 _amount, uint256 _slippage) external;
+  function liquidate(uint256 amount, uint256 slippage) external;
 
   /**
    * @notice Withdraws the specified amount of native currency to the treasury, if available.
    * This function is included in case anyone sent native tokens by accident to this contract.
-   * @param _amount - the amount of native tokens to withdraw
+   * @param amount - the amount of native tokens to withdraw
    */
-  function withdraw(uint256 _amount) external;
+  function withdraw(uint256 amount) external;
 
   /**
    * @notice Withdraws the specified amount of the given token to the treasury, if available.
-   * @param _token the token to withdraw from
-   * @param _amount the amount to withdraw
+   * @param token the token to withdraw from
+   * @param amount the amount to withdraw
    */
-  function withdrawToken(address _token, uint256 _amount) external;
+  function withdrawToken(address token, uint256 amount) external;
 }
