@@ -7,7 +7,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 import { AxeMembershipCouncil, IAxeMembershipCouncil } from "../contracts/baal/AxeMembershipCouncil.sol";
-import { AxeMembership } from "../contracts/tokens/AxeMembership.sol";
+import { AxeMembership, IAxeMembership } from "../contracts/tokens/AxeMembership.sol";
 import { MockERC20 } from "./MockERC20.sol";
 import { AxeMembershipBase } from "./AxeMembershipBase.sol";
 import { MultiSendProposal } from "./MultiSendProposal.sol";
@@ -244,24 +244,25 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     uint256 councilSize = shaman.getCouncilSize();
     uint256 numOfSeats = shaman.getJoiningMembers().length;
     assertEq(councilSize, 0, "Expected 0 council members at start");
-    assertEq(numOfSeats, 21, "Expected 21 seats to be claimed");
+    assertEq(numOfSeats, 21, "Expected 21 seats to be claimable");
 
     // Get initial token balances
     IERC20 sharesToken = IERC20(baal.sharesToken());
     IERC20 lootToken = IERC20(baal.lootToken());
-    uint256 initialLoot = lootToken.balanceOf(testUsers[0]);
-    uint256 initialShares = sharesToken.balanceOf(testUsers[0]);
+    address topCandidate = testUsers[5]; // Highest ranked with 52 votes
+    uint256 initialLoot = lootToken.balanceOf(topCandidate);
+    uint256 initialShares = sharesToken.balanceOf(topCandidate);
 
     // Claim first seat
-    vm.startPrank(testUsers[0]);
+    vm.startPrank(topCandidate);
     shaman.claimSeat(address(0));
 
     // Verify token conversions
-    assertEq(lootToken.balanceOf(testUsers[0]), initialLoot - shareThreshold, "Loot not burned");
-    assertEq(sharesToken.balanceOf(testUsers[0]), initialShares + shareThreshold, "Shares not minted");
+    assertEq(lootToken.balanceOf(topCandidate), initialLoot - shareThreshold, "Loot not burned");
+    assertEq(sharesToken.balanceOf(topCandidate), initialShares + shareThreshold, "Shares not minted");
 
     // Verify can't claim twice
-    vm.expectRevert(abi.encodeWithSelector(IAxeMembershipCouncil.InvalidSeatClaim.selector, address(testUsers[0])));
+    vm.expectRevert(abi.encodeWithSelector(IAxeMembershipCouncil.InvalidSeatClaim.selector, address(topCandidate)));
     shaman.claimSeat(address(0));
     vm.stopPrank();
 
@@ -382,26 +383,53 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     // Initial council formation
     shaman.requestCouncilUpdate();
     address[] memory current;
+    address[] memory incoming = shaman.getJoiningMembers();
+    address[] memory outgoing;
+    IAxeMembership.Candidate memory outgoingCandidate;
+
     // Fill council partially (10 members)
     for (uint256 i = 0; i < 10; i++) {
-      vm.startPrank(testUsers[i]);
+      vm.startPrank(incoming[i]);
       shaman.claimSeat(address(0));
       vm.stopPrank();
     }
 
+    incoming = shaman.getJoiningMembers();
+    assertEq(incoming.length, 11, "Should have 11 seats remaining to fill");
+
     // Wait and update rankings
     vm.warp(block.timestamp + 25 hours);
-    _delegateUsers(testUsers[15], 200, 300); // Boost ranking significantly
+    assertFalse(contains(incoming, testUsers[15]), "testUsers[15] should not be in incoming list");
+    // Boost ranking significantly.
+    _delegateUsers(testUsers[15], 200, 300);
 
     // Request update - some current members should become outgoing due to rank changes
     shaman.requestCouncilUpdate();
 
-    address[] memory outgoing = shaman.getLeavingMembers();
-    address[] memory incoming = shaman.getJoiningMembers();
+    outgoing = shaman.getLeavingMembers();
+    incoming = shaman.getJoiningMembers();
 
     // Verify state
-    assertTrue(outgoing.length > 0, "Should have outgoing members from rank changes");
-    assertTrue(incoming.length > 11, "Should have incoming members for empty seats plus replacements");
+    // It's possible that one of the current members is moved to outgoing, even though the boosted candidate did
+    // not claim a seat, yet. This can only happen if that member now has fewer delegation counts than the lowest
+    // ranked member for the council size cutoff.
+    bool memberReplaced = outgoing.length > 0;
+    assertEq(incoming.length, memberReplaced ? 12 : 11, "Should have 11 or 12 seats remaining to fill after boost");
+    assertEq(outgoing.length, memberReplaced ? 1 : 0, "Should have 0 or 1 outgoing member after boost");
+    assertTrue(contains(incoming, testUsers[15]), "testUsers[15] should be in incoming after boost");
+    if (memberReplaced) {
+      outgoingCandidate = membership.getCandidate(outgoing[0]);
+      IAxeMembership.Candidate memory incomingCandidate;
+      bool isLowerRanked = true;
+      for (uint256 i = 0; i < incoming.length; i++) {
+        incomingCandidate = membership.getCandidate(incoming[i]);
+        if (incomingCandidate.delegationCount < outgoingCandidate.delegationCount) {
+          isLowerRanked = false;
+          break;
+        }
+      }
+      assertTrue(isLowerRanked, "Outgoing member after boost must have fewer delegations than all incoming members");
+    }
 
     // Test multiple replacement scenarios
     vm.startPrank(testUsers[15]);
@@ -417,43 +445,110 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     shaman.claimSeat(testUsers[14]);
 
     // 2. Successfully replace outgoing member
-    address outgoingMember = outgoing[0];
+    address outgoingMember = memberReplaced ? outgoing[0] : address(0);
     shaman.claimSeat(outgoingMember);
 
+    incoming = shaman.getJoiningMembers();
+    assertEq(incoming.length, memberReplaced ? 11 : 10, "Should have 10 or 11 seats remaining to fill after 1 claim");
+
     // 3. Try replacing same member again with different candidate
-    vm.startPrank(testUsers[16]);
+    vm.startPrank(testUsers[35]); // Has 16 votes, should be in incoming list
     vm.expectRevert(
       abi.encodeWithSelector(
         IAxeMembershipCouncil.InvalidSeatReplacement.selector,
-        testUsers[16],
+        testUsers[35],
         outgoingMember // Already replaced
       )
     );
     shaman.claimSeat(outgoingMember);
 
-    // 4. Replace another outgoing member
-    if (outgoing.length > 1) {
-      shaman.claimSeat(outgoing[1]);
-    }
+    // 4. Claim another seat
+    shaman.claimSeat(address(0));
     vm.stopPrank();
 
+    incoming = shaman.getJoiningMembers();
+    assertEq(incoming.length, memberReplaced ? 10 : 9, "Should have 9 or 10 seats remaining to fill after 2 claims");
+
     // Fill remaining seats
-    uint256 remainingSeats = 21 - shaman.getCouncilSize();
-    current = shaman.getCurrentMembers();
-    for (uint256 i = 0; i < remainingSeats; i++) {
+    for (uint256 i = 0; i < incoming.length; i++) {
       address candidate = incoming[i];
-      if (!contains(current, candidate)) {
-        vm.startPrank(candidate);
-        shaman.claimSeat(address(0));
-        vm.stopPrank();
-      }
+      vm.startPrank(candidate);
+      shaman.claimSeat(address(0));
+      vm.stopPrank();
     }
 
     // Verify final state
     assertEq(shaman.getCouncilSize(), 21, "Council should be full");
+    incoming = shaman.getJoiningMembers();
+    outgoing = shaman.getLeavingMembers();
+    assertEq(outgoing.length, 0, "Should have no outgoing members when council is full");
+    assertEq(incoming.length, 0, "Should have no new members joining after council is full");
+
+    // Test replacements with full council
+    vm.warp(block.timestamp + 25 hours);
     current = shaman.getCurrentMembers();
-    assertTrue(contains(current, testUsers[15]), "Replacement member should be in council");
-    assertFalse(contains(current, outgoingMember), "Replaced member should be out");
+
+    // Boost two candidates who aren't in the council
+    address candidate1 = testUsers[27]; // Pick someone not in council
+    address candidate2 = testUsers[28]; // And another
+    assertFalse(contains(current, candidate1), "First candidate should not be in council");
+    assertFalse(contains(current, candidate2), "Second candidate should not be in council");
+
+    // Before boost
+    console.log("Before boost ranking groups:");
+    for (uint256 i = 0; i < membership.getNumberOfRankedGroups(); i++) {
+      address[] memory group = membership.getRankedGroupAtIndex(i);
+      console.log("Group", i, "size:", group.length);
+    }
+
+    _delegateUsers(candidate1, 400, 450);
+    _delegateUsers(candidate2, 451, 500);
+
+    // After boost
+    console.log("After boost ranking groups:");
+    for (uint256 i = 0; i < membership.getNumberOfRankedGroups(); i++) {
+      address[] memory group = membership.getRankedGroupAtIndex(i);
+      console.log("Group", i, "size:", group.length);
+    }
+
+    // Request update - should have replacements since council is full
+    shaman.requestCouncilUpdate();
+    outgoing = shaman.getLeavingMembers();
+    incoming = shaman.getJoiningMembers();
+
+    // Verify replacement state
+    assertEq(outgoing.length, 2, "Should have exactly 2 members to replace");
+    assertEq(incoming.length, 2, "Should have exactly 2 new members joining");
+    assertTrue(contains(incoming, candidate1), "First boosted candidate should be incoming");
+    assertTrue(contains(incoming, candidate2), "Second boosted candidate should be incoming");
+
+    // Verify outgoing members have lower delegation counts
+    IAxeMembership.Candidate memory candidate1Info = membership.getCandidate(candidate1);
+    IAxeMembership.Candidate memory candidate2Info = membership.getCandidate(candidate2);
+    for (uint256 i = 0; i < outgoing.length; i++) {
+      outgoingCandidate = membership.getCandidate(outgoing[i]);
+      assertTrue(
+        outgoingCandidate.delegationCount < candidate1Info.delegationCount &&
+          outgoingCandidate.delegationCount < candidate2Info.delegationCount,
+        "Outgoing members should have fewer delegations than boosted candidates"
+      );
+    }
+
+    // Execute the replacements
+    vm.startPrank(candidate1);
+    shaman.claimSeat(outgoing[0]);
+    vm.stopPrank();
+
+    vm.startPrank(candidate2);
+    shaman.claimSeat(outgoing[1]);
+    vm.stopPrank();
+
+    // Final verification
+    current = shaman.getCurrentMembers();
+    assertTrue(contains(current, candidate1), "First candidate should now be in council");
+    assertTrue(contains(current, candidate2), "Second candidate should now be in council");
+    assertFalse(contains(current, outgoing[0]), "First outgoing member should be out");
+    assertFalse(contains(current, outgoing[1]), "Second outgoing member should be out");
   }
 
   /**
