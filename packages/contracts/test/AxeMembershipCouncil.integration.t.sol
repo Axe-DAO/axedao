@@ -61,7 +61,7 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     baal.setShamans(shamans, permissions);
 
     // Set up test users
-    initiateTestUsers(swapTokenOwner, 700);
+    initiateTestUsers(swapTokenOwner, 750);
     setUpCandidatesAndDelegations();
   }
 
@@ -494,22 +494,10 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     assertFalse(contains(current, candidate1), "First candidate should not be in council");
     assertFalse(contains(current, candidate2), "Second candidate should not be in council");
 
-    // Before boost
-    console.log("Before boost ranking groups:");
-    for (uint256 i = 0; i < membership.getNumberOfRankedGroups(); i++) {
-      address[] memory group = membership.getRankedGroupAtIndex(i);
-      console.log("Group", i, "size:", group.length);
-    }
-
-    _delegateUsers(candidate1, 400, 450);
-    _delegateUsers(candidate2, 451, 500);
-
-    // After boost
-    console.log("After boost ranking groups:");
-    for (uint256 i = 0; i < membership.getNumberOfRankedGroups(); i++) {
-      address[] memory group = membership.getRankedGroupAtIndex(i);
-      console.log("Group", i, "size:", group.length);
-    }
+    // These delegation ranges should not have been used on other candidates,
+    // otherwise redelegations can affect the outcome and more than just 2 members.
+    _delegateUsers(candidate1, 700, 725);
+    _delegateUsers(candidate2, 726, 750);
 
     // Request update - should have replacements since council is full
     shaman.requestCouncilUpdate();
