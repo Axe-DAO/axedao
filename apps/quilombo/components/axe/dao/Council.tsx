@@ -2,33 +2,15 @@
 
 import { Button } from '@nextui-org/button';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
-import { useSnackbar } from 'notistack';
-import { useEffect } from 'react';
-import { useWaitForTransactionReceipt } from 'wagmi';
 
 import UserCard from '@/components/UserCard';
-import { useCouncil } from '@/hooks/state/dao';
+import { useCouncil, useCouncilUpdateRequest, useIncomingCouncil, useOutgoingCouncil } from '@/hooks/state/dao';
 
 export default function Council() {
-  const { enqueueSnackbar } = useSnackbar();
-  const { members, isLoading, error, canUpdate, requestUpdate, isUpdating: isUpdatePending, updateHash } = useCouncil();
-
-  const {
-    isSuccess: updateSuccess,
-    error: updateError,
-    isLoading: updateLoading,
-  } = useWaitForTransactionReceipt({ hash: updateHash as `0x${string}` });
-
-  // Handle update transaction states
-  useEffect(() => {
-    if (updateLoading) {
-      enqueueSnackbar('Requesting council update...', { autoHideDuration: 3000 });
-    } else if (updateSuccess) {
-      enqueueSnackbar('Council update requested successfully!');
-    } else if (updateError) {
-      enqueueSnackbar(`Failed to request update: ${updateError.message}`, { variant: 'error' });
-    }
-  }, [updateLoading, updateSuccess, updateError, enqueueSnackbar]);
+  const { members, isLoading, error, canUpdate } = useCouncil();
+  const { incoming } = useIncomingCouncil();
+  const { outgoing } = useOutgoingCouncil();
+  const { requestUpdate, isPending: isUpdatePending } = useCouncilUpdateRequest();
 
   if (isLoading) {
     return <div>Loading council...</div>;
@@ -40,11 +22,14 @@ export default function Council() {
 
   return (
     <div className="w-full flex flex-col gap-4">
-      <div className="flex justify-end">
+      <div className="flex justify-between">
+        <p className="text-sm text-gray-500">
+          Every 24 hours, anyone can request for the council to be updated based on membership delegation.
+        </p>
         <Button
           color="primary"
-          isDisabled={!canUpdate}
-          isLoading={isUpdatePending || updateLoading}
+          isDisabled={!canUpdate || isLoading}
+          isLoading={isUpdatePending}
           onPress={() => requestUpdate()}
         >
           Request Council Update
@@ -67,6 +52,37 @@ export default function Council() {
           ))}
         </TableBody>
       </Table>
+      <div className="flex flex-col gap-4">
+        <h2>Incoming</h2>
+        <Table>
+          <TableHeader>
+            <TableColumn>MEMBER</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {incoming.map((member) => (
+              <TableRow key={member.id}>
+                <TableCell>
+                  <UserCard user={member} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <Table aria-label="Outgoing Council Members">
+          <TableHeader>
+            <TableColumn>MEMBER</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {outgoing.map((member) => (
+              <TableRow key={member.id}>
+                <TableCell>
+                  <UserCard user={member} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }

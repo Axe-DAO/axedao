@@ -1,7 +1,11 @@
 export { CouncilBadge, MemberBadge } from './Badges';
+export { default as Council } from './Council';
+export { default as CouncilEligibilityModal } from './CouncilEligibilityModal';
 export { default as CouncilMembership } from './CouncilMembership';
 export { default as DaoMembership } from './DaoMembership';
+export { default as LootAcquisition } from './LootAcquisition';
 export { default as MembershipDonationModal } from './MembershipDonationModal';
 export { default as Proposals } from './Proposals';
 export { default as Treasury } from './Treasury';
 export { default as TreasuryShares } from './TreasuryShares';
+export { default as VoteDelegation } from './VoteDelegation';

@@ -1,6 +1,7 @@
 import { nextui } from '@nextui-org/theme';
 import { withTV } from 'tailwind-variants/transformer';
-import { defaultTheme } from 'tailwindcss/defaultTheme';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const defaultTheme = require('tailwindcss/defaultTheme');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = withTV({

@@ -14,7 +14,6 @@ import VoteDelegation from './VoteDelegation';
 
 import ENV from '@/config/environment';
 import { useReadAxeMembershipIsMember } from '@/generated';
-import { useCouncil } from '@/hooks/state/dao';
 
 const CandidateActions: React.FC<{
   hasLootShares: boolean;
@@ -95,9 +94,6 @@ const CouncilMembership: React.FC = () => {
     }
   }, [resignLoading, resignSuccess, resignError, refresh, enqueueSnackbar]);
 
-  // Add button that uses the council hook
-  const { canUpdate, requestUpdate, isUpdating: isUpdatePending } = useCouncil();
-
   return (
     <div className="flex flex-col w-full items-center">
       <div className="text-2xl mb-1 sm:mb-2">Council Membership</div>
@@ -111,12 +107,6 @@ const CouncilMembership: React.FC = () => {
           onResign={() => resign({ address: ENV.axeMembershipAddress })}
           onEnlist={onOpen}
         />
-        <p className="text-sm text-gray-500">
-          Every 24 hours, anyone can request for the council to be updated based on membership delegation.
-        </p>
-        <Button onClick={() => requestUpdate()} disabled={!canUpdate || isUpdatePending}>
-          {isUpdatePending ? 'Updating...' : 'Update Council'}
-        </Button>
         <CouncilEligibilityModal isOpen={isOpen} onOpenChange={onOpenChange} onClose={onClose} />
       </div>
     </div>

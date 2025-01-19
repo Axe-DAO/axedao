@@ -2,7 +2,7 @@
 
 import { add, divide, from, greaterThan, multiply } from 'dnum';
 import { atom, useAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 
 import ENV from '@/config/environment';
@@ -11,14 +11,19 @@ import {
   baalAbi,
   useReadAxeMembershipCouncilCanRequestCouncilUpdate,
   useReadAxeMembershipCouncilGetCurrentMembers,
+  useReadAxeMembershipCouncilGetJoiningMembers,
+  useReadAxeMembershipCouncilGetLeavingMembers,
   useReadErc20BalanceOf,
   useReadErc20TotalSupply,
   useReadIBaalGracePeriod,
   useReadIBaalQuorumPercent,
+  useWriteAxeMembershipCouncilRequestCouncilUpdate,
 } from '@/generated';
 import { useSearchUsersByAddresses } from '@/query/user';
 import { User } from '@/types/model';
+import { enqueueSnackbar } from 'notistack';
 import { Address } from 'viem';
+import { useWaitForTransactionReceipt } from 'wagmi';
 
 // copied from baal-sdk
 export const PROPOSAL_STATUS = {
@@ -414,30 +419,14 @@ export function useCouncil() {
     [state.loading, membersLoading, canUpdateLoading, councilUsersLoading],
   );
 
-  console.log('[useCouncil] Render #%d: %o', renderCount.current, {
-    initialized: state.initialized,
-    loading: isLoading,
-    membersLoading,
-    hasMembers: !!currentMembers,
-    memberCount: currentMembers?.length ?? 0,
-  });
-
   const loadCouncilMembers = useCallback(async () => {
     if (!currentMembers || !councilUsers || !publicClient || state.initialized) {
-      console.log('[useCouncil] Skipping load:', {
-        hasCurrentMembers: !!currentMembers,
-        hasCouncilUsers: !!councilUsers,
-        hasPublicClient: !!publicClient,
-        isInitialized: state.initialized,
-      });
       return;
     }
 
-    console.log('[useCouncil] Starting load of council members');
     setState((prev) => ({ ...prev, loading: true }));
 
     try {
-      console.time('useCouncil-multicall');
       const multicallCandidates = currentMembers.map((address) => ({
         address: ENV.axeMembershipAddress,
         abi: axeMembershipAbi,
@@ -448,9 +437,7 @@ export function useCouncil() {
       const candidateResults = await publicClient.multicall({
         contracts: multicallCandidates,
       });
-      console.timeEnd('useCouncil-multicall');
 
-      console.time('useCouncil-merge-data');
       const mergedMembers = currentMembers
         .map((address, index) => {
           const result = candidateResults[index].result;
@@ -471,7 +458,6 @@ export function useCouncil() {
           } as CandidateUser;
         })
         .filter((member): member is CandidateUser => member !== null);
-      console.timeEnd('useCouncil-merge-data');
 
       setState((prev) => ({
         ...prev,
@@ -482,14 +468,12 @@ export function useCouncil() {
     } catch (error) {
       console.error('[useCouncil] Error:', error);
     } finally {
-      console.log('[useCouncil] Finished loading');
       setState((prev) => ({ ...prev, loading: false }));
     }
   }, [currentMembers, councilUsers, publicClient, state.initialized, setState]);
 
   useEffect(() => {
     if (!state.initialized && !isLoading) {
-      console.log('[useCouncil] Effect triggered load');
       loadCouncilMembers();
     }
   }, [loadCouncilMembers, state.initialized, isLoading]);
@@ -499,9 +483,227 @@ export function useCouncil() {
     isLoading,
     error: state.error,
     canUpdate,
-    isUpdating: false,
-    updateHash: '',
-    requestUpdate: () => Promise.resolve(),
     refresh: loadCouncilMembers,
+  };
+}
+
+export function useIncomingCouncil() {
+  const [state, setState] = useState<{
+    members: CandidateUser[];
+    loading: boolean;
+    initialized: boolean;
+    error: Error | null;
+  }>({
+    members: [],
+    loading: false,
+    initialized: false,
+    error: null,
+  });
+
+  const publicClient = usePublicClient();
+
+  const { data: incomingAddresses, isLoading: incomingLoading } = useReadAxeMembershipCouncilGetJoiningMembers({
+    address: ENV.axeMembershipCouncilAddress,
+  });
+
+  const { data: incomingUsers, isLoading: usersLoading } = useSearchUsersByAddresses({
+    addresses: incomingAddresses?.map((m) => m) ?? [],
+  });
+
+  const isLoading = state.loading || incomingLoading || usersLoading;
+
+  const loadIncomingMembers = useCallback(async () => {
+    if (!incomingAddresses || !incomingUsers || !publicClient || state.initialized) {
+      return;
+    }
+
+    setState((prev) => ({ ...prev, loading: true }));
+
+    try {
+      const multicallCandidates = incomingAddresses.map((address) => ({
+        address: ENV.axeMembershipAddress,
+        abi: axeMembershipAbi,
+        functionName: 'getCandidate',
+        args: [address],
+      }));
+
+      const candidateResults = await publicClient.multicall({
+        contracts: multicallCandidates,
+      });
+
+      const mergedMembers = incomingAddresses
+        .map((address, index) => {
+          const result = candidateResults[index].result;
+          if (!result || typeof result !== 'object') {
+            console.warn(`Invalid candidate data for ${address}`);
+            return null;
+          }
+
+          const delegationCount = result[0] as bigint;
+          const available = result[1] as boolean;
+          const user = incomingUsers.find((user) => user.walletAddress === address);
+
+          return {
+            walletAddress: address,
+            delegationCount,
+            available,
+            ...(user || {}),
+          } as CandidateUser;
+        })
+        .filter((member): member is CandidateUser => member !== null);
+
+      setState((prev) => ({
+        ...prev,
+        members: mergedMembers,
+        initialized: true,
+        error: null,
+      }));
+    } catch (error) {
+      console.error('[useIncomingCouncil] Error:', error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+    } finally {
+      setState((prev) => ({ ...prev, loading: false }));
+    }
+  }, [incomingAddresses, incomingUsers, publicClient, state.initialized]);
+
+  useEffect(() => {
+    if (!state.initialized && !isLoading) {
+      loadIncomingMembers();
+    }
+  }, [loadIncomingMembers, state.initialized, isLoading]);
+
+  return {
+    incoming: state.members,
+    isLoading,
+    error: state.error,
+    refresh: loadIncomingMembers,
+  };
+}
+
+export function useOutgoingCouncil() {
+  const [state, setState] = useState<{
+    members: CandidateUser[];
+    loading: boolean;
+    initialized: boolean;
+    error: Error | null;
+  }>({
+    members: [],
+    loading: false,
+    initialized: false,
+    error: null,
+  });
+
+  const publicClient = usePublicClient();
+
+  const { data: outgoingAddresses, isLoading: outgoingLoading } = useReadAxeMembershipCouncilGetLeavingMembers({
+    address: ENV.axeMembershipCouncilAddress,
+  });
+
+  const { data: outgoingUsers, isLoading: usersLoading } = useSearchUsersByAddresses({
+    addresses: outgoingAddresses?.map((m) => m) ?? [],
+  });
+
+  const isLoading = state.loading || outgoingLoading || usersLoading;
+
+  const loadOutgoingMembers = useCallback(async () => {
+    if (!outgoingAddresses || !outgoingUsers || !publicClient || state.initialized) {
+      return;
+    }
+
+    setState((prev) => ({ ...prev, loading: true }));
+
+    try {
+      const multicallCandidates = outgoingAddresses.map((address) => ({
+        address: ENV.axeMembershipAddress,
+        abi: axeMembershipAbi,
+        functionName: 'getCandidate',
+        args: [address],
+      }));
+
+      const candidateResults = await publicClient.multicall({
+        contracts: multicallCandidates,
+      });
+
+      const mergedMembers = outgoingAddresses
+        .map((address, index) => {
+          const result = candidateResults[index].result;
+          if (!result || typeof result !== 'object') {
+            console.warn(`Invalid candidate data for ${address}`);
+            return null;
+          }
+
+          const delegationCount = result[0] as bigint;
+          const available = result[1] as boolean;
+          const user = outgoingUsers.find((user) => user.walletAddress === address);
+
+          return {
+            walletAddress: address,
+            delegationCount,
+            available,
+            ...(user || {}),
+          } as CandidateUser;
+        })
+        .filter((member): member is CandidateUser => member !== null);
+
+      setState((prev) => ({
+        ...prev,
+        members: mergedMembers,
+        initialized: true,
+        error: null,
+      }));
+    } catch (error) {
+      console.error('[useOutgoingCouncil] Error:', error);
+      setState((prev) => ({ ...prev, error: error as Error }));
+    } finally {
+      setState((prev) => ({ ...prev, loading: false }));
+    }
+  }, [outgoingAddresses, outgoingUsers, publicClient, state.initialized]);
+
+  useEffect(() => {
+    if (!state.initialized && !isLoading) {
+      loadOutgoingMembers();
+    }
+  }, [loadOutgoingMembers, state.initialized, isLoading]);
+
+  return {
+    outgoing: state.members,
+    isLoading,
+    error: state.error,
+    refresh: loadOutgoingMembers,
+  };
+}
+
+export function useCouncilUpdateRequest() {
+  const {
+    writeContract: requestUpdate,
+    data: hash,
+    error: writeError,
+    isPending: isWritePending,
+  } = useWriteAxeMembershipCouncilRequestCouncilUpdate();
+
+  const {
+    isLoading: isConfirming,
+    isSuccess,
+    error: confirmError,
+  } = useWaitForTransactionReceipt({
+    hash: hash as `0x${string}`,
+  });
+
+  // Handle update transaction states
+  useEffect(() => {
+    if (isWritePending) {
+      enqueueSnackbar('Requesting council update...', { autoHideDuration: 3000 });
+    } else if (isSuccess) {
+      enqueueSnackbar('Council update requested successfully!');
+    } else if (writeError) {
+      enqueueSnackbar(`Failed to request update: ${writeError.message}`, { variant: 'error' });
+    }
+  }, [isWritePending, isSuccess, writeError]);
+
+  return {
+    requestUpdate: () => requestUpdate({ address: ENV.axeMembershipCouncilAddress }),
+    isPending: isWritePending || isConfirming,
+    error: writeError || confirmError,
+    hash,
   };
 }
