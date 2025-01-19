@@ -15,23 +15,22 @@ import { IAxeMembershipCouncil } from "./IAxeMembershipCouncil.sol";
 /**
  * @title Axé Membership Council
  * @notice The Axé Membership Council represents the membership community in the Axé DAO's governance process.
- * This contract manages a council of configurable size based on Axé Membership delegations and enforces the community's ability to
+ * This contract manages a council with a configurable limit based on Axé Membership delegations and enforces the community's ability to
  * promote/demote members to/from the council.
  * As changes to the council are requested, seats are made available for eligible candidates to claim and, if applicable, replace an existing council member.
  * This allows the individual candidate who's being promoted to be on the council to decide when to actively join. A council member being
  * demoted (replaced) will stay on the council and is able to vote until being replaced. This decreases the likelihood of a negative impact on ongoing
  * proposal voting as the transfer of seats happens at the discretion of the candidates and not at a fixed time.
+ * This contract manages the conversion of 1 loot for 1 voting share for claiming a seat and vice versa when a member leaves the council.
  */
 contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard {
-  // the loot and shares tokens could be custom implementations, so we'll stay on the safe side with SafeERC20
   using SafeERC20 for IERC20;
 
-  uint256 public constant MIN_COUNCIL_SIZE = 21;
-  uint256 public constant FORMATION_COOLDOWN = 24 hours;
+  uint256 public constant UPDATE_COOLDOWN = 24 hours;
   uint256 public lastFormationRequest;
   IAxeMembership public immutable membership;
   IBaal public immutable baal;
-  uint256 public councilSize = MIN_COUNCIL_SIZE;
+  uint256 public councilLimit = 21; // default limit
 
   mapping(address => CouncilMember) internal currentCouncil;
   mapping(address => CouncilMember) internal outgoingCouncil;
@@ -62,7 +61,7 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     if (isReplacement && !outgoingCouncil[_existingSeat].active) {
       revert InvalidSeatReplacement(sender, _existingSeat);
     }
-    if (!isReplacement && currentCouncilList.length >= councilSize) {
+    if (!isReplacement && currentCouncilList.length >= councilLimit) {
       revert OnlyReplacementAllowed(sender);
     }
 
@@ -125,16 +124,16 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
   }
 
   /**
-   * @notice Compares the current council with the sorted delegation ranking in AxeMembershipCouncil and
-   * makes the seats available for new members.
-   * Note that prospective candidates in the top ranking are required to have at least 1 loot at the
-   * time of this request, otherwise they will not be eligible and will be skipped.
+   * @notice Compares the current council with the delegation ranking in AxeMembershipCouncil and
+   * refreshes the "incoming" and "outgoing" council lists which determine available seats for claiming.
+   * Prospective candidates in the top ranking *are required* to have at least 1 loot at the
+   * time of this request, otherwise they are not eligible and will be skipped.
    * The function also removes (makes their seats available) any council members that no longer have
    * enough voting shares to be on the council, most likely due to a rage-quit.
    * This function can only be invoked once every 24 hours to avoid spam.
    */
   function requestCouncilUpdate() external {
-    if (block.timestamp - lastFormationRequest < FORMATION_COOLDOWN) revert FormationCooldownError();
+    if (block.timestamp - lastFormationRequest < UPDATE_COOLDOWN) revert UpdateCooldownInEffect();
     lastFormationRequest = block.timestamp;
 
     IERC20 sharesToken = IERC20(baal.sharesToken());
@@ -146,7 +145,7 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     delete incomingCouncilList;
 
     // Store top ranked candidates in memory
-    address[] memory topCandidates = new address[](councilSize);
+    address[] memory topCandidates = new address[](councilLimit);
     uint256 candidateCount = 0;
     uint256 groupIndex = 0;
     address member;
@@ -169,7 +168,7 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
 
     // 2. Fill council slots from top ranked candidates
     uint256 groupCount = membership.getNumberOfRankedGroups();
-    uint256 targetCouncilSize = councilSize;
+    uint256 targetCouncilSize = councilLimit;
     while (candidateCount < targetCouncilSize && groupIndex < groupCount) {
       address[] memory group = membership.getRankedGroupAtIndex(groupIndex);
 
@@ -227,42 +226,73 @@ contract AxeMembershipCouncil is IAxeMembershipCouncil, Ownable, ReentrancyGuard
     emit CouncilUpdateRequested(currentCouncilList.length, incomingCouncilList.length, outgoingCouncilList.length);
   }
 
-  function getCouncilSize() external view override returns (uint256) {
+  /**
+   * @notice Returns the current size of the council (number of members).
+   * @return The current size of the council.
+   */
+  function getCurrentCouncilSize() external view override returns (uint256) {
     return currentCouncilList.length;
   }
 
+  /**
+   * @notice Returns the address of the council member at the specified index.
+   * @param _index The index of the council member.
+   * @return The address of the council member.
+   */
   function getCouncilMemberAtIndex(uint256 _index) external view override returns (address) {
     return currentCouncilList[_index];
   }
 
+  /**
+   * @notice Returns the list of all current council members.
+   * @return The list of all current council members.
+   */
   function getCurrentMembers() external view override returns (address[] memory) {
     return currentCouncilList;
   }
 
+  /**
+   * @notice Returns the list of all members that are eligible to join the council.
+   * This list corresponds to the claimable seats in the council.
+   * @return The list of all members that are eligible to join the council.
+   */
   function getJoiningMembers() external view override returns (address[] memory) {
     return incomingCouncilList;
   }
 
+  /**
+   * @notice Returns the list of all members that are leaving the council.
+   * This list corresponds to the seats being replaced on the council.
+   * @return The list of all members that are leaving the council.
+   */
   function getLeavingMembers() external view override returns (address[] memory) {
     return outgoingCouncilList;
   }
 
+  /**
+   * @notice Returns whether the council update can be requested, i.e. if the cooldown has passed.
+   * @return Whether the council update can be requested.
+   */
   function canRequestCouncilUpdate() external view override returns (bool) {
-    return block.timestamp - lastFormationRequest > FORMATION_COOLDOWN;
+    return block.timestamp - lastFormationRequest > UPDATE_COOLDOWN;
   }
 
-  function setCouncilSize(uint256 _newSize) external onlyOwner {
-    uint256 currentSize = currentCouncilList.length;
-    if (_newSize < currentSize) {
-      revert InvalidCouncilSize(currentSize, _newSize);
+  /**
+   * @notice Increases the limit of the council and therefore expands the council to have more members.
+   * Decreasing the limit is not allowed to avoid having to remove members from the council.
+   * @param _newLimit The new limit of the council.
+   */
+  function increaseCouncilLimit(uint256 _newLimit) external onlyOwner {
+    if (_newLimit <= councilLimit) {
+      revert InvalidCouncilLimit(councilLimit, _newLimit);
     }
-    councilSize = _newSize;
     // Create new array with new size and copy over existing members
-    address[] memory newList = new address[](_newSize);
-    for (uint256 i = 0; i < currentSize; i++) {
+    address[] memory newList = new address[](_newLimit);
+    for (uint256 i = 0; i < currentCouncilList.length; i++) {
       newList[i] = currentCouncilList[i];
     }
     currentCouncilList = newList;
-    emit CouncilSizeChanged(_newSize);
+    councilLimit = _newLimit;
+    emit CouncilLimitIncreased(_newLimit);
   }
 }

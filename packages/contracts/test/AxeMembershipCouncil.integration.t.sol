@@ -241,7 +241,7 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
   function test_ClaimSeats() public {
     shaman.requestCouncilUpdate();
 
-    uint256 councilSize = shaman.getCouncilSize();
+    uint256 councilSize = shaman.getCurrentCouncilSize();
     uint256 numOfSeats = shaman.getJoiningMembers().length;
     assertEq(councilSize, 0, "Expected 0 council members at start");
     assertEq(numOfSeats, 21, "Expected 21 seats to be claimable");
@@ -266,7 +266,7 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     shaman.claimSeat(address(0));
     vm.stopPrank();
 
-    councilSize = shaman.getCouncilSize();
+    councilSize = shaman.getCurrentCouncilSize();
     assertEq(councilSize, 1, "Expected 1 council member after claiming seat");
 
     // Test replacement claim
@@ -317,7 +317,7 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
       shaman.claimSeat(address(0));
       vm.stopPrank();
     }
-    assertEq(shaman.getCouncilSize(), 10, "Should have 10 members after partial fill");
+    assertEq(shaman.getCurrentCouncilSize(), 10, "Should have 10 members after partial fill");
 
     // Wait cooldown and update rankings - should still show remaining seats
     vm.warp(block.timestamp + 25 hours);
@@ -333,7 +333,7 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
       shaman.claimSeat(address(0));
       vm.stopPrank();
     }
-    assertEq(shaman.getCouncilSize(), 21, "Council should be full");
+    assertEq(shaman.getCurrentCouncilSize(), 21, "Council should be full");
 
     // Change some delegations to alter rankings
     vm.warp(block.timestamp + 25 hours);
@@ -478,7 +478,7 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     }
 
     // Verify final state
-    assertEq(shaman.getCouncilSize(), 21, "Council should be full");
+    assertEq(shaman.getCurrentCouncilSize(), 21, "Council should be full");
     incoming = shaman.getJoiningMembers();
     outgoing = shaman.getLeavingMembers();
     assertEq(outgoing.length, 0, "Should have no outgoing members when council is full");
@@ -642,9 +642,9 @@ contract AxeMembershipCouncilIntegrationTest is AxeMembershipBase, MultiSendProp
     // Wait cooldown and increase council size
     vm.warp(block.timestamp + 25 hours);
     vm.startPrank(owner);
-    shaman.setCouncilSize(25);
-    vm.expectRevert(abi.encodeWithSelector(IAxeMembershipCouncil.InvalidCouncilSize.selector, 25, 20));
-    shaman.setCouncilSize(20);
+    shaman.increaseCouncilLimit(25);
+    vm.expectRevert(abi.encodeWithSelector(IAxeMembershipCouncil.InvalidCouncilLimit.selector, 25, 20));
+    shaman.increaseCouncilLimit(20);
     vm.stopPrank();
 
     // Request update with new size

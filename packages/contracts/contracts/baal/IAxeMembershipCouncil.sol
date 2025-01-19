@@ -12,19 +12,23 @@ interface IAxeMembershipCouncil {
     bool active;
   }
 
-  error InvalidCouncilSize(uint256 minSize, uint256 requestedSize);
-  error FormationCooldownError();
+  error InvalidCouncilLimit(uint256 minSize, uint256 requestedSize);
+  error UpdateCooldownInEffect();
   error InvalidSeatReplacement(address candidate, address existingSeat);
   error InvalidSeatClaim(address candidate);
-  error InsufficientLoot(address candidate);
   error OnlyReplacementAllowed(address candidate);
+  error InsufficientLoot(address candidate);
   error InsufficientShares(address member);
 
   event CouncilUpdateRequested(uint256 currentSize, uint256 numJoining, uint256 numLeaving);
-  event CouncilSizeChanged(uint256 newSize);
+  event CouncilLimitIncreased(uint256 newLimit);
   event SeatClaimed(address indexed candidate, address indexed replaced);
 
-  function getCouncilSize() external view returns (uint256);
+  function claimSeat(address existingSeat) external;
+
+  function requestCouncilUpdate() external;
+
+  function getCurrentCouncilSize() external view returns (uint256);
 
   function getCouncilMemberAtIndex(uint256 index) external view returns (address);
 
@@ -34,9 +38,7 @@ interface IAxeMembershipCouncil {
 
   function getLeavingMembers() external view returns (address[] memory);
 
-  function requestCouncilUpdate() external;
-
-  function claimSeat(address existingSeat) external;
-
   function canRequestCouncilUpdate() external view returns (bool);
+
+  function increaseCouncilLimit(uint256 newLimit) external;
 }
