@@ -86,6 +86,11 @@ contract AxeMembershipOnboardingTest is Test {
       oldBalance + nativeDonationAmount,
       "Receiver should have received the donation amount from User B"
     );
+
+    // Test that userB can't donate again
+    vm.startPrank(userB);
+    vm.expectRevert(abi.encodeWithSelector(IAxeMembership.AlreadyMemberError.selector, userB));
+    (success, ) = address(token).call{ value: nativeDonationAmount }("");
     vm.stopPrank();
 
     oldBalance = donationReceiver.balance;

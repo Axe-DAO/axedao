@@ -86,20 +86,24 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
    * @notice Donate ERC20 tokens to receive a membership NFT. Remember to approve the required donation amount before calling this function.
    */
   function donate() external override registerNewMember nonReentrant {
+    if (donationToken == address(0) || donationAmount == 0) revert DonationOptionNotAvailable();
     address sender = _msgSender();
     _mint(sender, memberCount);
     IERC20(donationToken).safeTransferFrom(sender, donationReceiver, donationAmount);
     emit ERC20DonationReceived(sender, donationAmount);
+    emit ObrigadoMuitoAxe(sender, memberCount);
   }
 
   /**
    * @notice Donate native tokens to receive a membership NFT by sending the donation amount to the contract.
    */
   receive() external payable registerNewMember nonReentrant {
+    if (nativeDonationAmount == 0) revert DonationOptionNotAvailable();
     address sender = _msgSender();
     _mint(sender, memberCount);
     _handleNativeDonation();
     emit NativeDonationReceived(sender, nativeDonationAmount);
+    emit ObrigadoMuitoAxe(sender, memberCount);
   }
 
   /**
@@ -199,6 +203,27 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
    */
   function getCandidate(address _candidate) external view returns (Candidate memory) {
     return candidates[_candidate];
+  }
+
+  /**
+   * @notice Get up to <limit> candidates from the top of the delegation ranking.
+   * @param limit The maximum number of candidates to return.
+   * @return The top candidates as array of addresses. If the provided limit is larger than the number of available candidates, the array will be padded with 0x0 addresses!.
+   */
+  function getTopCandidates(uint256 limit) external view returns (address[] memory) {
+    address[] memory result = new address[](limit);
+    uint256 count;
+    uint256 groupLength;
+    uint256 totalGroups = sortedGroups.length;
+    // Iterate through sorted groups until limit
+    for (uint256 i = 0; i < totalGroups && count < limit; i++) {
+      address[] memory group = delegationGroups[sortedGroups[i]];
+      groupLength = group.length;
+      for (uint256 j = 0; j < groupLength && count < limit; j++) {
+        result[count++] = group[j];
+      }
+    }
+    return result;
   }
 
   /**
@@ -323,7 +348,6 @@ contract AxeMembership is IAxeMembership, ERC721, Ownable, ReentrancyGuard {
       (bool refundSuccess, ) = sender.call{ value: refundAmount }("");
       require(refundSuccess, "Failed to refund excess amount");
     }
-    emit NativeDonationReceived(sender, nativeDonationAmount);
   }
 
   /**

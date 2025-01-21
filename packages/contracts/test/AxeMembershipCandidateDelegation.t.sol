@@ -200,4 +200,61 @@ contract AxeMembershipCandidateDelegationTest is AxeMembershipBase {
     // Verify state after Wave Six
     _verifyState("Wave6", "14:5,11:0,9:4,7:9,6:1-12,5:10,4:2-7,3:3-6-8,2:11");
   }
+
+  function _verifyTopCandidates(string memory stage, uint256 limit, address[] memory expected) internal {
+    address[] memory topCandidates = membership.getTopCandidates(limit);
+    for (uint256 i = 0; i < limit; i++) {
+      if (i < expected.length) {
+        assertTrue(contains(expected, topCandidates[i]), string.concat("Top candidates mismatch at stage: ", stage));
+      } else {
+        assertEq(
+          topCandidates[i],
+          address(0),
+          string.concat("Top candidates expected address(0) at index: ", vm.toString(i), ", stage: ", stage)
+        );
+      }
+    }
+  }
+
+  function test_GetTopCandidates() public {
+    // Setup 5 candidates with different delegation counts
+    _setUpCandidates(5);
+
+    // Give them different numbers of delegations
+    _delegateUsers(testUsers[0], 10, 21); // 11 delegations
+    _delegateUsers(testUsers[2], 21, 27); // 6 delegations
+    _delegateUsers(testUsers[4], 27, 30); // 3 delegations
+
+    // Test with different limits
+    address[] memory expectedTop3 = new address[](3);
+    expectedTop3[0] = testUsers[0]; // 11 delegations
+    expectedTop3[1] = testUsers[2]; // 6 delegations
+    expectedTop3[2] = testUsers[4]; // 3 delegations
+    _verifyTopCandidates("Basic3", 3, expectedTop3);
+
+    // Test with limit 1
+    address[] memory expectedTop1 = new address[](1);
+    expectedTop1[0] = testUsers[0];
+    _verifyTopCandidates("Single", 1, expectedTop1);
+
+    address[] memory expectedOverflow = new address[](5);
+    expectedOverflow[0] = testUsers[0];
+    expectedOverflow[1] = testUsers[2];
+    expectedOverflow[2] = testUsers[4];
+    expectedOverflow[3] = testUsers[1];
+    expectedOverflow[4] = testUsers[3];
+    // Test with limit larger than candidate count
+    _verifyTopCandidates("Overflow", 20, expectedOverflow);
+
+    // Test after a resignation
+    vm.prank(testUsers[0]);
+    membership.resignAsCandidate();
+
+    address[] memory expectedAfterResign = new address[](4);
+    expectedAfterResign[0] = testUsers[2]; // 6 delegations
+    expectedAfterResign[1] = testUsers[4]; // 3 delegations
+    expectedAfterResign[2] = testUsers[1]; // 1 delegation
+    expectedAfterResign[3] = testUsers[3]; // 0 delegations
+    _verifyTopCandidates("AfterResign", 4, expectedAfterResign);
+  }
 }

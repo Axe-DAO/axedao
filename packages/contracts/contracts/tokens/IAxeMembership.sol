@@ -20,9 +20,11 @@ interface IAxeMembership is IERC721 {
   error NotAMemberError();
   error AlreadyMemberError(address member);
   error InsufficientDonationError(uint256 amount, uint256 requiredAmount);
+  error DonationOptionNotAvailable();
 
   event ERC20DonationReceived(address indexed from, uint256 amount);
   event NativeDonationReceived(address indexed from, uint256 amount);
+  event ObrigadoMuitoAxe(address indexed member, uint256 memberId);
   event CandidateEnlisted(address indexed candidate);
   event CandidateResigned(address indexed candidate);
   event VoteDelegated(address indexed delegator, address indexed candidate);
@@ -45,6 +47,8 @@ interface IAxeMembership is IERC721 {
   function undelegate() external;
 
   function getCandidate(address candidate) external view returns (Candidate memory);
+
+  function getTopCandidates(uint256 limit) external view returns (address[] memory);
 
   function getNumberOfRankedGroups() external view returns (uint256);
 
