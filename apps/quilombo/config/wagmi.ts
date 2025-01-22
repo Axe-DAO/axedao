@@ -1,14 +1,30 @@
 import { Config, createConfig, http, webSocket } from 'wagmi';
 import { Chain, gnosis, localhost, optimism, sepolia } from 'wagmi/chains';
 
-import ENV from '@/config/environment';
+import ENV, { getBaseUrl } from '@/config/environment';
 import silk from '@/utils/silk.connector';
+import { InitSilkOptions } from '@silk-wallet/silk-wallet-sdk/dist/lib/provider/types';
 
 declare module 'wagmi' {
   interface Register {
     config: typeof wagmiConfig;
   }
 }
+
+console.info('Base URL: ', getBaseUrl());
+
+export const silkInitOptions: InitSilkOptions = {
+  config: { styles: { darkMode: false }, allowedSocials: ['Google'], authenticationMethods: ['email', 'social'] },
+  project: {
+    name: 'Quilombo',
+    logo: `${getBaseUrl()}/quilombo-icon-512x512.png`,
+    origin: getBaseUrl(),
+    //    projectId:
+    termsOfServiceUrl: `${getBaseUrl()}/terms-of-service`,
+    privacyPolicyUrl: `${getBaseUrl()}/privacy-policy`,
+  },
+};
+
 export const configureChains = (): [Chain, ...Chain[]] => {
   let chains: [Chain, ...Chain[]] = [gnosis, optimism];
   const appEnv = process.env.NEXT_PUBLIC_APP_ENV?.toLowerCase();
@@ -44,6 +60,9 @@ export const getTransport = (chain: Chain | undefined) => {
     case localhost.id:
       url = 'http://127.0.0.1:8545';
       break;
+    case 31337:
+      url = 'http://127.0.0.1:8545';
+      break;
     default:
       url = '';
   }
@@ -56,12 +75,13 @@ export const getTransport = (chain: Chain | undefined) => {
  */
 const wagmiConfig: Config = createConfig({
   chains: configureChains(),
-  connectors: [silk({ config: { appName: 'Quilombo', darkMode: true } })],
+  connectors: [silk(silkInitOptions)],
   transports: {
     [optimism.id]: http(ENV.optimismProviderUrl),
     [gnosis.id]: http(ENV.gnosisProviderUrl),
     [sepolia.id]: http(ENV.sepoliaProviderUrl),
     [localhost.id]: http('http://127.0.0.1:8545'),
+    [31337]: http('http://127.0.0.1:8545'), // hardhat
   },
   ssr: true,
 });

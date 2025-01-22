@@ -23,9 +23,23 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   icons: {
-    icon: '/favicon.ico',
+    icon: '/quilombo-icon-192x192.png',
     shortcut: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
+    apple: '/quilombo-icon-apple-touch.png',
+    other: [
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '32x32',
+        url: '/quilombo-icon-32x32.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '16x16',
+        url: '/quilombo-icon-16x16.png',
+      },
+    ],
   },
 };
 

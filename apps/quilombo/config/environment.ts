@@ -31,6 +31,17 @@ const envMode = process.env.NEXT_PUBLIC_APP_ENV?.toLowerCase();
 
 const isServer = typeof window === 'undefined';
 
+export const getBaseUrl = () => {
+  let baseUrl = undefined;
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    baseUrl = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+  } else if (process.env.NEXT_PUBLIC_APP_URL) {
+    baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+  }
+  if (!baseUrl) throw new Error('No base URL found');
+  return baseUrl;
+};
+
 const ENV: ConfigType = {
   walletConnectProjectId: required(
     process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,

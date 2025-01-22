@@ -1,9 +1,9 @@
 import { ChainNotConfiguredError, createConnector } from '@wagmi/core';
 import { getAddress, SwitchChainError, UserRejectedRequestError } from 'viem';
 
-import { CredentialType, CustomConfig, SILK_METHOD } from '@silk-wallet/silk-interface-core';
+import { CredentialType, SILK_METHOD } from '@silk-wallet/silk-interface-core';
 import { initSilk } from '@silk-wallet/silk-wallet-sdk';
-import { SilkEthereumProviderInterface } from '@silk-wallet/silk-wallet-sdk/dist/lib/provider/types';
+import { InitSilkOptions, SilkEthereumProviderInterface } from '@silk-wallet/silk-wallet-sdk/dist/lib/provider/types';
 
 // For reference: WAGMI connector event map: wagmi/packages/core/src/connectors/createConnector.ts
 // type ConnectorEventMap = {
@@ -19,10 +19,10 @@ import { SilkEthereumProviderInterface } from '@silk-wallet/silk-wallet-sdk/dist
 
 /**
  * Creates a WAGMI connector for the Silk Wallet SDK
- * @param referralCode Optional referral code for the Silk points system
+ * @param options the initialization options passed to the Silk Wallet SDK
  * @returns
  */
-export default function silk(options?: { referralCode?: string; config?: CustomConfig }) {
+export default function silk(options?: InitSilkOptions) {
   let silkProvider: SilkEthereumProviderInterface | null = null;
 
   return createConnector<SilkEthereumProviderInterface>((config) => {
@@ -92,7 +92,7 @@ export default function silk(options?: { referralCode?: string; config?: CustomC
 
       async getProvider(): Promise<SilkEthereumProviderInterface> {
         if (!silkProvider) {
-          silkProvider = initSilk(options);
+          silkProvider = initSilk(options ?? {});
         }
 
         return silkProvider;

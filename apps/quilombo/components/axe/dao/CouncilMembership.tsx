@@ -100,7 +100,7 @@ const CouncilMembership: React.FC = () => {
             isLoading={resignPending || resignLoading}
             onResign={() => resign({ address: ENV.axeMembershipAddress })}
           />
-          <p>Delegate your vote to a candidate to help them get on the council.</p>
+          <p>Delegate your vote to a candidate to help them get onto the council.</p>
           <VoteDelegation />
         </div>
       )}

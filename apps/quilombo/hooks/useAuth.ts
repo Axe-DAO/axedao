@@ -7,7 +7,7 @@ import { UserRejectedRequestError } from 'viem';
 import { useAccount, useConnect, useDisconnect, useSignMessage } from 'wagmi';
 
 import { PATHS } from '@/config/constants';
-import { getDefaultChain } from '@/config/wagmi';
+import { getDefaultChain, silkInitOptions } from '@/config/wagmi';
 import silk from '@/utils/silk.connector';
 import { setCookie } from 'cookies-next';
 import { enqueueSnackbar } from 'notistack';
@@ -112,7 +112,7 @@ const useSignIn = () => {
         wagmiConnect({
           // TODO referral code ENV var
           chainId: defaultChain.id,
-          connector: silk({ config: { appName: 'Quilombo', darkMode: true } }),
+          connector: silk(silkInitOptions),
         });
       } else {
         wagmiConnect({ chainId: defaultChain.id, connector: silkConnector });
