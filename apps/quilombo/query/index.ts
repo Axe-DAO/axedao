@@ -1,7 +1,7 @@
 import { UseMutationResult } from '@tanstack/react-query';
+import { PublicClient } from 'viem';
 
 import { Group, User } from '@/types/model';
-
 export * as profile from './currentUser';
 export * as group from './group';
 export * as location from './location';
@@ -32,6 +32,10 @@ export const QUERY_KEYS = {
     getCountries: 'location.getCountries',
     getCities: 'location.getCities',
   },
+  membership: {
+    getCandidates: 'membership.getCandidates',
+    getAllCandidateAddresses: 'membership.getAllCandidateAddresses',
+  },
 } as const;
 
 export type SearchParams = {
@@ -41,6 +45,7 @@ export type SearchParams = {
 export type GroupAndUserParams = { groupId: string; userId: string };
 export type SearchByAddressParams = { addresses: string[] };
 export type FileUploadParams = { ownerId: string; file?: File };
+export type GetCandidatesParams = { addresses: string[]; publicClient?: PublicClient };
 
 export type FileUploadMutationFn = (params: FileUploadParams) => void;
 export type UseFileUploadMutation = () => UseMutationResult<User | Group | unknown, Error, FileUploadParams, unknown>;

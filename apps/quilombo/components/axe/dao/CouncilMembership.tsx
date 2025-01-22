@@ -1,56 +1,54 @@
 'use client';
 
 import { useWriteAxeMembershipResignAsCandidate } from '@/generated';
-import { useCandidates, useLootShares } from '@/hooks/state/dao';
+import { isCurrentUserEnlistedAtom, isCurrentUserOnCouncilAtom } from '@/hooks/state/dao';
 import { Button } from '@nextui-org/button';
 import { useDisclosure } from '@nextui-org/use-disclosure';
 import { useSnackbar } from 'notistack';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { Address } from 'viem';
 import { useAccount, useWaitForTransactionReceipt } from 'wagmi';
-import { CouncilBadge } from './Badges';
 import CouncilEligibilityModal from './CouncilEligibilityModal';
 import VoteDelegation from './VoteDelegation';
 
+import { PATHS } from '@/config/constants';
 import ENV from '@/config/environment';
 import { useReadAxeMembershipIsMember } from '@/generated';
+import { Link } from '@nextui-org/link';
+import { useAtomValue } from 'jotai';
 
 const CandidateActions: React.FC<{
-  hasLootShares: boolean;
-  isCandidate: boolean;
-  isMember: boolean;
-  resignPending: boolean;
-  resignLoading: boolean;
+  isLoading: boolean;
   onResign: () => void;
-  onEnlist: () => void;
-}> = ({ hasLootShares, isCandidate, isMember, resignPending, resignLoading, onResign, onEnlist }) => {
-  if (hasLootShares || isCandidate) {
-    return (
-      <>
-        <div className="flex gap-2 sm:gap-4">
-          <CouncilBadge isCouncil={hasLootShares} />
-          <span>{hasLootShares ? 'Council Member' : 'Council Candidate'}</span>
-        </div>
-        {isCandidate && (
-          <Button color="danger" variant="flat" onPress={onResign} isLoading={resignPending || resignLoading}>
+}> = ({ isLoading, onResign }) => {
+  const isCandidate = useAtomValue(isCurrentUserEnlistedAtom);
+  const isOnCouncil = useAtomValue(isCurrentUserOnCouncilAtom);
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  return (
+    <div>
+      {isCandidate ? (
+        <div className="flex flex-col gap-2">
+          <div className="flex">
+            <span>{isOnCouncil ? 'Council Member' : 'Council Candidate'}</span>
+          </div>
+          <Button color="danger" variant="flat" onPress={onResign} isLoading={isLoading}>
             Resign as Candidate
           </Button>
-        )}
-        {isMember && <VoteDelegation />}
-      </>
-    );
-  }
-
-  return (
-    <Button onPress={onEnlist} color="primary" className="w-full" isDisabled={!isMember}>
-      {isMember ? 'Enlist as Candidate' : 'Become Eligible'}
-    </Button>
+        </div>
+      ) : (
+        <>
+          <Button onPress={onOpen} color="primary" className="w-full">
+            Enlist as Candidate
+          </Button>
+          <CouncilEligibilityModal isOpen={isOpen} onOpenChange={onOpenChange} onClose={onClose} onSuccess={onClose} />
+        </>
+      )}
+    </div>
   );
 };
 
 const CouncilMembership: React.FC = () => {
   const account = useAccount();
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { enqueueSnackbar } = useSnackbar();
 
   // Check if user is DAO member
@@ -58,15 +56,6 @@ const CouncilMembership: React.FC = () => {
     address: ENV.axeMembershipAddress,
     args: [account.address as Address],
   });
-
-  // Check if user is council member or candidate
-  const { balance: lootShares } = useLootShares();
-  const { addresses: candidateAddresses, refresh } = useCandidates();
-  const hasLootShares = useMemo(() => !!lootShares && lootShares > 0n, [lootShares]);
-  const isCandidate = useMemo(
-    () => !!account.address && candidateAddresses.includes(account.address),
-    [account.address, candidateAddresses],
-  );
 
   const {
     data: resignHash,
@@ -88,27 +77,33 @@ const CouncilMembership: React.FC = () => {
       });
     } else if (resignSuccess) {
       enqueueSnackbar('Successfully resigned as candidate!');
-      refresh();
     } else if (resignError) {
       enqueueSnackbar(`Failed to resign: ${resignError.message}`, { variant: 'error' });
     }
-  }, [resignLoading, resignSuccess, resignError, refresh, enqueueSnackbar]);
+  }, [resignLoading, resignSuccess, resignError, enqueueSnackbar]);
 
   return (
     <div className="flex flex-col w-full items-center">
-      <div className="text-2xl mb-1 sm:mb-2">Council Membership</div>
-      <div className="flex flex-col gap-2 sm:gap-4 w-full">
-        <CandidateActions
-          hasLootShares={hasLootShares}
-          isCandidate={isCandidate}
-          isMember={isMember}
-          resignPending={resignPending}
-          resignLoading={resignLoading}
-          onResign={() => resign({ address: ENV.axeMembershipAddress })}
-          onEnlist={onOpen}
-        />
-        <CouncilEligibilityModal isOpen={isOpen} onOpenChange={onOpenChange} onClose={onClose} />
-      </div>
+      <div className="text-2xl mb-1 sm:mb-2">Membership Status</div>
+      {!isMember ? (
+        <div>
+          You are not a member of the Axé DAO and cannot participate in the Council. Join the DAO{' '}
+          <Link href={`${PATHS.dao}?tab=dao`}>here</Link>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 sm:gap-4 w-full">
+          <p>
+            As a member of Axé DAO, you should either delegate your vote to a candidate or enlist as a candidate
+            yourself and delegate your vote to you.
+          </p>
+          <CandidateActions
+            isLoading={resignPending || resignLoading}
+            onResign={() => resign({ address: ENV.axeMembershipAddress })}
+          />
+          <p>Delegate your vote to a candidate to help them get on the council.</p>
+          <VoteDelegation />
+        </div>
+      )}
     </div>
   );
 };

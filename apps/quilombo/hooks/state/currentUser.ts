@@ -29,6 +29,10 @@ export const currentUserLinksAtom = atom<SocialLink[] | undefined>((get) => get(
 
 export const currentUserAvatarAtom = atom<string | undefined>((get) => get(currentUserAtom).data?.avatar ?? undefined);
 
+export const currentUserWalletAddressAtom = atom<string | undefined>(
+  (get) => get(currentUserAtom).data?.walletAddress ?? undefined,
+);
+
 export const currentUserAvatarUrlAtom = atom<string | undefined>((get) =>
   getImageUrl(get(currentUserAtom).data?.avatar),
 );

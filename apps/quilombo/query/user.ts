@@ -47,12 +47,12 @@ export const searchUsersByAddresses = async ({ addresses }: SearchByAddressParam
   return axios.post('/api/users/search', { addresses }).then((response) => response.data.data);
 };
 
-export const searchUsersByAddressesOptions = (params: SearchByAddressParams) => {
+export const searchUsersByAddressesOptions = ({ addresses }: SearchByAddressParams) => {
   return {
-    queryKey: [QUERY_KEYS.user.searchByAddresses, params.addresses],
-    queryFn: () => searchUsersByAddresses(params),
+    queryKey: [QUERY_KEYS.user.searchByAddresses, addresses],
+    queryFn: () => searchUsersByAddresses({ addresses }),
     staleTime: QueryConfig.staleTimeDefault,
-    enabled: !!params.addresses,
+    enabled: !!addresses,
   } as const;
 };
 

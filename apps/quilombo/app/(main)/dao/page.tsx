@@ -1,14 +1,26 @@
 'use client';
 
 import { Tab, Tabs } from '@nextui-org/tabs';
+import { useQueryState } from 'nuqs';
 
-import { CouncilMembership, DaoMembership, Proposals, Treasury, TreasuryShares } from '@/components/axe/dao';
-import Council from '@/components/axe/dao/Council';
+import { CouncilPanel, DaoMembership, Proposals, Treasury, TreasuryShares } from '@/components/axe/dao';
 
 const DaoPage = () => {
+  const [tab, setTab] = useQueryState('tab', {
+    defaultValue: 'dao',
+    parse: (value) => value || 'dao',
+  });
+
   return (
     <section className="flex flex-col items-center justify-center max-w-lg pt-2 sm:pt-4 w-full mx-auto">
-      <Tabs aria-label="Axé DAO Membership and Council" color="primary" size="lg" fullWidth>
+      <Tabs
+        aria-label="Axé DAO Membership and Council"
+        color="primary"
+        size="lg"
+        fullWidth
+        selectedKey={tab}
+        onSelectionChange={(key) => setTab(key.toString())}
+      >
         <Tab key="dao" title="Axé DAO" className="w-full">
           <div className="flex w-full flex-col gap-2 sm:gap-4 items-center">
             <h2 className="text-3xl font-bold text-center mb-1">Axé DAO</h2>
@@ -17,15 +29,7 @@ const DaoPage = () => {
           </div>
         </Tab>
         <Tab key="council" title="Council" className="w-full">
-          <div className="flex w-full flex-col gap-2 sm:gap-4 items-center">
-            <h2 className="text-3xl font-bold text-center mb-1">Council</h2>
-            <p className="text-center">The Council is the decision-making body of the Axé DAO.</p>
-            <CouncilMembership />
-            <div className="w-full mt-4">
-              <h3 className="text-xl font-semibold mb-2">Current Council</h3>
-              <Council />
-            </div>
-          </div>
+          <CouncilPanel />
         </Tab>
         <Tab key="proposals" title="Proposals" className="w-full">
           <div className="flex w-full flex-col gap-2 sm:gap-4 items-center">

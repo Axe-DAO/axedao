@@ -4,16 +4,17 @@ import { Button } from '@nextui-org/button';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 
 import UserCard from '@/components/UserCard';
-import { useCouncil, useCouncilUpdateRequest, useIncomingCouncil, useOutgoingCouncil } from '@/hooks/state/dao';
+import { useCouncil, useCouncilUpdateRequest, useInitializeCouncilState } from '@/hooks/state/dao';
 
 export default function Council() {
-  const { members, isLoading, error, canUpdate } = useCouncil();
-  const { incoming } = useIncomingCouncil();
-  const { outgoing } = useOutgoingCouncil();
+  // Initialize council state
+  useInitializeCouncilState();
+
+  const { members, isLoading: councilLoading, error, canUpdate } = useCouncil();
   const { requestUpdate, isPending: isUpdatePending } = useCouncilUpdateRequest();
 
-  if (isLoading) {
-    return <div>Loading council...</div>;
+  if (councilLoading) {
+    return <div>Loading...</div>;
   }
 
   if (error) {
@@ -28,7 +29,7 @@ export default function Council() {
         </p>
         <Button
           color="primary"
-          isDisabled={!canUpdate || isLoading}
+          isDisabled={!canUpdate || councilLoading}
           isLoading={isUpdatePending}
           onPress={() => requestUpdate()}
         >
@@ -41,7 +42,7 @@ export default function Council() {
           <TableColumn>MEMBER</TableColumn>
           <TableColumn>DELEGATIONS</TableColumn>
         </TableHeader>
-        <TableBody isLoading={isLoading}>
+        <TableBody isLoading={councilLoading}>
           {members.map((member) => (
             <TableRow key={member.id}>
               <TableCell>
@@ -54,12 +55,12 @@ export default function Council() {
       </Table>
       <div className="flex flex-col gap-4">
         <h2>Incoming</h2>
-        <Table>
+        {/* <Table>
           <TableHeader>
             <TableColumn>MEMBER</TableColumn>
           </TableHeader>
           <TableBody>
-            {incoming.map((member) => (
+            {incomingUsers.map((member) => (
               <TableRow key={member.id}>
                 <TableCell>
                   <UserCard user={member} />
@@ -73,7 +74,7 @@ export default function Council() {
             <TableColumn>MEMBER</TableColumn>
           </TableHeader>
           <TableBody>
-            {outgoing.map((member) => (
+            {outgoingUsers.map((member) => (
               <TableRow key={member.id}>
                 <TableCell>
                   <UserCard user={member} />
@@ -81,7 +82,7 @@ export default function Council() {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </Table> */}
       </div>
     </div>
   );

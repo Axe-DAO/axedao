@@ -2,7 +2,8 @@
 
 import { add, divide, from, greaterThan, multiply } from 'dnum';
 import { atom, useAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { atomWithQuery } from 'jotai-tanstack-query';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAccount, usePublicClient } from 'wagmi';
 
 import ENV from '@/config/environment';
@@ -19,11 +20,14 @@ import {
   useReadIBaalQuorumPercent,
   useWriteAxeMembershipCouncilRequestCouncilUpdate,
 } from '@/generated';
-import { useSearchUsersByAddresses } from '@/query/user';
+import { getCandidateAddressesOptions, getCandidatesDictionaryOptions } from '@/query/dao';
+import { searchUsersByAddressesOptions, useSearchUsersByAddresses } from '@/query/user';
 import { User } from '@/types/model';
 import { enqueueSnackbar } from 'notistack';
 import { Address } from 'viem';
 import { useWaitForTransactionReceipt } from 'wagmi';
+import { currentUserAtom, currentUserWalletAddressAtom } from './currentUser';
+import { publicClientAtom } from './web3';
 
 // copied from baal-sdk
 export const PROPOSAL_STATUS = {
@@ -68,16 +72,9 @@ export interface ProposalsState {
   error: string | null;
 }
 
-export interface CandidatesState {
-  addresses: Address[];
-  loading: boolean;
-  initialized: boolean;
-  error: string | null;
-}
-
 export interface Candidate {
   walletAddress: Address;
-  delegationCount: bigint;
+  delegationCount: number;
   available: boolean;
 }
 
@@ -89,6 +86,12 @@ export interface CouncilState {
   initialized: boolean;
   error: string | null;
 }
+
+//********************************************************************************
+//
+//  ATOMS
+//
+//********************************************************************************
 
 export const proposalsAtom = atom<ProposalsState>({
   proposals: [],
@@ -103,11 +106,49 @@ export const activeProposalsAtom = atom<Proposal[]>((get) => {
   return proposals.filter((proposal) => isProposalActive(proposal.status));
 });
 
-export const candidatesAtom = atom<CandidatesState>({
-  addresses: [],
-  loading: false,
-  initialized: false,
-  error: null,
+export const candidateAddressesAtom = atomWithQuery((get) =>
+  getCandidateAddressesOptions({
+    publicClient: get(publicClientAtom) || undefined,
+  }),
+);
+
+export const candidatesDictionaryAtom = atomWithQuery((get) =>
+  getCandidatesDictionaryOptions({
+    addresses: get(candidateAddressesAtom).data ?? [],
+    publicClient: get(publicClientAtom) || undefined,
+  }),
+);
+
+export const isCurrentUserEnlistedAtom = atom((get) => {
+  const address = get(currentUserAtom)?.data?.walletAddress;
+  const { data: dictionary } = get(candidatesDictionaryAtom);
+  return dictionary?.[address as Address]?.available;
+});
+
+export const isCurrentUserOnCouncilAtom = atom((get) => {
+  const address = get(currentUserWalletAddressAtom);
+  const currentMembers = get(currentCouncilAddressesAtom);
+  return address && currentMembers ? currentMembers.includes(address as Address) : false;
+});
+
+export const candidateUsersAtom = atomWithQuery((get) =>
+  searchUsersByAddressesOptions({
+    addresses: get(candidateAddressesAtom).data ?? [],
+  }),
+);
+
+export const candidatesAtom = atom((get) => {
+  const { data: dictionary } = get(candidatesDictionaryAtom);
+  const { data: candidateUsers } = get(candidateUsersAtom);
+
+  if (!dictionary || !candidateUsers) {
+    return [];
+  }
+
+  return candidateUsers.map((user) => ({
+    ...user,
+    ...dictionary[user.walletAddress as Address],
+  })) as CandidateUser[];
 });
 
 export const councilAtom = atom<CouncilState>({
@@ -116,6 +157,36 @@ export const councilAtom = atom<CouncilState>({
   initialized: false,
   error: null,
 });
+
+export const incomingAddressesAtom = atom<Address[]>([]);
+export const outgoingAddressesAtom = atom<Address[]>([]);
+export const currentCouncilAddressesAtom = atom<Address[]>([]);
+
+// // Derived atoms with user data
+// export const incomingCouncilUsersAtom = atomWithQuery((get) =>
+//   searchUsersByAddressesOptions({
+//     addresses: get(incomingCouncilAddressesAtom),
+//   }),
+// );
+
+// export const outgoingCouncilUsersAtom = atomWithQuery((get) =>
+//   searchUsersByAddressesOptions({
+//     addresses: get(outgoingCouncilAddressesAtom),
+//   }),
+// );
+
+// // Atom to get candidate data from chain
+// export const incomingCandidatesAtom = atomWithQuery((get) => {
+//   const publicClient = get(publicClientAtom);
+//   const incomingAddresses = get(incomingCouncilAddressesAtom);
+//   return getCandidatesOptions({ addresses: incomingAddresses, publicClient: publicClient || undefined });
+// });
+
+//********************************************************************************
+//
+//  HOOKS
+//
+//********************************************************************************
 
 export function useProposals() {
   const [state, setState] = useAtom(proposalsAtom);
@@ -286,82 +357,6 @@ export function useProposals() {
   return { ...state, refresh: loadHistoricalProposalLogs };
 }
 
-export function useCandidates() {
-  const [state, setState] = useAtom(candidatesAtom);
-  const publicClient = usePublicClient();
-
-  const {
-    data: candidateUsers,
-    isLoading: isLoadingUsers,
-    error: loadingUsersError,
-  } = useSearchUsersByAddresses({
-    addresses: state.addresses,
-  });
-
-  const loadHistoricalCandidateLogs = useCallback(async () => {
-    if (!publicClient) return;
-
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-
-    try {
-      const [enlistLogs, resignLogs] = await Promise.all([
-        publicClient.getContractEvents({
-          address: ENV.axeMembershipAddress,
-          abi: axeMembershipAbi,
-          eventName: 'CandidateEnlisted',
-          fromBlock: 'earliest',
-        }),
-        publicClient.getContractEvents({
-          address: ENV.axeMembershipAddress,
-          abi: axeMembershipAbi,
-          eventName: 'CandidateResigned',
-          fromBlock: 'earliest',
-        }),
-      ]);
-
-      const allEvents = [...enlistLogs, ...resignLogs].sort((a, b) => {
-        const blockDiff = Number(a.blockNumber - b.blockNumber);
-        return blockDiff === 0 ? Number(a.transactionIndex - b.transactionIndex) : blockDiff;
-      });
-
-      const candidateStatus = new Map<Address, boolean>();
-      allEvents.forEach((log) => {
-        const args = log.args as { candidate: Address };
-        candidateStatus.set(args.candidate, log.eventName === 'CandidateEnlisted');
-      });
-
-      const addresses = Array.from(candidateStatus.entries())
-        .filter(([address, isEnlisted]) => isEnlisted && address)
-        .map(([address]) => address);
-
-      setState((prev) => ({
-        ...prev,
-        addresses,
-        initialized: true,
-      }));
-    } catch (error) {
-      console.error('Error retrieving candidate event logs:', error);
-      setState((prev) => ({ ...prev, error: 'Error retrieving candidate event logs' }));
-    } finally {
-      setState((prev) => ({ ...prev, loading: false }));
-    }
-  }, [publicClient, setState]);
-
-  useEffect(() => {
-    if (!state.initialized && !state.loading) {
-      loadHistoricalCandidateLogs();
-    }
-  }, [loadHistoricalCandidateLogs, state.initialized, state.loading]);
-
-  return {
-    ...state,
-    candidates: candidateUsers,
-    isLoading: state.loading || isLoadingUsers,
-    error: state.error ?? loadingUsersError,
-    refresh: loadHistoricalCandidateLogs,
-  };
-}
-
 export function useVotingShares() {
   const account = useAccount();
 
@@ -452,7 +447,7 @@ export function useCouncil() {
 
           return {
             walletAddress: address,
-            delegationCount,
+            delegationCount: Number(delegationCount), // safe to assume delegationCount will never be outside of number range
             available,
             ...(user || {}),
           } as CandidateUser;
@@ -487,190 +482,41 @@ export function useCouncil() {
   };
 }
 
-export function useIncomingCouncil() {
-  const [state, setState] = useState<{
-    members: CandidateUser[];
-    loading: boolean;
-    initialized: boolean;
-    error: Error | null;
-  }>({
-    members: [],
-    loading: false,
-    initialized: false,
-    error: null,
-  });
-
-  const publicClient = usePublicClient();
-
-  const { data: incomingAddresses, isLoading: incomingLoading } = useReadAxeMembershipCouncilGetJoiningMembers({
+// Hook to trigger initial loading
+export function useInitializeCouncilState() {
+  const { data: incomingAddresses } = useReadAxeMembershipCouncilGetJoiningMembers({
     address: ENV.axeMembershipCouncilAddress,
   });
 
-  const { data: incomingUsers, isLoading: usersLoading } = useSearchUsersByAddresses({
-    addresses: incomingAddresses?.map((m) => m) ?? [],
-  });
-
-  const isLoading = state.loading || incomingLoading || usersLoading;
-
-  const loadIncomingMembers = useCallback(async () => {
-    if (!incomingAddresses || !incomingUsers || !publicClient || state.initialized) {
-      return;
-    }
-
-    setState((prev) => ({ ...prev, loading: true }));
-
-    try {
-      const multicallCandidates = incomingAddresses.map((address) => ({
-        address: ENV.axeMembershipAddress,
-        abi: axeMembershipAbi,
-        functionName: 'getCandidate',
-        args: [address],
-      }));
-
-      const candidateResults = await publicClient.multicall({
-        contracts: multicallCandidates,
-      });
-
-      const mergedMembers = incomingAddresses
-        .map((address, index) => {
-          const result = candidateResults[index].result;
-          if (!result || typeof result !== 'object') {
-            console.warn(`Invalid candidate data for ${address}`);
-            return null;
-          }
-
-          const delegationCount = result[0] as bigint;
-          const available = result[1] as boolean;
-          const user = incomingUsers.find((user) => user.walletAddress === address);
-
-          return {
-            walletAddress: address,
-            delegationCount,
-            available,
-            ...(user || {}),
-          } as CandidateUser;
-        })
-        .filter((member): member is CandidateUser => member !== null);
-
-      setState((prev) => ({
-        ...prev,
-        members: mergedMembers,
-        initialized: true,
-        error: null,
-      }));
-    } catch (error) {
-      console.error('[useIncomingCouncil] Error:', error);
-      setState((prev) => ({ ...prev, error: error as Error }));
-    } finally {
-      setState((prev) => ({ ...prev, loading: false }));
-    }
-  }, [incomingAddresses, incomingUsers, publicClient, state.initialized]);
-
-  useEffect(() => {
-    if (!state.initialized && !isLoading) {
-      loadIncomingMembers();
-    }
-  }, [loadIncomingMembers, state.initialized, isLoading]);
-
-  return {
-    incoming: state.members,
-    isLoading,
-    error: state.error,
-    refresh: loadIncomingMembers,
-  };
-}
-
-export function useOutgoingCouncil() {
-  const [state, setState] = useState<{
-    members: CandidateUser[];
-    loading: boolean;
-    initialized: boolean;
-    error: Error | null;
-  }>({
-    members: [],
-    loading: false,
-    initialized: false,
-    error: null,
-  });
-
-  const publicClient = usePublicClient();
-
-  const { data: outgoingAddresses, isLoading: outgoingLoading } = useReadAxeMembershipCouncilGetLeavingMembers({
+  const { data: outgoingAddresses } = useReadAxeMembershipCouncilGetLeavingMembers({
     address: ENV.axeMembershipCouncilAddress,
   });
 
-  const { data: outgoingUsers, isLoading: usersLoading } = useSearchUsersByAddresses({
-    addresses: outgoingAddresses?.map((m) => m) ?? [],
+  const { data: currentMembers } = useReadAxeMembershipCouncilGetCurrentMembers({
+    address: ENV.axeMembershipCouncilAddress,
   });
 
-  const isLoading = state.loading || outgoingLoading || usersLoading;
-
-  const loadOutgoingMembers = useCallback(async () => {
-    if (!outgoingAddresses || !outgoingUsers || !publicClient || state.initialized) {
-      return;
-    }
-
-    setState((prev) => ({ ...prev, loading: true }));
-
-    try {
-      const multicallCandidates = outgoingAddresses.map((address) => ({
-        address: ENV.axeMembershipAddress,
-        abi: axeMembershipAbi,
-        functionName: 'getCandidate',
-        args: [address],
-      }));
-
-      const candidateResults = await publicClient.multicall({
-        contracts: multicallCandidates,
-      });
-
-      const mergedMembers = outgoingAddresses
-        .map((address, index) => {
-          const result = candidateResults[index].result;
-          if (!result || typeof result !== 'object') {
-            console.warn(`Invalid candidate data for ${address}`);
-            return null;
-          }
-
-          const delegationCount = result[0] as bigint;
-          const available = result[1] as boolean;
-          const user = outgoingUsers.find((user) => user.walletAddress === address);
-
-          return {
-            walletAddress: address,
-            delegationCount,
-            available,
-            ...(user || {}),
-          } as CandidateUser;
-        })
-        .filter((member): member is CandidateUser => member !== null);
-
-      setState((prev) => ({
-        ...prev,
-        members: mergedMembers,
-        initialized: true,
-        error: null,
-      }));
-    } catch (error) {
-      console.error('[useOutgoingCouncil] Error:', error);
-      setState((prev) => ({ ...prev, error: error as Error }));
-    } finally {
-      setState((prev) => ({ ...prev, loading: false }));
-    }
-  }, [outgoingAddresses, outgoingUsers, publicClient, state.initialized]);
+  const [, setIncoming] = useAtom(incomingAddressesAtom);
+  const [, setOutgoing] = useAtom(outgoingAddressesAtom);
+  const [, setCurrentMembers] = useAtom(currentCouncilAddressesAtom);
 
   useEffect(() => {
-    if (!state.initialized && !isLoading) {
-      loadOutgoingMembers();
+    if (incomingAddresses) {
+      setIncoming(incomingAddresses.map((a) => a));
     }
-  }, [loadOutgoingMembers, state.initialized, isLoading]);
+  }, [incomingAddresses, setIncoming]);
 
-  return {
-    outgoing: state.members,
-    isLoading,
-    error: state.error,
-    refresh: loadOutgoingMembers,
-  };
+  useEffect(() => {
+    if (outgoingAddresses) {
+      setOutgoing(outgoingAddresses.map((a) => a));
+    }
+  }, [outgoingAddresses, setOutgoing]);
+
+  useEffect(() => {
+    if (currentMembers) {
+      setCurrentMembers(currentMembers.map((a) => a));
+    }
+  }, [currentMembers, setCurrentMembers]);
 }
 
 export function useCouncilUpdateRequest() {

@@ -15,15 +15,16 @@ import {
   useWriteAxeMembershipDelegate,
   useWriteAxeMembershipUndelegate,
 } from '@/generated';
-import { useCandidates } from '@/hooks/state/dao';
+import { candidatesAtom } from '@/hooks/state/dao';
 import { User } from '@/types/model';
+import { useAtomValue } from 'jotai';
 
 const VoteDelegation: React.FC = () => {
   const account = useAccount();
   const { enqueueSnackbar } = useSnackbar();
   const [showDelegateForm, setShowDelegateForm] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<User | null>(null);
-  const { candidates } = useCandidates();
+  const candidates = useAtomValue(candidatesAtom);
 
   // Read current delegation
   const { data: currentDelegationAddress, refetch: refetchCurrentDelegation } = useReadAxeMembershipDelegations({
@@ -101,8 +102,7 @@ const VoteDelegation: React.FC = () => {
     currentDelegationAddress && currentDelegationAddress !== '0x0000000000000000000000000000000000000000';
 
   return (
-    <div className="flex flex-col gap-2">
-      <h3 className="text-lg">Vote Delegation</h3>
+    <div className="flex flex-col w-full">
       {hasActiveDelegation ? (
         !showDelegateForm ? (
           <div className="flex flex-col gap-2">
